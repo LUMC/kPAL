@@ -10,6 +10,7 @@ from Bio import SeqIO
 
 class kMer() :
     """
+    Handle the counting of k-mers in a fastq file.
     """
 
     def __init__(self, length) :
@@ -18,17 +19,15 @@ class kMer() :
         @type length: integer
         """
 
-        self.__kMerLength = length
-        self.__numberOfKMers = 4 ** self.__kMerLength
-        self.__bitMask = self.__numberOfKMers - 1
-        self.__kMerCount = self.__numberOfKMers * [0]
+        if length :
+            self.__initialise(length)
 
         # Conversion table form nucleotides to binary.
         self.__nucleotideToBinary = {
-            'A' : 0,
-            'C' : 1,
-            'G' : 2,
-            'T' : 3
+            'A' : 0x00,
+            'C' : 0x01,
+            'G' : 0x02,
+            'T' : 0x03
         }
 
         # Build the reverse table of __nucleotideToBinary.
@@ -36,6 +35,18 @@ class kMer() :
         for i in self.__nucleotideToBinary :
             self.__binaryToNucleotide[self.__nucleotideToBinary[i]] = i
     #__init__
+
+    def __initialise(self, length) :
+        """
+        @arg length: Length of the k-mers.
+        @type length: integer
+        """
+
+        self.__kMerLength = length
+        self.__numberOfKMers = 4 ** self.__kMerLength
+        self.__bitMask = self.__numberOfKMers - 0x01
+        self.__kMerCount = self.__numberOfKMers * [0]
+    #__initialise
 
     def __scanLine(self, sequence) :
         """
@@ -46,17 +57,17 @@ class kMer() :
         """
 
         if len(sequence) > self.__kMerLength :
-            binaryRepresentation = 0
+            binaryRepresentation = 0x00
 
             # Calculate the binary representation of a k-mer.
             for i in sequence[:self.__kMerLength] :
-                binaryRepresentation = ((binaryRepresentation << 0x02) |
+                binaryRepresentation = ((binaryRepresentation << 2) |
                     self.__nucleotideToBinary[i])
             self.__kMerCount[binaryRepresentation] += 1
 
             # Calculate the binary representation of the next k-mer.
             for i in sequence[self.__kMerLength:] :
-                binaryRepresentation = ((binaryRepresentation << 0x02) |
+                binaryRepresentation = ((binaryRepresentation << 2) |
                     self.__nucleotideToBinary[i]) & self.__bitMask
                 self.__kMerCount[binaryRepresentation] += 1
             #for
@@ -96,6 +107,38 @@ class kMer() :
 
         return sequence[::-1]
     #binaryToDNA
+
+    def saveKMerCounts(self, handle) :
+        """
+        Save the k-mer table in a file.
+
+        @arg handle: Writable open handle to a file.
+        @type handle: stream
+        """
+
+        handle.write("%i\n" % self.__kMerLength)
+        for i in self.__kMerCount :
+            handle.write("%i\n" % i)
+    #saveKMerCounts
+
+    def loadKMerCounts(self, handle) :
+        """
+        Load the k-mer table from a file.
+
+        @arg handle: Open handle to a file.
+        @type handle: stream
+        """
+
+        self.__initialise(int(handle.readline()[:-1]))
+
+        offset = 0
+        line = handle.readline()
+        while line :
+            self.__kMerCount[offset] = int(line[:-1])
+            line = handle.readline()
+            offset += 1
+        #while
+    #loadKMerCounts
 
     def calculateRatios(self) :
         """
@@ -158,16 +201,26 @@ def main() :
     """
     """
 
-    kMerInstance = kMer(2)
+    kMerInstance = kMer(3)
 
     inputHandle = open(sys.argv[1], "r")
     kMerInstance.scanFastq(inputHandle)
     inputHandle.close()
 
+    #countsHandle = open("%s.counts" % sys.argv[1], "w")
+    #kMerInstance.saveKMerCounts(countsHandle)
+    #countsHandle.close()
+
+    #kMerInstance.printCounts()
+
+    #countsHandle = open("%s.counts" % sys.argv[1], "r")
+    #kMerInstance.loadKMerCounts(countsHandle)
+    #countsHandle.close()
+
     kMerInstance.printCounts()
 
-    ratios = kMerInstance.calculateRatios()
-    kMerInstance.printRatios(ratios)
+    #ratios = kMerInstance.calculateRatios()
+    #kMerInstance.printRatios(ratios)
 #main
 
 if __name__ == "__main__" :
