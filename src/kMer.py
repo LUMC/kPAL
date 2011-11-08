@@ -2,10 +2,12 @@
 
 """
 @requires: sys
+@requires: argparse
 @requires: Bio.SeqIO
 """
 
 import sys
+import argparse
 from Bio import SeqIO
 
 class kMer() :
@@ -18,6 +20,8 @@ class kMer() :
         @arg length: Length of the k-mers.
         @type length: integer
         """
+
+        self.__totalKMers = 0
 
         if length :
             self.__initialise(length)
@@ -64,12 +68,14 @@ class kMer() :
                 binaryRepresentation = ((binaryRepresentation << 2) |
                     self.__nucleotideToBinary[i])
             self.__kMerCount[binaryRepresentation] += 1
+            self.__totalKMers += 1
 
             # Calculate the binary representation of the next k-mer.
             for i in sequence[self.__kMerLength:] :
                 binaryRepresentation = ((binaryRepresentation << 2) |
                     self.__nucleotideToBinary[i]) & self.__bitMask
                 self.__kMerCount[binaryRepresentation] += 1
+                self.__totalKMers += 1
             #for
         #if
     #__scanLine
@@ -117,6 +123,7 @@ class kMer() :
         """
 
         handle.write("%i\n" % self.__kMerLength)
+        handle.write("%i\n" % self.__totalKMers)
         for i in self.__kMerCount :
             handle.write("%i\n" % i)
     #saveKMerCounts
@@ -130,6 +137,7 @@ class kMer() :
         """
 
         self.__initialise(int(handle.readline()[:-1]))
+        self.__totalKMers = (int(handle.readline()[:-1]))
 
         offset = 0
         line = handle.readline()
@@ -201,15 +209,24 @@ def main() :
     """
     """
 
-    kMerInstance = kMer(3)
+    parser = argparse.ArgumentParser(
+        prog='kMer',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='',
+        epilog="""""")
 
-    inputHandle = open(sys.argv[1], "r")
-    kMerInstance.scanFastq(inputHandle)
-    inputHandle.close()
+    parser.add_argument('-i', dest = 'input', type = argparse.FileType('r'),
+        required = True, help = 'The input file in fastq format.')
+    parser.add_argument('-o', dest = 'output', type = argparse.FileType('w'),
+        required = True, help = 'The output file name.')
+    parser.add_argument('-k', dest = 'kMerSize', type = int, required = True,
+        help = 'Size of the k-mers.')
 
-    #countsHandle = open("%s.counts" % sys.argv[1], "w")
-    #kMerInstance.saveKMerCounts(countsHandle)
-    #countsHandle.close()
+    arguments = parser.parse_args()
+
+    kMerInstance = kMer(arguments.kMerSize)
+    kMerInstance.scanFastq(arguments.input)
+    kMerInstance.saveKMerCounts(arguments.output)
 
     #kMerInstance.printCounts()
 
@@ -217,7 +234,7 @@ def main() :
     #kMerInstance.loadKMerCounts(countsHandle)
     #countsHandle.close()
 
-    kMerInstance.printCounts()
+    #kMerInstance.printCounts()
 
     #ratios = kMerInstance.calculateRatios()
     #kMerInstance.printRatios(ratios)
