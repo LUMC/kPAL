@@ -19,10 +19,8 @@ def main() :
         description = '',
         epilog = """""")
 
-    parser.add_argument('-i', dest = 'input1', type = argparse.FileType('r'),
-        required = True, help = 'The first count file.')
-    parser.add_argument('-j', dest = 'input2', type = argparse.FileType('r'),
-        required = True, help = 'The first count file.')
+    parser.add_argument('-i', dest = 'input', type = argparse.FileType('r'),
+        nargs = 2, help = 'The input files.')
     parser.add_argument('-o', dest = 'output', type = argparse.FileType('w'),
         required = True, help = 'The output file name.')
 
@@ -31,8 +29,8 @@ def main() :
     kMerIn = kMer.kMer(0)
     kMerOut = kMer.kMer(0)
 
-    kMerIn.loadKMerCounts(arguments.input1)
-    kMerOut.loadKMerCounts(arguments.input2)
+    kMerIn.loadKMerCounts(arguments.input[0])
+    kMerOut.loadKMerCounts(arguments.input[1])
 
     if kMerIn.kMerLength == kMerOut.kMerLength :
         kMerOut.mergeKMerCounts(kMerIn)
