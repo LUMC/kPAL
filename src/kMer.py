@@ -24,6 +24,7 @@ class kMer() :
         """
 
         self.totalKMers = 0
+        self.nonZeroKMers = 0
 
         if length :
             self.__initialise(length)
@@ -57,6 +58,20 @@ class kMer() :
         self.__bitMask = self.numberOfKMers - 0x01
     #__initialise
 
+    def __addKMer(self, binaryRepresentation) :
+        """
+        Add a k-mer and keep track of the nonZeroKMers and totalKMers counters.
+
+        @arg binaryRepresentation: Binary representation of a k-mer.
+        @type binaryRepresentation: integer
+        """
+
+        if not self.kMerCount[binaryRepresentation] :
+            self.nonZeroKMers += 1
+        self.kMerCount[binaryRepresentation] += 1
+        self.totalKMers += 1
+    #__addKMer
+
     def __scanLine(self, sequence) :
         """
         Count all occurrences of  k-mers in a DNA string.
@@ -72,15 +87,13 @@ class kMer() :
             for i in sequence[:self.kMerLength] :
                 binaryRepresentation = ((binaryRepresentation << 2) |
                     self.__nucleotideToBinary[i])
-            self.kMerCount[binaryRepresentation] += 1
-            self.totalKMers += 1
+            self.__addKMer(binaryRepresentation)
 
             # Calculate the binary representation of the next k-mer.
             for i in sequence[self.kMerLength:] :
                 binaryRepresentation = ((binaryRepresentation << 2) |
                     self.__nucleotideToBinary[i]) & self.__bitMask
-                self.kMerCount[binaryRepresentation] += 1
-                self.totalKMers += 1
+                self.__addKMer(binaryRepresentation)
             #for
         #if
     #__scanLine
@@ -129,6 +142,7 @@ class kMer() :
 
         handle.write("%i\n" % self.kMerLength)
         handle.write("%i\n" % self.totalKMers)
+        handle.write("%i\n" % self.nonZeroKMers)
         for i in self.kMerCount :
             handle.write("%i\n" % i)
     #saveKMerCounts
@@ -143,6 +157,7 @@ class kMer() :
 
         self.__initialise(int(handle.readline()[:-1]))
         self.totalKMers = (int(handle.readline()[:-1]))
+        self.nonZeroKMers = (int(handle.readline()[:-1]))
 
         offset = 0
         line = handle.readline()
@@ -162,9 +177,13 @@ class kMer() :
         """
 
         self.totalKMers += kMerInstance.totalKMers
+        self.nonZeroKMers = 0
 
         for i in range(self.numberOfKMers) :
             self.kMerCount[i] += kMerInstance.kMerCount[i]
+            if self.kMerCount[i] :
+                self.nonZeroKMers += 1
+        #for
     #mergeKMerCounts
 
     def calculateRatios(self) :
