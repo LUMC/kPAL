@@ -11,7 +11,7 @@ import kMer
 import kMerDiff
 
 
-def makeDistanceMatrix(kMerCounts, output, precision) :
+def makeDistanceMatrix(kMerCounts, output, precision, kMerDiffInstance) :
     """
     Make a distance matrix for all the kMer instances.
 
@@ -21,6 +21,8 @@ def makeDistanceMatrix(kMerCounts, output, precision) :
     @type output: stream
     @arg precision: Number of decimals.
     @type precision: integer
+    @arg kMerDiffInstance: A kMerDiff object.
+    @type kMerDiffInstance: list(kMerDiff)
     """
 
     numberOfInputs = len(kMerCounts)
@@ -32,7 +34,7 @@ def makeDistanceMatrix(kMerCounts, output, precision) :
             if (j) :
                 output.write(' ')
             output.write(("%%.%if" % precision) % 
-                kMerDiff.distance(kMerCounts[i], kMerCounts[j]))
+                kMerDiffInstance.distance(kMerCounts[i], kMerCounts[j]))
         #for
         output.write('\n')
     #for
@@ -82,7 +84,8 @@ def main() :
         #if
     #for
 
-    makeDistanceMatrix(kMerCounts, arguments.output, arguments.precision)
+    makeDistanceMatrix(kMerCounts, arguments.output, arguments.precision,
+        kMerDiffInstance)
 #main
 
 if __name__ == "__main__" :
