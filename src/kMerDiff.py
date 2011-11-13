@@ -10,168 +10,196 @@ import argparse # ArgumentParser().
 import kMer     # kMer().
 import math     # sqrt().
 
-
-def scale(kMerIn1, kMerIn2) :
+class kMerDiff() :
     """
-    Calculate scaling factors based upon total counts. One of the factors is
-    always one (the other is either one or larger than one).
-
-    @arg kMerIn1: A kMer instance.
-    @type kMerIn1: object(kMer)
-    @arg kMerIn2: A kMer instance.
-    @type kMerIn2: object(kMer)
-
-    @returns: A tuple of scaling factors.
-    @rtype: tuple(float)
+    Class of distance functions.
     """
 
-    scale1 = 1.0
-    scale2 = 1.0
+    algorithmHelp = "Distance algorithm to use (0 = multiset, " + \
+        "1 = euclidean, 2 = positive multiset)."
+    algorithmError = "Invalid algorithm."
 
-    # Calculate the scaling factors in such a way that no element is between 0
-    # and 1.
-    if kMerIn1.totalKMers < kMerIn2.totalKMers :
-        scale1 = float(kMerIn2.totalKMers) / kMerIn1.totalKMers
-    else :
-        scale2 = float(kMerIn1.totalKMers) / kMerIn2.totalKMers
+    def __init__(self, algorithm) :
+        """
+        Initialise the class.
 
-    return scale1, scale2
-#scale
+        @arg algorithm: Select which distance algorithm to use.
+        @type algorithm: integer
+        """
 
-def positiveScale(kMerIn1, kMerIn2) :
-    """
-    Calculate scaling factors based upon counts that are non-negative in both
-    k-mer sets. One of the factors is always one (the other is either one or
-    larger than one).
+        self.distance = None
+        self.__algorithms = [
+            self.__multisetDistance,
+            self.__euclideanDistance,
+            self.__positiveMultisetDistance
+        ]
 
-    @arg kMerIn1: A kMer instance.
-    @type kMerIn1: object(kMer)
-    @arg kMerIn2: A kMer instance.
-    @type kMerIn2: object(kMer)
+        if algorithm not in range(len(self.__algorithms)) :
+            return None
 
-    @returns: A tuple of scaling factors.
-    @rtype: tuple(float)
-    """
+        self.distance = self.__algorithms[algorithm]
+    #__init__
 
-    scale1 = 1.0
-    scale2 = 1.0
-    total1 = 0
-    total2 = 0
+    def __scale(self, kMerIn1, kMerIn2) :
+        """
+        Calculate scaling factors based upon total counts. One of the factors
+        is always one (the other is either one or larger than one).
 
-    if kMerIn1.nonZeroKMers == kMerIn1.numberOfKMers and \
-        kMerIn2.nonZeroKMers == kMerIn2.numberOfKMers :
-        return scale(kMerIn1, kMerIn2)
+        @arg kMerIn1: A kMer instance.
+        @type kMerIn1: object(kMer)
+        @arg kMerIn2: A kMer instance.
+        @type kMerIn2: object(kMer)
 
-    for i in range(len(kMerIn1.kMerCount)) :
-        if kMerIn1.kMerCount[i] and kMerIn2.kMerCount[i] :
-            total1 += kMerIn1.kMerCount[i]
-            total2 += kMerIn2.kMerCount[i]
-        #if
-            
-    # Calculate the scaling factors in such a way that no element is between 0
-    # and 1.
-    if kMerIn1.totalKMers < kMerIn2.totalKMers :
-        scale1 = float(total2) / total1
-    else :
-        scale2 = float(total1) / total2
+        @returns: A tuple of scaling factors.
+        @rtype: tuple(float)
+        """
 
-    return scale1, scale2
-#positiveScale
+        scale1 = 1.0
+        scale2 = 1.0
 
-def multisetDistance(kMerIn1, kMerIn2) :
-    """
-    Calculate the multiset distance between two kMer instances.
+        # Calculate the scaling factors in such a way that no element is
+        # between 0 and 1.
+        if kMerIn1.totalKMers < kMerIn2.totalKMers :
+            scale1 = float(kMerIn2.totalKMers) / kMerIn1.totalKMers
+        else :
+            scale2 = float(kMerIn1.totalKMers) / kMerIn2.totalKMers
 
-    @arg kMerIn1: A kMer instance.
-    @type kMerIn1: object(kMer)
-    @arg kMerIn2: A kMer instance.
-    @type kMerIn2: object(kMer)
+        return scale1, scale2
+    #__scale
 
-    @returns: The multiset distance between {kMerIn1} and {kMerIn2}.
-    @rtype: float
-    """
+    def __positiveScale(self, kMerIn1, kMerIn2) :
+        """
+        Calculate scaling factors based upon counts that are non-negative in
+        both k-mer sets. One of the factors is always one (the other is either
+        one or larger than one).
 
-    c = 0.0
-    d = 1
+        @arg kMerIn1: A kMer instance.
+        @type kMerIn1: object(kMer)
+        @arg kMerIn2: A kMer instance.
+        @type kMerIn2: object(kMer)
 
-    scale1, scale2 = scale(kMerIn1, kMerIn2)
+        @returns: A tuple of scaling factors.
+        @rtype: tuple(float)
+        """
 
-    # Calculate the counter and the denominator of the distance function.
-    for i in range(kMerIn1.numberOfKMers) :
-        if kMerIn1.kMerCount[i] or kMerIn2.kMerCount[i] :
-            c += (abs((scale1 * kMerIn1.kMerCount[i]) - 
-                      (scale2 * kMerIn2.kMerCount[i])) / 
-                ((kMerIn1.kMerCount[i] + 1) * (kMerIn2.kMerCount[i] + 1)))
-            d += 1
-        #if
-    #for
+        scale1 = 1.0
+        scale2 = 1.0
+        total1 = 0
+        total2 = 0
 
-    return c / d
-#multisetDistance
+        if kMerIn1.nonZeroKMers == kMerIn1.numberOfKMers and \
+            kMerIn2.nonZeroKMers == kMerIn2.numberOfKMers :
+            return self.__scale(kMerIn1, kMerIn2)
 
-def positiveMultisetDistance(kMerIn1, kMerIn2) :
-    """
-    Calculate the positive multiset distance between two kMer instances.
+        for i in range(len(kMerIn1.kMerCount)) :
+            if kMerIn1.kMerCount[i] and kMerIn2.kMerCount[i] :
+                total1 += kMerIn1.kMerCount[i]
+                total2 += kMerIn2.kMerCount[i]
+            #if
 
-    @arg kMerIn1: A kMer instance.
-    @type kMerIn1: object(kMer)
-    @arg kMerIn2: A kMer instance.
-    @type kMerIn2: object(kMer)
+        # Calculate the scaling factors in such a way that no element is
+        # between 0 and 1.
+        if kMerIn1.totalKMers < kMerIn2.totalKMers :
+            scale1 = float(total2) / total1
+        else :
+            scale2 = float(total1) / total2
 
-    @returns: The positive multiset distance between {kMerIn1} and {kMerIn2}.
-    @rtype: float
-    """
+        return scale1, scale2
+    #__positiveScale
 
-    c = 0.0
-    d = 1
+    def __multisetDistance(self, kMerIn1, kMerIn2) :
+        """
+        Calculate the multiset distance between two kMer instances.
 
-    scale1, scale2 = positiveScale(kMerIn1, kMerIn2)
+        @arg kMerIn1: A kMer instance.
+        @type kMerIn1: object(kMer)
+        @arg kMerIn2: A kMer instance.
+        @type kMerIn2: object(kMer)
 
-    # Calculate the counter and the denominator of the distance function.
-    for i in range(kMerIn1.numberOfKMers) :
-        if kMerIn1.kMerCount[i] and kMerIn2.kMerCount[i] :
-            c += (abs((scale1 * kMerIn1.kMerCount[i]) - 
-                      (scale2 * kMerIn2.kMerCount[i])) / 
-                ((kMerIn1.kMerCount[i] + 1) * (kMerIn2.kMerCount[i] + 1)))
-            d += 1
-        #if
-    #for
+        @returns: The multiset distance between {kMerIn1} and {kMerIn2}.
+        @rtype: float
+        """
 
-    return c / d
-#positiveMultisetDistance
+        c = 0.0
+        d = 1
 
-def euclideanDistance(kMerIn1, kMerIn2) :
-    """
-    Calculate the Euclidean distance between two kMer instances.
+        scale1, scale2 = self.__scale(kMerIn1, kMerIn2)
 
-    @arg kMerIn1: A kMer instance.
-    @type kMerIn1: object(kMer)
-    @arg kMerIn2: A kMer instance.
-    @type kMerIn2: object(kMer)
+        # Calculate the counter and the denominator of the distance function.
+        for i in range(kMerIn1.numberOfKMers) :
+            if kMerIn1.kMerCount[i] or kMerIn2.kMerCount[i] :
+                c += (abs((scale1 * kMerIn1.kMerCount[i]) -
+                          (scale2 * kMerIn2.kMerCount[i])) /
+                    ((kMerIn1.kMerCount[i] + 1) * (kMerIn2.kMerCount[i] + 1)))
+                d += 1
+            #if
+        #for
 
-    @returns: The Euclidean distance between {kMerIn1} and {kMerIn2}.
-    @rtype: float
-    """
+        return c / d
+    #__multisetDistance
 
-    sumOfSquares = 1
+    def __euclideanDistance(self, kMerIn1, kMerIn2) :
+        """
+        Calculate the Euclidean distance between two kMer instances.
 
-    scale1, scale2 = scale(kMerIn1, kMerIn2)
+        @arg kMerIn1: A kMer instance.
+        @type kMerIn1: object(kMer)
+        @arg kMerIn2: A kMer instance.
+        @type kMerIn2: object(kMer)
 
-    # Calculate the counter and the denominator of the distance function.
-    for i in range(kMerIn1.numberOfKMers) :
-        sumOfSquares += ((scale1 * kMerIn1.kMerCount[i]) - 
-            (scale2 * kMerIn2.kMerCount[i])) ** 2
+        @returns: The Euclidean distance between {kMerIn1} and {kMerIn2}.
+        @rtype: float
+        """
 
-    return math.sqrt(sumOfSquares)
-#euclideanDistance
+        sumOfSquares = 1
+
+        scale1, scale2 = self.__scale(kMerIn1, kMerIn2)
+
+        # Calculate the counter and the denominator of the distance function.
+        for i in range(kMerIn1.numberOfKMers) :
+            sumOfSquares += ((scale1 * kMerIn1.kMerCount[i]) -
+                (scale2 * kMerIn2.kMerCount[i])) ** 2
+
+        return math.sqrt(sumOfSquares)
+    #__euclideanDistance
+
+    def __positiveMultisetDistance(self, kMerIn1, kMerIn2) :
+        """
+        Calculate the positive multiset distance between two kMer instances.
+
+        @arg kMerIn1: A kMer instance.
+        @type kMerIn1: object(kMer)
+        @arg kMerIn2: A kMer instance.
+        @type kMerIn2: object(kMer)
+
+        @returns: The positive multiset distance between {kMerIn1} and
+            {kMerIn2}.
+        @rtype: float
+        """
+
+        c = 0.0
+        d = 1
+
+        scale1, scale2 = self.__positiveScale(kMerIn1, kMerIn2)
+
+        # Calculate the counter and the denominator of the distance function.
+        for i in range(kMerIn1.numberOfKMers) :
+            if kMerIn1.kMerCount[i] and kMerIn2.kMerCount[i] :
+                c += (abs((scale1 * kMerIn1.kMerCount[i]) -
+                          (scale2 * kMerIn2.kMerCount[i])) /
+                    ((kMerIn1.kMerCount[i] + 1) * (kMerIn2.kMerCount[i] + 1)))
+                d += 1
+            #if
+        #for
+
+        return c / d
+    #__positiveMultisetDistance
+#kMerDiff
 
 def main() :
     """
     Main entry point.
     """
-
-    algorithms = [multisetDistance, euclideanDistance,
-        positiveMultisetDistance]
 
     parser = argparse.ArgumentParser(
         prog = 'kMerDiff',
@@ -184,13 +212,13 @@ def main() :
     parser.add_argument('-p', dest = 'precision', type = int,
         default = 3, help = 'Number of decimals.')
     parser.add_argument('-a', dest = 'algorithm', type = int, default = 0,
-        help = 'Distance algorithm to use (0 = multiset, 1 = euclidean, ' +
-            '2 = positive multiset).')
+        help = kMerDiff.algorithmHelp)
 
     arguments = parser.parse_args()
 
-    if arguments.algorithm not in range(len(algorithms)) :
-        print "Invalid algorithm."
+    kMerDiffInstance = kMerDiff(arguments.algorithm)
+    if not kMerDiffInstance.distance :
+        print kMerDiff.algorithmError
         parser.print_usage()
         return
     #if
@@ -207,7 +235,7 @@ def main() :
     #if
 
     print ("%%.%if" % arguments.precision) % \
-        algorithms[arguments.algorithm](kMerIn1, kMerIn2)
+        kMerDiff.distance(kMerIn1, kMerIn2)
 #main
 
 if __name__ == "__main__" :

@@ -32,7 +32,7 @@ def makeDistanceMatrix(kMerCounts, output, precision) :
             if (j) :
                 output.write(' ')
             output.write(("%%.%if" % precision) % 
-                kMerDiff.multisetDistance(kMerCounts[i], kMerCounts[j]))
+                kMerDiff.distance(kMerCounts[i], kMerCounts[j]))
         #for
         output.write('\n')
     #for
@@ -55,13 +55,22 @@ def main() :
         required = True, help = 'The output file name.')
     parser.add_argument('-p', dest = 'precision', type = int,
         default = 3, help = 'Number of decimals.')
+    parser.add_argument('-a', dest = 'algorithm', type = int, default = 0,
+        help = kMerDiff.kMerDiff.algorithmHelp)
 
     arguments = parser.parse_args()
 
     if len(arguments.input) < 2 :
         print "You must give at least two input files."
         return
-    #
+    #if
+
+    kMerDiffInstance = kMerDiff.kMerDiff(arguments.algorithm)
+    if not kMerDiffInstance.distance :
+        print kMerDiff.kMerDiff.algorithmError
+        parser.print_usage()
+        return
+    #if
 
     kMerCounts = []
     for i in arguments.input :
