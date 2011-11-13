@@ -204,14 +204,36 @@ class kMer() :
         for i in range(self.numberOfKMers) :
             for j in range(self.numberOfKMers) :
                 if self.kMerCount[j] :
-                    ratios[i][j] = \
-                        float(self.kMerCount[i]) / self.kMerCount[j]
+                    ratios[i][j] = (float(self.kMerCount[i]) /
+                        self.kMerCount[j]) / self.totalKMers
                 else :
                     ratios[i][j] = -1.0
             #for
 
         return ratios
     #calculateRatios
+
+    def calculateDiff(self) :
+        """
+        Calculate all frequency differences of k-mers.
+
+        @returns: A matrix with frequency differences.
+        @rtype: float[][]
+        """
+
+        ratios = []
+        for i in range(self.numberOfKMers) :
+            ratios.append(self.numberOfKMers * [0])
+
+        # Fill the matrix.
+        for i in range(self.numberOfKMers) :
+            for j in range(self.numberOfKMers) :
+                if self.kMerCount[j] :
+                    ratios[i][j] = float(abs(self.kMerCount[i]  -
+                        self.kMerCount[j])) / self.totalKMers
+
+        return ratios
+    #calculateDiff
 
     def printCounts(self) :
         """

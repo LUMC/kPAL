@@ -16,7 +16,7 @@ class kMerDiff() :
     """
 
     algorithmHelp = "Distance algorithm to use (0 = multiset, " + \
-        "1 = euclidean, 2 = positive multiset)."
+        "1 = euclidean, 2 = positive multiset, 3 = relative multiset)."
     algorithmError = "Invalid algorithm."
 
     def __init__(self, algorithm) :
@@ -28,16 +28,17 @@ class kMerDiff() :
         """
 
         self.distance = None
-        self.__algorithms = [
+        algorithms = [
             self.__multisetDistance,
             self.__euclideanDistance,
-            self.__positiveMultisetDistance
+            self.__positiveMultisetDistance,
+            self.__relativeMultisetDistance
         ]
 
-        if algorithm not in range(len(self.__algorithms)) :
+        if algorithm not in range(len(algorithms)) :
             return None
 
-        self.distance = self.__algorithms[algorithm]
+        self.distance = algorithms[algorithm]
     #__init__
 
     def __scale(self, kMerIn1, kMerIn2) :
@@ -194,6 +195,40 @@ class kMerDiff() :
 
         return c / d
     #__positiveMultisetDistance
+
+    def __relativeMultisetDistance(self, kMerIn1, kMerIn2) :
+        """
+        Calculate the relative multiset distance between two kMer instances.
+
+        @arg kMerIn1: A kMer instance.
+        @type kMerIn1: object(kMer)
+        @arg kMerIn2: A kMer instance.
+        @type kMerIn2: object(kMer)
+
+        @returns: The relative multiset distance between {kMerIn1} and
+            {kMerIn2}.
+        @rtype: float
+        """
+
+        c = 0.0
+        d = 1
+
+        scale1, scale2 = self.__scale(kMerIn1, kMerIn2)
+
+        for i in range(kMerIn1.numberOfKMers) :
+            for j in range(i) :
+                kMerDiff1 = abs(kMerIn1.kMerCount[i] - kMerIn1.kMerCount[j])
+                kMerDiff2 = abs(kMerIn2.kMerCount[i] - kMerIn2.kMerCount[j])
+
+                if kMerDiff1 or kMerDiff2 :
+                    c += (abs((scale1 * kMerDiff1) - (scale2 * kMerDiff2)) /
+                        ((kMerDiff1 + 1) * (kMerDiff2 + 1)))
+                    d += 1
+                #if
+            #for
+
+        return c / d
+    #__relativeMultisetDistance
 #kMerDiff
 
 def main() :
@@ -209,8 +244,8 @@ def main() :
 
     parser.add_argument('-i', dest = 'input', type = argparse.FileType('r'),
         required = True, nargs = 2, help = 'The count files.')
-    parser.add_argument('-p', dest = 'precision', type = int,
-        default = 3, help = 'Number of decimals.')
+    parser.add_argument('-p', dest = 'precision', type = int, default = 3, 
+        help = 'Number of decimals.')
     parser.add_argument('-a', dest = 'algorithm', type = int, default = 0,
         help = kMerDiff.algorithmHelp)
 
@@ -235,7 +270,7 @@ def main() :
     #if
 
     print ("%%.%if" % arguments.precision) % \
-        kMerDiff.distance(kMerIn1, kMerIn2)
+        kMerDiffInstance.distance(kMerIn1, kMerIn2)
 #main
 
 if __name__ == "__main__" :
