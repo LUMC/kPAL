@@ -268,13 +268,21 @@ class kMer() :
     #printRatios
 #kMer
 
+def makeProfile(input, output, kMerSize) :
+    """
+    """
+
+    kMerInstance = kMer(kMerSize)
+    kMerInstance.scanFastq(input)
+    kMerInstance.saveKMerCounts(output)
+#makeProfile
+
 def main() :
     """
     Main entry point.
     """
 
     parser = argparse.ArgumentParser(
-        prog = 'kMer',
         formatter_class = argparse.RawDescriptionHelpFormatter,
         description = '',
         epilog = """""")
@@ -288,9 +296,7 @@ def main() :
 
     arguments = parser.parse_args()
 
-    kMerInstance = kMer(arguments.kMerSize)
-    kMerInstance.scanFastq(arguments.input)
-    kMerInstance.saveKMerCounts(arguments.output)
+    makeProfile(arguments.input, arguments.output, arguments.kMerSize)
 #main
 
 if __name__ == "__main__" :

@@ -40,13 +40,34 @@ def makeDistanceMatrix(kMerCounts, output, precision, kMerDiffInstance) :
     #for
 #makeDistanceMatrix
 
+def kMerMatrix(inputs, output, algorithm, precision, down) :
+    """
+    """
+
+    if len(inputs) < 2 :
+        raise ValueError("You must give at least two input files.")
+
+    kMerDiffInstance = kMerDiff.kMerDiff(algorithm, down=down)
+    if not kMerDiffInstance.distance :
+        raise ValueError(kMerDiff.kMerDiff.algorithmError)
+
+    kMerCounts = []
+    for i in inputs :
+        kMerCounts.append(kMer.kMer(0))
+        kMerCounts[-1].loadKMerCounts(i)
+        if kMerCounts[0].kMerLength != kMerCounts[-1].kMerLength :
+            raise ValueError("k-mer lengths of the files differ.")
+    #for
+
+    makeDistanceMatrix(kMerCounts, output, precision, kMerDiffInstance)
+#kMerMatrix
+
 def main() :
     """
     Main entry point.
     """
 
     parser = argparse.ArgumentParser(
-        prog = 'kMerMatrix',
         formatter_class = argparse.RawDescriptionHelpFormatter,
         description = '',
         epilog = """""")
@@ -59,33 +80,16 @@ def main() :
         default = 3, help = 'Number of decimals.')
     parser.add_argument('-a', dest = 'algorithm', type = int, default = 0,
         help = kMerDiff.kMerDiff.algorithmHelp)
+    parser.add_argument('-d', dest = 'down', default = False,
+        action = 'store_true', help = kMerDiff.kMerDiff.downHelp)
 
     arguments = parser.parse_args()
 
-    if len(arguments.input) < 2 :
-        print "You must give at least two input files."
-        return
-    #if
-
-    kMerDiffInstance = kMerDiff.kMerDiff(arguments.algorithm)
-    if not kMerDiffInstance.distance :
-        print kMerDiff.kMerDiff.algorithmError
-        parser.print_usage()
-        return
-    #if
-
-    kMerCounts = []
-    for i in arguments.input :
-        kMerCounts.append(kMer.kMer(0))
-        kMerCounts[-1].loadKMerCounts(i)
-        if kMerCounts[0].kMerLength != kMerCounts[-1].kMerLength :
-            print "k-mer lengths of the files differ."
-            return
-        #if
-    #for
-
-    makeDistanceMatrix(kMerCounts, arguments.output, arguments.precision,
-        kMerDiffInstance)
+    try :
+        kMerMatrix(arguments.input, arguments.output, arguments.algorithm,
+            arguments.precision, arguments.down)
+    except ValueError, error :
+        parser.error(error)
 #main
 
 if __name__ == "__main__" :

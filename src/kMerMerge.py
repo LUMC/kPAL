@@ -8,13 +8,29 @@
 import argparse
 import kMer
 
+def kMerMerge(input1, input2, output) :
+    """
+    """
+
+    kMerIn = kMer.kMer(0)
+    kMerOut = kMer.kMer(0)
+
+    kMerIn.loadKMerCounts(input1)
+    kMerOut.loadKMerCounts(input2)
+
+    if kMerIn.kMerLength != kMerOut.kMerLength :
+        raise ValueError("k-mer lengths of the files differ.")
+
+    kMerOut.mergeKMerCounts(kMerIn)
+    kMerOut.saveKMerCounts(output)
+#kMerMerge
+
 def main() :
     """
     Main entry point.
     """
 
     parser = argparse.ArgumentParser(
-        prog = 'kMerMerge',
         formatter_class = argparse.RawDescriptionHelpFormatter,
         description = '',
         epilog = """""")
@@ -26,18 +42,10 @@ def main() :
 
     arguments = parser.parse_args()
 
-    kMerIn = kMer.kMer(0)
-    kMerOut = kMer.kMer(0)
-
-    kMerIn.loadKMerCounts(arguments.input[0])
-    kMerOut.loadKMerCounts(arguments.input[1])
-
-    if kMerIn.kMerLength == kMerOut.kMerLength :
-        kMerOut.mergeKMerCounts(kMerIn)
-        kMerOut.saveKMerCounts(arguments.output)
-    #if
-    else :
-        print "k-mer lengths of the files differ."
+    try :
+        kMerMerge(arguments.input[0], arguments.input[1], arguments.output)
+    except ValueError, error :
+        parser.error(error)
 #main
 
 if __name__ == "__main__" :

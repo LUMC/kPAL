@@ -17,9 +17,10 @@ class kMerDiff() :
 
     algorithmHelp = "Distance algorithm to use (0 = multiset, " + \
         "1 = euclidean, 2 = positive multiset, 3 = relative multiset)."
+    downHelp = "Scale down."
     algorithmError = "Invalid algorithm."
 
-    def __init__(self, algorithm) :
+    def __init__(self, algorithm, down=False) :
         """
         Initialise the class.
 
@@ -28,6 +29,7 @@ class kMerDiff() :
         """
 
         self.distance = None
+        self.down = down
         algorithms = [
             self.__multisetDistance,
             self.__euclideanDistance,
@@ -64,6 +66,11 @@ class kMerDiff() :
             scale1 = float(kMerIn2.totalKMers) / kMerIn1.totalKMers
         else :
             scale2 = float(kMerIn1.totalKMers) / kMerIn2.totalKMers
+
+        if self.down :
+            factor = max(scale1, scale2)
+            return scale1 / factor, scale2 / factor
+        #if
 
         return scale1, scale2
     #__scale
@@ -105,6 +112,11 @@ class kMerDiff() :
         else :
             scale2 = float(total1) / total2
 
+        if self.down :
+            factor = max(scale1, scale2)
+            return scale1 / factor, scale2 / factor
+        #if
+
         return scale1, scale2
     #__positiveScale
 
@@ -129,8 +141,8 @@ class kMerDiff() :
         # Calculate the counter and the denominator of the distance function.
         for i in range(kMerIn1.numberOfKMers) :
             if kMerIn1.kMerCount[i] or kMerIn2.kMerCount[i] :
-                c += (abs((scale1 * kMerIn1.kMerCount[i]) -
-                          (scale2 * kMerIn2.kMerCount[i])) /
+                c += (abs(round(scale1 * kMerIn1.kMerCount[i]) -
+                          round(scale2 * kMerIn2.kMerCount[i])) /
                     ((kMerIn1.kMerCount[i] + 1) * (kMerIn2.kMerCount[i] + 1)))
                 d += 1
             #if
@@ -158,8 +170,8 @@ class kMerDiff() :
 
         # Calculate the counter and the denominator of the distance function.
         for i in range(kMerIn1.numberOfKMers) :
-            sumOfSquares += ((scale1 * kMerIn1.kMerCount[i]) -
-                (scale2 * kMerIn2.kMerCount[i])) ** 2
+            sumOfSquares += (round(scale1 * kMerIn1.kMerCount[i]) -
+                round(scale2 * kMerIn2.kMerCount[i])) ** 2
 
         return math.sqrt(sumOfSquares)
     #__euclideanDistance
@@ -186,8 +198,8 @@ class kMerDiff() :
         # Calculate the counter and the denominator of the distance function.
         for i in range(kMerIn1.numberOfKMers) :
             if kMerIn1.kMerCount[i] and kMerIn2.kMerCount[i] :
-                c += (abs((scale1 * kMerIn1.kMerCount[i]) -
-                          (scale2 * kMerIn2.kMerCount[i])) /
+                c += (abs(round(scale1 * kMerIn1.kMerCount[i]) -
+                          round(scale2 * kMerIn2.kMerCount[i])) /
                     ((kMerIn1.kMerCount[i] + 1) * (kMerIn2.kMerCount[i] + 1)))
                 d += 1
             #if
@@ -221,8 +233,8 @@ class kMerDiff() :
                 kMerDiff2 = abs(kMerIn2.kMerCount[i] - kMerIn2.kMerCount[j])
 
                 if kMerDiff1 or kMerDiff2 :
-                    c += (abs((scale1 * kMerDiff1) - (scale2 * kMerDiff2)) /
-                        ((kMerDiff1 + 1) * (kMerDiff2 + 1)))
+                    c += (abs(round(scale1 * kMerDiff1) - round(scale2 *
+                        kMerDiff2)) / ((kMerDiff1 + 1) * (kMerDiff2 + 1)))
                     d += 1
                 #if
             #for
@@ -231,13 +243,35 @@ class kMerDiff() :
     #__relativeMultisetDistance
 #kMerDiff
 
+def diff(input1, input2, algorithm, precision, down) :
+    """
+    """
+
+    kMerDiffInstance = kMerDiff(algorithm, down=down)
+    if not kMerDiffInstance.distance :
+        print kMerDiff.algorithmError
+        parser.print_usage()
+        return
+    #if
+
+    kMerIn1 = kMer.kMer(0)
+    kMerIn2 = kMer.kMer(0)
+
+    kMerIn1.loadKMerCounts(input1)
+    kMerIn2.loadKMerCounts(input2)
+
+    if kMerIn1.kMerLength != kMerIn2.kMerLength :
+        raise ValueError("k-mer lengths of the files differ.")
+
+    return ("%%.%if" % precision) % kMerDiffInstance.distance(kMerIn1, kMerIn2)
+#diff
+
 def main() :
     """
     Main entry point.
     """
 
     parser = argparse.ArgumentParser(
-        prog = 'kMerDiff',
         formatter_class = argparse.RawDescriptionHelpFormatter,
         description = '',
         epilog = """""")
@@ -248,29 +282,16 @@ def main() :
         help = 'Number of decimals.')
     parser.add_argument('-a', dest = 'algorithm', type = int, default = 0,
         help = kMerDiff.algorithmHelp)
+    parser.add_argument('-d', dest = 'down', default = False,
+        action = 'store_true', help = kMerDiff.downHelp)
 
     arguments = parser.parse_args()
 
-    kMerDiffInstance = kMerDiff(arguments.algorithm)
-    if not kMerDiffInstance.distance :
-        print kMerDiff.algorithmError
-        parser.print_usage()
-        return
-    #if
-
-    kMerIn1 = kMer.kMer(0)
-    kMerIn2 = kMer.kMer(0)
-
-    kMerIn1.loadKMerCounts(arguments.input[0])
-    kMerIn2.loadKMerCounts(arguments.input[1])
-
-    if kMerIn1.kMerLength != kMerIn2.kMerLength :
-        print "k-mer lengths of the files differ."
-        return
-    #if
-
-    print ("%%.%if" % arguments.precision) % \
-        kMerDiffInstance.distance(kMerIn1, kMerIn2)
+    try :
+        print diff(arguments.input[0], arguments.input[1], arguments.algorithm,
+            arguments.precision, arguments.down)
+    except ValueError, error :
+        parser.error(error)
 #main
 
 if __name__ == "__main__" :
