@@ -16,16 +16,22 @@ class kMerDiff() :
     """
 
     algorithmHelp = "Distance algorithm to use (0 = multiset, " + \
-        "1 = euclidean, 2 = positive multiset, 3 = relative multiset)."
+        "1 = euclidean, 2 = positive multiset, 3 = relative multiset, " + \
+        "4 = dynamic multiset)."
     downHelp = "Scale down."
+    thresholdHelp = "Threshold for the dynamic multiset distance."
     algorithmError = "Invalid algorithm."
 
-    def __init__(self, algorithm, down=False) :
+    def __init__(self, algorithm, down=False, threshold=0) :
         """
         Initialise the class.
 
         @arg algorithm: Select which distance algorithm to use.
         @type algorithm: integer
+        @arg down: Direction of scaling.
+        @type down: boolean
+        @arg threshold: Threshold for the dynamic multiset distance.
+        @type threshold: integer
         """
 
         self.distance = None
@@ -34,13 +40,15 @@ class kMerDiff() :
             self.__multisetDistance,
             self.__euclideanDistance,
             self.__positiveMultisetDistance,
-            self.__relativeMultisetDistance
+            self.__relativeMultisetDistance,
+            self.__dynamicMultisetDistance
         ]
 
         if algorithm not in range(len(algorithms)) :
             return None
 
         self.distance = algorithms[algorithm]
+        self.threshold = threshold
     #__init__
 
     def __scale(self, kMerIn1, kMerIn2) :
@@ -241,6 +249,55 @@ class kMerDiff() :
 
         return c / d
     #__relativeMultisetDistance
+
+    def __dynamicMultisetDistance(self, kMerIn1, kMerIn2) :
+        """
+        Calculate the multiset distance between two kMer instances.
+
+        @arg kMerIn1: A kMer instance.
+        @type kMerIn1: object(kMer)
+        @arg kMerIn2: A kMer instance.
+        @type kMerIn2: object(kMer)
+
+        @returns: The multiset distance between {kMerIn1} and {kMerIn2}.
+        @rtype: float
+        """
+
+        def xyz(kMerIn1, kMerIn2, begin, end) :
+            """
+            """
+
+            count1 = 0
+            count2 = 0
+            for i in range(begin, end) :
+                count1 += kMerIn1[i]
+                count2 += kMerIn2[i]
+                if count1 > self.threshold and count2 > self.treshold :
+                    return True
+        #xyz
+
+        c = 0.0
+        d = 1
+
+        scale1, scale2 = self.__scale(kMerIn1, kMerIn2)
+
+        i = 0
+        while i < kMerIn1.numberOfKMers :
+            i += 1
+        #while
+
+        # Calculate the counter and the denominator of the distance function.
+        for i in range(kMerIn1.numberOfKMers) :
+            if kMerIn1.kMerCount[i] or kMerIn2.kMerCount[i] :
+                c += (abs(round(scale1 * kMerIn1.kMerCount[i]) -
+                          round(scale2 * kMerIn2.kMerCount[i])) /
+                    ((kMerIn1.kMerCount[i] + 1) * (kMerIn2.kMerCount[i] + 1)))
+                d += 1
+            #if
+        #for
+
+        return c / d
+    #__dynamicMultisetDistance
 #kMerDiff
 
 def diff(input1, input2, algorithm, precision, down) :
@@ -284,6 +341,8 @@ def main() :
         help = kMerDiff.algorithmHelp)
     parser.add_argument('-d', dest = 'down', default = False,
         action = 'store_true', help = kMerDiff.downHelp)
+    parser.add_argument('-t', dest = 'threshold', type = int, default = 0,
+        help = kMerDiff.thresholdHelp)
 
     arguments = parser.parse_args()
 
