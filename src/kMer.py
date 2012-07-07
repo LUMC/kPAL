@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 """
-@requires: sys
-@requires: argparse
-@requires: Bio.SeqIO
+Make a k-mer profile from a fastq or a fasta file.
+
+
 """
 
 import sys
@@ -15,16 +15,18 @@ class kMer() :
     Handle the counting of k-mers in a fastq file.
     """
 
-    def __init__(self, length) :
+    def __init__(self, length, inputFormat="fastq") :
         """
         Initialise the class instance.
 
         @arg length: Length of the k-mers.
         @type length: integer
+        @arg inputFormat: Input format, either fastq or fasta.
+        @type inputFormat: str
         """
-
         self.totalKMers = 0
         self.nonZeroKMers = 0
+        self.inputFormat = inputFormat
 
         if length :
             self.__initialise(length)
@@ -51,7 +53,6 @@ class kMer() :
         @arg length: Length of the k-mers.
         @type length: integer
         """
-
         self.kMerLength = length
         self.numberOfKMers = 4 ** self.kMerLength
         self.kMerCount = self.numberOfKMers * [0]
@@ -65,7 +66,6 @@ class kMer() :
         @arg binaryRepresentation: Binary representation of a k-mer.
         @type binaryRepresentation: integer
         """
-
         if not self.kMerCount[binaryRepresentation] :
             self.nonZeroKMers += 1
         self.kMerCount[binaryRepresentation] += 1
@@ -76,10 +76,9 @@ class kMer() :
         """
         Count all occurrences of  k-mers in a DNA string.
 
-        @arg sequence: A DNA sequence from a fastq file.
+        @arg sequence: A DNA sequence from a fasta/fastq file.
         @type sequence: string
         """
-
         if len(sequence) > self.kMerLength :
             binaryRepresentation = 0x00
 
@@ -100,13 +99,12 @@ class kMer() :
 
     def scanFastq(self, handle) :
         """
-        Read a fastq file and count all k-mers in each line.
+        Read a fasta/fastq file and count all k-mers in each line.
 
         @arg handle: An open file handle to a fastq file.
         @type handle: stream
         """
-
-        for record in SeqIO.parse(handle, "fastq") :
+        for record in SeqIO.parse(handle, self.inputFormat) :
             for sequence in str(record.seq).split('N') :
                 self.__scanLine(sequence)
     #scanFastq
@@ -121,7 +119,6 @@ class kMer() :
         @returns: A DNA string.
         @rtype: string
         """
-
         sequence = ""
 
         for i in range(self.kMerLength) :
@@ -139,7 +136,6 @@ class kMer() :
         @arg handle: Writable open handle to a file.
         @type handle: stream
         """
-
         handle.write("%i\n" % self.kMerLength)
         handle.write("%i\n" % self.totalKMers)
         handle.write("%i\n" % self.nonZeroKMers)
@@ -154,7 +150,6 @@ class kMer() :
         @arg handle: Open handle to a file.
         @type handle: stream
         """
-
         self.__initialise(int(handle.readline()[:-1]))
         self.totalKMers = (int(handle.readline()[:-1]))
         self.nonZeroKMers = (int(handle.readline()[:-1]))
@@ -175,7 +170,6 @@ class kMer() :
         @arg kMerInstance: An other kMer instance.
         @type kMerInstance: kMer
         """
-
         self.totalKMers += kMerInstance.totalKMers
         self.nonZeroKMers = 0
 
@@ -194,7 +188,6 @@ class kMer() :
         @returns: A matrix with relative frequencies.
         @rtype: float[][]
         """
-
         # Initialise the matrix.
         ratios = []
         for i in range(self.numberOfKMers) :
@@ -220,7 +213,6 @@ class kMer() :
         @returns: A matrix with frequency differences.
         @rtype: float[][]
         """
-
         ratios = []
         for i in range(self.numberOfKMers) :
             ratios.append(self.numberOfKMers * [0])
@@ -239,7 +231,6 @@ class kMer() :
         """
         Print the k-mer counts.
         """
-
         for i in range(self.numberOfKMers) :
             print self.binaryToDNA(i), self.kMerCount[i]
     #printCounts
@@ -251,7 +242,6 @@ class kMer() :
         @arg ratios: A matrix with relative frequencies.
         @type ratios: float[][]
         """
-
         # The header.
         print (self.kMerLength + 1) * ' ',
         for i in range(self.numberOfKMers) :
@@ -268,11 +258,10 @@ class kMer() :
     #printRatios
 #kMer
 
-def makeProfile(input, output, kMerSize) :
+def makeProfile(input, output, kMerSize, inputFormat) :
     """
     """
-
-    kMerInstance = kMer(kMerSize)
+    kMerInstance = kMer(kMerSize, inputFormat)
     kMerInstance.scanFastq(input)
     kMerInstance.saveKMerCounts(output)
 #makeProfile
@@ -281,22 +270,26 @@ def main() :
     """
     Main entry point.
     """
-
+    usage = __doc__.split("\n\n\n")
     parser = argparse.ArgumentParser(
-        formatter_class = argparse.RawDescriptionHelpFormatter,
-        description = '',
-        epilog = """""")
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=usage[0],
+        epilog=usage[1])
 
-    parser.add_argument('-i', dest = 'input', type = argparse.FileType('r'),
-        required = True, help = 'The input file in fastq format.')
-    parser.add_argument('-o', dest = 'output', type = argparse.FileType('w'),
-        required = True, help = 'The output file name.')
-    parser.add_argument('-k', dest = 'kMerSize', type = int, required = True,
-        help = 'Size of the k-mers.')
+    parser.add_argument("-i", dest="input", type=argparse.FileType('r'),
+        required=True, help="the input file in fasta/fastq format")
+    parser.add_argument("-o", dest="output", type=argparse.FileType('w'),
+        required=True, help="the output file name")
+    parser.add_argument("-a", dest="inputFormat", default="fastq",
+        action="store_const", const="fasta",
+        help="use fasta instead of fastq as input format")
+    parser.add_argument("-k", dest="kMerSize", type=int, required=True,
+        help="size of the k-mers")
 
     arguments = parser.parse_args()
 
-    makeProfile(arguments.input, arguments.output, arguments.kMerSize)
+    makeProfile(arguments.input, arguments.output, arguments.kMerSize,
+        arguments.inputFormat)
 #main
 
 if __name__ == "__main__" :
