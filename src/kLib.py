@@ -6,51 +6,42 @@ k-mer base library.
 
 import sys
 import argparse
+from Bio import Seq
 from Bio import SeqIO
 
 class kMer():
     """
-    Handle the counting of k-mers in a fastq file.
+    Handle the counting of k-mers in a fasta file.
     """
-    lengthError = "k-mer lengths of the files differ."
+    __nucleotideToBinary = {
+        'A': 0x00, 'a': 0x00,
+        'C': 0x01, 'c': 0x01,
+        'G': 0x02, 'g': 0x02,
+        'T': 0x03, 't': 0x03
+    }
+    """ Conversion table form nucleotide to binary. """
+    __binaryToNucleotide = {
+        0x00: 'A',
+        0x01: 'C',
+        0x02: 'G',
+        0x03: 'T'
+    }
+    """ Conversion table form binary to nucleotide. """
 
-    def __init__(self, length, inputFormat="fastq"):
+    def __init__(self):
         """
         Initialise the class instance.
-
-        @arg length: Length of the k-mers.
-        @type length: integer
-        @arg inputFormat: Input format, either fastq or fasta.
-        @type inputFormat: str
         """
         self.total = 0
         self.nonZero = 0
-        self.inputFormat = inputFormat
-
-        if length:
-            self.__initialise(length)
-
-        # Conversion table form nucleotides to binary.
-        self.__nucleotideToBinary = {
-            'A' : 0x00,
-            'C' : 0x01,
-            'G' : 0x02,
-            'T' : 0x03
-        }
-
-        # Build the reverse table of __nucleotideToBinary.
-        self.__binaryToNucleotide = {}
-        for i in self.__nucleotideToBinary:
-            self.__binaryToNucleotide[self.__nucleotideToBinary[i]] = i
     #__init__
 
     def __initialise(self, length):
         """
-        Initialise the class insance on demand (used by either __init__() or
-        load().
+        Initialise the rest of the class instance variables.
 
         @arg length: Length of the k-mers.
-        @type length: integer
+        @type length: int
         """
         self.length = length
         self.number = 4 ** self.length
@@ -63,7 +54,7 @@ class kMer():
         Add a k-mer and keep track of the nonZero and total counters.
 
         @arg binaryRepresentation: Binary representation of a k-mer.
-        @type binaryRepresentation: integer
+        @type binaryRepresentation: int
         """
         if not self.count[binaryRepresentation]:
             self.nonZero += 1
@@ -75,7 +66,7 @@ class kMer():
         """
         Count all occurrences of  k-mers in a DNA string.
 
-        @arg sequence: A DNA sequence from a fasta/fastq file.
+        @arg sequence: A DNA sequence from a fasta file.
         @type sequence: string
         """
         if len(sequence) > self.length:
@@ -96,51 +87,21 @@ class kMer():
         #if
     #__scanLine
 
-    def scanFastq(self, handle):
+    def analyse(self, handle, length):
         """
-        Read a fasta/fastq file and count all k-mers in each line.
+        Read a fasta file and count all k-mers in each line.
 
-        @arg handle: An open file handle to a fastq file.
+        @arg handle: An open file handle to a fasta file.
         @type handle: stream
+        @arg length: Length of the k-mers.
+        @type length: int
         """
-        for record in SeqIO.parse(handle, self.inputFormat):
+        self.__initialise(length)
+
+        for record in SeqIO.parse(handle, "fasta"):
             for sequence in str(record.seq).split('N'):
                 self.__scanLine(sequence)
-    #scanFastq
-
-    def binaryToDNA(self, number):
-        """
-        Convert an integer to a DNA string.
-
-        @arg number: Binary representation of a DNA string.
-        @type number: integer
-
-        @returns: A DNA string.
-        @rtype: string
-        """
-        sequence = ""
-
-        for i in range(self.length):
-            sequence += self.__binaryToNucleotide[number & 0x03]
-            number >>= 2
-        #while
-
-        return sequence[::-1]
-    #binaryToDNA
-
-    def save(self, handle):
-        """
-        Save the k-mer table in a file.
-
-        @arg handle: Writable open handle to a file.
-        @type handle: stream
-        """
-        handle.write("%i\n" % self.length)
-        handle.write("%i\n" % self.total)
-        handle.write("%i\n" % self.nonZero)
-        for i in self.count:
-            handle.write("%i\n" % i)
-    #save
+    #analyse
 
     def load(self, handle):
         """
@@ -162,6 +123,20 @@ class kMer():
         #while
     #load
 
+    def save(self, handle):
+        """
+        Save the k-mer table in a file.
+
+        @arg handle: Writable open handle to a file.
+        @type handle: stream
+        """
+        handle.write("%i\n" % self.length)
+        handle.write("%i\n" % self.total)
+        handle.write("%i\n" % self.nonZero)
+        for i in self.count:
+            handle.write("%i\n" % i)
+    #save
+
     def merge(self, profile):
         """
         Add the counts of a (compatible) k-mer profile to this one.
@@ -178,6 +153,111 @@ class kMer():
                 self.nonZero += 1
         #for
     #merge
+
+    def balance(self):
+        """
+        Add the counts of the reverse complement of a k-mer to the k-mer and
+        vice versa.
+        """
+        for i in range(self.number):
+            i_rc = self.DNAToBinary(Seq.reverse_complement(
+                self.binaryToDNA(i)))
+
+            if i <= i_rc:
+                temp = self.count[i]
+                self.count[i] += self.count[i_rc]
+                self.count[i_rc] += temp
+            #if
+        #for
+    #balance
+
+    def split(self):
+        """
+        Split the profile into two lists, every position in the first list has
+        its reverse complement in the same position in the second list and vice
+        versa.
+
+        @returns: The forward and reverse complement counts.
+        @rtype: tuple(list[float], list[float])
+        """
+        forward = []
+        reverse = []
+
+        for i in range(self.number):
+            i_rc = self.DNAToBinary(Seq.reverse_complement(
+                self.binaryToDNA(i)))
+
+            if i <= i_rc:
+                forward.append(self.count[i])
+                reverse.append(self.count[i_rc])
+            #if
+        #for
+
+        return forward, reverse
+    #balance
+
+    def DNAToBinary(self, sequence):
+        """
+        Convert a string of DNA to an integer.
+
+        @arg sequence:
+        @type sequence: string
+
+        @returns: Binary representation of a DNA string.
+        @rtype: int
+        """
+        result = 0x00
+
+        for i in sequence:
+            result <<= 2
+            result |= self.__nucleotideToBinary[i]
+        #for
+
+        return result
+    #DNAToBinary
+
+    def binaryToDNA(self, number):
+        """
+        Convert an integer to a DNA string.
+
+        @arg number: Binary representation of a DNA string.
+        @type number: int
+
+        @returns: A DNA string.
+        @rtype: string
+        """
+        sequence = ""
+
+        for i in range(self.length):
+            sequence += self.__binaryToNucleotide[number & 0x03]
+            number >>= 2
+        #while
+
+        return sequence[::-1]
+    #binaryToDNA
+
+    def complement(self, number):
+        """
+        Calculate the complement of an integer (note, not the reverse
+        complement).
+
+        @arg number: An integer.
+        @type number: int
+
+        @returns: The complement of {number}.
+        @rtype: int
+        """
+        myNumber = number
+        result = 0x00
+
+        for i in range(self.length):
+            result <<= 2
+            result |= ~myNumber & 0x03
+            myNumber <<= 2
+        #for
+
+        return result
+    #complement
 
     def calculateRatios(self):
         """
