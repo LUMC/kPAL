@@ -47,7 +47,7 @@ class kMerDiff():
 
         if pairwise not in range(len(metrics.pairwise)):
             raise ValueError("Invalid pairwise distance algorithm.")
-        if function not in range(len(metrics.summary)):
+        if summary not in range(len(metrics.summary)):
             raise ValueError("Invalid summary function.")
 
         self.__pairwise = metrics.pairwise[pairwise]
@@ -138,7 +138,7 @@ class kMerDiff():
         @arg profile2: A k-mer profile.
         @type profile2: object(kMer)
         """
-        __dynamicSmooth(self, profile1, profile2, 0, profile1.number)
+        self.__dynamicSmooth(profile1, profile2, 0, profile1.number)
     #dynamicSmooth
 
     def calcDistance(self, profile1, profile2):

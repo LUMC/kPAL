@@ -6,19 +6,6 @@ General library containing metrics and helper functions.
 
 import math
 
-pairwise = [
-    lambda x, y: abs(x - y) / float((x + 1) * (y + 1)),
-    lambda x, y: abs(x - y) / float(x + y + 1)
-]
-""" List of pairwise distance functions. """
-
-summary = [
-    min,
-    lambda x: sum(x) / float(len(x)),
-    median
-]
-""" List of summary functions. """
-
 def median(vector):
     """
     Calculate the median of a vector.
@@ -196,3 +183,17 @@ def makeDistanceMatrix(vList, metric, pairwise, output, precision):
         output.write('\n')
     #for
 #makeDistanceMatrix
+
+pairwise = [
+    lambda x, y: abs(x - y) / float((x + 1) * (y + 1)),
+    lambda x, y: abs(x - y) / float(x + y + 1)
+]
+""" List of pairwise distance functions. """
+
+summary = [
+    min,
+    lambda x: sum(x) / float(len(x)),
+    median
+]
+""" List of summary functions. """
+
