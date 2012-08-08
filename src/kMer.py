@@ -28,7 +28,7 @@ def docSplit(func):
 
 def makeProfile(args):
     """
-    Make a k-mer profile from a fastq or a fasta file.
+    Make a k-mer profile from a fasta file.
 
     @arg args: Argparse argument list.
     @type args: object
@@ -83,7 +83,8 @@ def showBalance(args):
 
     profile.load(args.input)
     forward, reverse = profile.split()
-    print metrics.multisetDistance(forward, reverse, metrics.pairwise[0])
+    print ("%%.%if" % args.precision) %  metrics.multisetDistance(forward,
+        reverse, metrics.pairwise[0])
 #showBalance
 
 def positiveProfile(args):
@@ -203,27 +204,27 @@ def main():
     """
     Main entry point.
     """
-    output_parser = argparse.ArgumentParser('output', add_help=False)
+    output_parser = argparse.ArgumentParser(add_help=False)
     output_parser.add_argument("-o", dest="output", default=sys.stdout,
         type=argparse.FileType('w'), help="output file (default=<stdout>)")
 
-    input_parser = argparse.ArgumentParser('input', add_help=False)
+    input_parser = argparse.ArgumentParser(add_help=False)
     input_parser.add_argument("-i", dest="input", default=sys.stdin,
         type=argparse.FileType('r'), help="input file (default=<stdin>)")
 
-    pairOut_parser = argparse.ArgumentParser('pairOut', add_help=False)
+    pairOut_parser = argparse.ArgumentParser(add_help=False)
     pairOut_parser.add_argument("-o", dest="output", nargs=2, required=True,
         type=argparse.FileType('w'), help="pair of output files")
 
-    pairIn_parser = argparse.ArgumentParser('pairIn', add_help=False)
+    pairIn_parser = argparse.ArgumentParser(add_help=False)
     pairIn_parser.add_argument("-i", dest="input", nargs=2, required=True, 
         type=argparse.FileType('r'), help="pair of input files")
 
-    scale_parser = argparse.ArgumentParser('scale', add_help=False)
+    scale_parser = argparse.ArgumentParser(add_help=False)
     scale_parser.add_argument("-d", dest="down", default=False,
         action="store_true", help="scale down (default=%(default)s)")
 
-    smooth_parser = argparse.ArgumentParser('smooth', add_help=False)
+    smooth_parser = argparse.ArgumentParser(add_help=False)
     smooth_parser.add_argument("-s", dest="summary", type=int, default=0,
         help="summary function for dynamic smoothing "
         "(%(type)s default=%(default)s)")
@@ -231,8 +232,12 @@ def main():
         help="threshold for the summary function "
         "(%(type)s default=%(default)s)")
 
-    diff_parser = argparse.ArgumentParser('diff', add_help=False,
-        parents=[scale_parser, smooth_parser])
+    precision_parser = argparse.ArgumentParser(add_help=False)
+    precision_parser.add_argument("-n", dest="precision", type=int, default=3,
+        help="number of decimals (%(type)s default=%(default)s)")
+
+    diff_parser = argparse.ArgumentParser(add_help=False,
+        parents=[scale_parser, smooth_parser, precision_parser])
     diff_parser.add_argument("-b", dest="balance", default=False,
         action="store_true", help="balance the profiles (default=%(default)s)")
     diff_parser.add_argument("-p", dest="positive", default=False,
@@ -248,8 +253,6 @@ def main():
     diff_parser.add_argument("-P", dest="pairwise", type=int, default=0,
         help="paiwise distance function for the multiset distance "
         "(%(type)s default=%(default)s)")
-    diff_parser.add_argument("-n", dest="precision", type=int, default=3,
-        help="number of decimals (%(type)s default=%(default)s)")
 
     usage = __doc__.split("\n\n\n")
     parser = argparse.ArgumentParser(
@@ -274,7 +277,8 @@ def main():
     parser_balance.set_defaults(func=balanceProfile)
 
     parser_balance = subparsers.add_parser("showbalance", 
-        parents=[input_parser], description=docSplit(showBalance))
+        parents=[input_parser, precision_parser],
+        description=docSplit(showBalance))
     parser_balance.set_defaults(func=showBalance)
 
     parser_positive = subparsers.add_parser("positive",

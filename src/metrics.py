@@ -14,7 +14,7 @@ def median(vector):
     @type vector: list[float]
 
     @returns: The median of the values in {vector}.
-    @rval: float
+    @rtype: float
     """
     sortedVector = sorted(vector)
     length = len(vector)
@@ -155,14 +155,16 @@ def makeDistanceMatrix(vList, metric, pairwise, output, precision):
     """
     Make a distance matrix any number of vectors.
 
-    @arg counts: List of vectors.
-    @type counts: list[kMer]
+    @arg vList: List of vectors.
+    @type vList: list[kMer]
+    @arg metric: A distance function.
+    @type metric: function
+    @arg pairwise: A pairwise distance function.
+    @type pairwise: function
     @arg output: Open handle to a writable file.
     @type output: stream
     @arg precision: Number of digits in the output.
     @type precision: integer
-    @arg kDiff: A kMerDiff object.
-    @type kDiff: list[kMerDiff]
     """
     numberOfInputs = len(vList)
 
