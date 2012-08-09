@@ -196,6 +196,36 @@ class kMer():
         return forward, reverse
     #balance
 
+    def shrink(self, factor):
+        """
+        Shrink the profile, effectively reducing the value of k.
+
+        Note that this operation may give slightly different values than
+        indexing on a lower k directly.
+
+        @arg factor: Shrinking factor.
+        @type factor: int
+        """
+        if self.length < factor:
+            raise ValueError(
+                "Reduction factor should be smaller than k-mer size.")
+
+        mergeSize = 4 ** factor
+        self.nonZero = 0
+        newCount = []
+        for i in range(0, self.number, mergeSize):
+            sub = sum(map(lambda x: self.count[x], range(i, i + mergeSize)))
+
+            if sub:
+                self.nonZero += 1
+            newCount.append(sub)
+        #for
+        self.count = newCount
+        self.length -= factor
+        self.number -= mergeSize
+        self.__bitMask >>= 2 * factor
+    #shrink
+
     def DNAToBinary(self, sequence):
         """
         Convert a string of DNA to an integer.

@@ -130,6 +130,20 @@ def scaleProfile(args):
     profile2.save(args.output[1])
 #scaleProfile
 
+def shrinkProfile(args):
+    """
+    Shrink a profile, effectively reducing k.
+
+    @arg args: Argparse argument list.
+    @type args: object
+    """
+    profile = kLib.kMer()
+
+    profile.load(args.input)
+    profile.shrink(args.factor)
+    profile.save(args.output)
+#shrinkProfile
+
 def smoothProfile(args):
     """
     Smooth two profiles by collapsing sub-profiles.
@@ -289,6 +303,12 @@ def main():
     parser_scale = subparsers.add_parser("scale", parents=[pairOut_parser,
         pairIn_parser, scale_parser], description=docSplit(scaleProfile))
     parser_scale.set_defaults(func=scaleProfile)
+
+    parser_shrink = subparsers.add_parser("shrink", parents=[output_parser,
+        input_parser], description=docSplit(shrinkProfile))
+    parser_shrink.add_argument("-f", dest="factor", type=int, required=True,
+        help="shrinking factor")
+    parser_shrink.set_defaults(func=shrinkProfile)
 
     parser_smooth = subparsers.add_parser("smooth", parents=[pairOut_parser,
         pairIn_parser, smooth_parser], description=docSplit(smoothProfile))
