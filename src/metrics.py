@@ -26,6 +26,30 @@ def median(vector):
     return sortedVector[length / 2]
 #median
 
+def meanStd(l):
+    """
+    Calculate the mean and median of l.
+
+    @arg l: A list of values.
+    @type l: list(float)
+
+    @returns: The mean and standard deviation of l.
+    @rtype: tuple(float, float)
+    """
+    sum_l = 0
+    sumSquared_l = 0
+    n = 0
+
+    for i in l:
+        sum_l += i
+        sumSquared_l += i * i
+        n += 1
+    #for
+    
+    mean = sum_l / float(n)
+    return mean, math.sqrt((sumSquared_l / float(n)) - (mean * mean))
+#meanStd
+
 def calcScale(vector1, vector2):
     """
     Calculate scaling factors based upon total counts. One of the factors

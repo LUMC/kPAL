@@ -87,6 +87,20 @@ def showBalance(args):
         reverse, metrics.pairwise[0])
 #showBalance
 
+def showMeanStd(args):
+    """
+    Show the mean and standard deviation of a k-mer profile.
+
+    @arg args: Argparse argument list.
+    @type args: object
+    """
+    profile = kLib.kMer()
+
+    profile.load(args.input)
+    print ("%%.%if %%.%if" % (args.precision, args.precision)) % \
+        metrics.meanStd(profile.count)
+#showBalance
+
 def positiveProfile(args):
     """
     Only keep counts that are positive in both profiles.
@@ -294,6 +308,11 @@ def main():
         parents=[input_parser, precision_parser],
         description=docSplit(showBalance))
     parser_balance.set_defaults(func=showBalance)
+
+    parser_meanstd = subparsers.add_parser("meanstd", 
+        parents=[input_parser, precision_parser],
+        description=docSplit(showMeanStd))
+    parser_meanstd.set_defaults(func=showMeanStd)
 
     parser_positive = subparsers.add_parser("positive",
         parents=[pairOut_parser, pairIn_parser],
