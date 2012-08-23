@@ -5,6 +5,7 @@ General library containing metrics and helper functions.
 """
 
 import math
+import collections
 
 def median(vector):
     """
@@ -25,6 +26,23 @@ def median(vector):
     #if
     return sortedVector[length / 2]
 #median
+
+def distribution(vector):
+    """
+    Calculate the distribution of the values in a vector.
+
+    @arg vector: A vector.
+    @type vector: list[int]
+
+    @returns: A list of pairs (count, occurrences).
+    @rtype: list[tuple(int, in)]
+    """
+    d = collections.defaultdict(int)
+
+    for i in vector:
+        d[i] += 1
+    return map(lambda x: (x, d[x]), sorted(d))
+#distribution
 
 def meanStd(l):
     """

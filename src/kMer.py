@@ -101,6 +101,20 @@ def showMeanStd(args):
         metrics.meanStd(profile.count)
 #showBalance
 
+def distribution(args):
+    """
+    Calculate the distribution of the values in a k-mer profile.
+
+    @arg args: Argparse argument list.
+    @type args: object
+    """
+    profile = kLib.kMer()
+
+    profile.load(args.input)
+    for i in metrics.distribution(profile.count):
+        print "%i %i" % i
+#distribution
+
 def positiveProfile(args):
     """
     Only keep counts that are positive in both profiles.
@@ -313,6 +327,11 @@ def main():
         parents=[input_parser, precision_parser],
         description=docSplit(showMeanStd))
     parser_meanstd.set_defaults(func=showMeanStd)
+
+    parser_distr = subparsers.add_parser("distr", 
+        parents=[output_parser, input_parser],
+        description=docSplit(distribution))
+    parser_distr.set_defaults(func=distribution)
 
     parser_positive = subparsers.add_parser("positive",
         parents=[pairOut_parser, pairIn_parser],
