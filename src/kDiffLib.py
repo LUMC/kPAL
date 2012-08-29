@@ -171,8 +171,8 @@ class kMerDiff():
 
             if self.__scaleDown:
                 scale1, scale2 = metrics.scaleDown(scale1, scale2)
-            metrics.scale(temp1.count, scale1)
-            metrics.scale(temp2.count, scale2)
+            temp1.count = metrics.scale(temp1.count, scale1)
+            temp2.count = metrics.scale(temp2.count, scale2)
         #if
         if not self.__multiset:
             return metrics.euclideanDistance(temp1.count, temp2.count)
