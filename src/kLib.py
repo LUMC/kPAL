@@ -6,6 +6,7 @@ k-mer base library.
 
 import sys
 import argparse
+import re
 from Bio import Seq
 from Bio import SeqIO
 
@@ -97,9 +98,10 @@ class kMer():
         @type length: int
         """
         self.__initialise(length)
+        S = re.compile("[^%s]" % ''.join(self.__nucleotideToBinary.keys()))
 
         for record in SeqIO.parse(handle, "fasta"):
-            for sequence in str(record.seq).split('N'):
+            for sequence in S.split(str(record.seq)):
                 self.__scanLine(sequence)
     #analyse
 
