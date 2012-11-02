@@ -172,6 +172,20 @@ def shrinkProfile(args):
     profile.save(args.output)
 #shrinkProfile
 
+def shuffleProfile(args):
+    """
+    Randomise a profile.
+
+    @arg args: Argparse argument list.
+    @type args: object
+    """
+    profile = kLib.kMer()
+
+    profile.load(args.input)
+    profile.shuffle()
+    profile.save(args.output)
+#shuffleProfile
+
 def smoothProfile(args):
     """
     Smooth two profiles by collapsing sub-profiles.
@@ -347,6 +361,10 @@ def main():
     parser_shrink.add_argument("-f", dest="factor", type=int, required=True,
         help="shrinking factor")
     parser_shrink.set_defaults(func=shrinkProfile)
+
+    parser_shrink = subparsers.add_parser("shuffle", parents=[output_parser,
+        input_parser], description=docSplit(shuffleProfile))
+    parser_shrink.set_defaults(func=shuffleProfile)
 
     parser_smooth = subparsers.add_parser("smooth", parents=[pairOut_parser,
         pairIn_parser, smooth_parser], description=docSplit(smoothProfile))

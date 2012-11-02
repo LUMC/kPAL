@@ -7,6 +7,7 @@ k-mer base library.
 import sys
 import argparse
 import re
+import random
 from Bio import Seq
 from Bio import SeqIO
 
@@ -196,7 +197,7 @@ class kMer():
         #for
 
         return forward, reverse
-    #balance
+    #split
 
     def shrink(self, factor):
         """
@@ -227,6 +228,13 @@ class kMer():
         self.number -= mergeSize
         self.__bitMask >>= 2 * factor
     #shrink
+
+    def shuffle(self):
+        """
+        Randomise the profile.
+        """
+        random.shuffle(self.count)
+    #shuffle
 
     def DNAToBinary(self, sequence):
         """
