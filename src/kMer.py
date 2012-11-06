@@ -115,6 +115,21 @@ def distribution(args):
         print "%i %i" % i
 #distribution
 
+def info(args):
+    """
+    Print some information about the k-mer profile.
+
+    @arg args: Argparse argument list.
+    @type args: object
+    """
+    profile = kLib.kMer()
+
+    profile.load(args.input)
+    print "k-mer length: %i" % profile.length
+    print "Total number of counts: %i" % profile.total
+    print "Non-zero counts: %i" % profile.nonZero
+#
+
 def positiveProfile(args):
     """
     Only keep counts that are positive in both profiles.
@@ -346,6 +361,11 @@ def main():
         parents=[output_parser, input_parser],
         description=docSplit(distribution))
     parser_distr.set_defaults(func=distribution)
+
+    parser_distr = subparsers.add_parser("info", 
+        parents=[output_parser, input_parser],
+        description=docSplit(info))
+    parser_distr.set_defaults(func=info)
 
     parser_positive = subparsers.add_parser("positive",
         parents=[pairOut_parser, pairIn_parser],
