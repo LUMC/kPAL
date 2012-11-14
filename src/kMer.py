@@ -128,7 +128,27 @@ def info(args):
     print "k-mer length: %i" % profile.length
     print "Total number of counts: %i" % profile.total
     print "Non-zero counts: %i" % profile.nonZero
-#
+#info
+
+def getCount(args):
+    """
+    Retrieve the count for a particular word.
+
+    @arg args: Argparse argument list.
+    @type args: object
+    """
+    profile = kLib.kMer()
+
+    profile.load(args.input)
+    if profile.length != len(args.word):
+        raise ValueError("The length of the query does not match the profile "
+            "length.")
+    try:
+        offset = profile.DNAToBinary(args.word)
+    except KeyError, error:
+        raise ValueError("The input is not a valid DNA sequence.")
+    print profile.count[offset]
+#getCount
 
 def positiveProfile(args):
     """
@@ -362,10 +382,17 @@ def main():
         description=docSplit(distribution))
     parser_distr.set_defaults(func=distribution)
 
-    parser_distr = subparsers.add_parser("info", 
+    parser_info = subparsers.add_parser("info", 
         parents=[output_parser, input_parser],
         description=docSplit(info))
-    parser_distr.set_defaults(func=info)
+    parser_info.set_defaults(func=info)
+
+    parser_getcount = subparsers.add_parser("getcount", 
+        parents=[input_parser],
+        description=docSplit(getCount))
+    parser_getcount.add_argument("-w", dest="word", type=str, required=True,
+        help="the word in question (%(type)s)")
+    parser_getcount.set_defaults(func=getCount)
 
     parser_positive = subparsers.add_parser("positive",
         parents=[pairOut_parser, pairIn_parser],
