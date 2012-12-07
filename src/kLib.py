@@ -8,6 +8,7 @@ import sys
 import argparse
 import re
 import random
+from os import path
 from Bio import Seq
 from Bio import SeqIO
 
@@ -36,6 +37,7 @@ class kMer():
         """
         self.total = 0
         self.nonZero = 0
+        self.name = ""
     #__init__
 
     def __initialise(self, length):
@@ -116,6 +118,7 @@ class kMer():
         self.__initialise(int(handle.readline()[:-1]))
         self.total = (int(handle.readline()[:-1]))
         self.nonZero = (int(handle.readline()[:-1]))
+        self.name = path.basename(handle.name)
 
         offset = 0
         line = handle.readline()

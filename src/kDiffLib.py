@@ -197,8 +197,8 @@ def makeDistanceMatrix(profiles, output, precision, kDiff):
     numberOfInputs = len(profiles)
 
     output.write("%i\n" % numberOfInputs)
-    for i in range(1, numberOfInputs + 1):
-        output.write("%i\n" % i)
+    for i in profiles:
+        output.write("%s\n" % i.name)
     for i in range(1, numberOfInputs):
         for j in range(i):
             if (j):
