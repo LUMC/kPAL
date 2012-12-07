@@ -112,7 +112,7 @@ def distribution(args):
 
     profile.load(args.input)
     for i in metrics.distribution(profile.count):
-        print "%i %i" % i
+        args.output.write("%i %i\n" % i)
 #distribution
 
 def info(args):
@@ -288,7 +288,7 @@ def diffMatrix(args):
             raise ValueError(lengthError)
     #for
 
-    kDiffLib.makeDistanceMatrix(counts, sys.stdout, args.precision, diff)
+    kDiffLib.makeDistanceMatrix(counts, args.output, args.precision, diff)
 #diffMatrix
 
 def main():
@@ -383,7 +383,7 @@ def main():
     parser_distr.set_defaults(func=distribution)
 
     parser_info = subparsers.add_parser("info", 
-        parents=[output_parser, input_parser],
+        parents=[input_parser],
         description=docSplit(info))
     parser_info.set_defaults(func=info)
 
@@ -421,8 +421,8 @@ def main():
         diff_parser], description=docSplit(diffProfile))
     parser_diff.set_defaults(func=diffProfile)
 
-    parser_matrix = subparsers.add_parser("matrix", parents=[diff_parser],
-        description=docSplit(diffMatrix))
+    parser_matrix = subparsers.add_parser("matrix", parents=[diff_parser,
+        output_parser], description=docSplit(diffMatrix))
     parser_matrix.add_argument("-i", dest="inputs", nargs='+', required=True,
         type=argparse.FileType('r'), help="list of input files")
     parser_matrix.set_defaults(func=diffMatrix)
