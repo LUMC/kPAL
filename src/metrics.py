@@ -193,41 +193,6 @@ def euclideanDistance(vector1, vector2):
     return math.sqrt(sumOfSquares)
 #euclideanDistance
 
-def makeDistanceMatrix(vList, metric, pairwise, output, precision):
-    """
-    Make a distance matrix any number of vectors.
-
-    @arg vList: List of vectors.
-    @type vList: list[kMer]
-    @arg metric: A distance function.
-    @type metric: function
-    @arg pairwise: A pairwise distance function.
-    @type pairwise: function
-    @arg output: Open handle to a writable file.
-    @type output: stream
-    @arg precision: Number of digits in the output.
-    @type precision: integer
-    """
-    numberOfInputs = len(vList)
-
-    output.write("%i\n" % numberOfInputs)
-    for i in range(1, numberOfInputs + 1):
-        output.write("%i\n" % i)
-    for i in range(1, numberOfInputs):
-        for j in range(i):
-            if (j):
-                output.write(' ')
-            if pairwise:
-                output.write(("%%.%if" % precision) % metric(vList[i],
-                    vList[j], pairwise))
-            else:
-                output.write(("%%.%if" % precision) % metric(vList[i],
-                    vList[j]))
-        #for
-        output.write('\n')
-    #for
-#makeDistanceMatrix
-
 pairwise = [
     lambda x, y: abs(x - y) / float((x + 1) * (y + 1)),
     lambda x, y: abs(x - y) / float(x + y + 1)
