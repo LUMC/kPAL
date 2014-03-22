@@ -84,7 +84,7 @@ def showBalance(args):
     profile.load(args.input)
     forward, reverse = profile.split()
     print ("%%.%if" % args.precision) %  metrics.multisetDistance(forward,
-        reverse, metrics.pairwise[0])
+        reverse, metrics.pairwise["diff-prod"])
 #showBalance
 
 def showMeanStd(args):
@@ -228,7 +228,8 @@ def smoothProfile(args):
     @arg args: Argparse argument list.
     @type args: object
     """
-    diff = kDiffLib.kMerDiff(summary=args.summary, threshold=args.threshold)
+    diff = kDiffLib.kMerDiff(summary=metrics.summary[args.summary],
+        threshold=args.threshold)
     profile1 = kLib.kMer()
     profile2 = kLib.kMer()
 
@@ -249,9 +250,9 @@ def diffProfile(args):
     @type args: object
     """
     diff = kDiffLib.kMerDiff(balance=args.balance, positive=args.positive,
-        smooth=args.smooth, summary=args.summary, threshold=args.threshold,
-        scale=args.scale, scaleDown=args.down, multiset=not args.euclidean,
-        pairwise=args.pairwise)
+        smooth=args.smooth, summary=metrics.summary[args.summary],
+        threshold=args.threshold, scale=args.scale, scaleDown=args.down,
+        multiset=not args.euclidean, pairwise=metrics.pairwise[args.pairwise])
 
     profile1 = kLib.kMer()
     profile2 = kLib.kMer()
@@ -276,9 +277,9 @@ def diffMatrix(args):
         raise ValueError("You must give at least two input files.")
 
     diff = kDiffLib.kMerDiff(balance=args.balance, positive=args.positive,
-        smooth=args.smooth, summary=args.summary, threshold=args.threshold,
-        scale=args.scale, scaleDown=args.down, multiset=not args.euclidean,
-        pairwise=args.pairwise)
+        smooth=args.smooth, summary=metrics.summary[args.summary],
+        threshold=args.threshold, scale=args.scale, scaleDown=args.down,
+        multiset=not args.euclidean, pairwise=metrics.pairwise[args.pairwise])
 
     counts = []
     for i in args.inputs:
@@ -316,9 +317,9 @@ def main():
         action="store_true", help="scale down (default=%(default)s)")
 
     smooth_parser = argparse.ArgumentParser(add_help=False)
-    smooth_parser.add_argument("-s", dest="summary", type=int, default=0,
-        help="summary function for dynamic smoothing "
-        "(%(type)s default=%(default)s)")
+    smooth_parser.add_argument("-s", dest="summary", type=str, default="min",
+        choices=metrics.summary, help="summary function for dynamic smoothing "
+        '(%(type)s default="%(default)s")')
     smooth_parser.add_argument("-t", dest="threshold", type=int, default=0,
         help="threshold for the summary function "
         "(%(type)s default=%(default)s)")
@@ -341,9 +342,10 @@ def main():
     diff_parser.add_argument("-e", dest="euclidean", default=False,
         action="store_true", help="use the euclidean distance metric "
         "(default=%(default)s)")
-    diff_parser.add_argument("-P", dest="pairwise", type=int, default=0,
+    diff_parser.add_argument("-P", dest="pairwise", type=str,
+        default="diff-prod", choices=metrics.pairwise,
         help="paiwise distance function for the multiset distance "
-        "(%(type)s default=%(default)s)")
+        '(%(type)s default="%(default)s")')
 
     usage = __doc__.split("\n\n\n")
     parser = argparse.ArgumentParser(

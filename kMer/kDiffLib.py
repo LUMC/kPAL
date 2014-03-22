@@ -12,8 +12,10 @@ class kMerDiff():
     """
     Class of distance functions.
     """
-    def __init__(self, balance=False, positive=False, smooth=False, summary=0,
-        threshold=0, scale=False, scaleDown=False, multiset=True, pairwise=0):
+    def __init__(self, balance=False, positive=False, smooth=False,
+            summary=metrics.summary["min"], threshold=0, scale=False,
+            scaleDown=False, multiset=True,
+            pairwise=metrics.pairwise["diff-prod"]):
         """
         Initialise the class.
 
@@ -44,14 +46,8 @@ class kMerDiff():
         self.__scale = scale
         self.__scaleDown = scaleDown
         self.__multiset = multiset
-
-        if pairwise not in range(len(metrics.pairwise)):
-            raise ValueError("Invalid pairwise distance algorithm.")
-        if summary not in range(len(metrics.summary)):
-            raise ValueError("Invalid summary function.")
-
-        self.__pairwise = metrics.pairwise[pairwise]
-        self.__function = metrics.summary[summary]
+        self.__pairwise = pairwise
+        self.__function = summary
     #__init__
 
     def __collapse(self, vector, start, length):

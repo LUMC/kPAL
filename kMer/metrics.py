@@ -193,16 +193,16 @@ def euclideanDistance(vector1, vector2):
     return math.sqrt(sumOfSquares)
 #euclideanDistance
 
-pairwise = [
-    lambda x, y: abs(x - y) / float((x + 1) * (y + 1)),
-    lambda x, y: abs(x - y) / float(x + y + 1)
-]
-""" List of pairwise distance functions. """
+pairwise = {
+    "diff-prod": lambda x, y: abs(x - y) / float((x + 1) * (y + 1)),
+    "diff-sum": lambda x, y: abs(x - y) / float(x + y + 1)
+}
+""" Dictionary of pairwise distance functions. """
 
-summary = [
-    min,
-    lambda x: sum(x) / float(len(x)),
-    median
-]
-""" List of summary functions. """
+summary = {
+    "min": min,
+    "average": lambda x: sum(x) / float(len(x)),
+    "median": median
+}
+""" Dictionary of summary functions. """
 
