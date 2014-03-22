@@ -14,6 +14,8 @@ import kLib
 import kDiffLib
 import metrics
 
+from math import *
+
 lengthError = "k-mer lengths of the files differ."
 
 def docSplit(func):
@@ -228,6 +230,10 @@ def smoothProfile(args):
     @arg args: Argparse argument list.
     @type args: object
     """
+    summary = metrics.summary[args.summary]
+    if args.summary_func:
+        summary = lambda x: eval(args.summary_func)
+
     diff = kDiffLib.kMerDiff(summary=metrics.summary[args.summary],
         threshold=args.threshold)
     profile1 = kLib.kMer()
@@ -249,10 +255,18 @@ def diffProfile(args):
     @arg args: Argparse argument list.
     @type args: object
     """
+    summary = metrics.summary[args.summary]
+    if args.summary_func:
+        summary = lambda x: eval(args.summary_func)
+
+    pairwise = metrics.pairwise[args.pairwise]
+    if args.pairwise_func:
+        pairwise = lambda x, y: eval(args.pairwise_func)
+
     diff = kDiffLib.kMerDiff(balance=args.balance, positive=args.positive,
-        smooth=args.smooth, summary=metrics.summary[args.summary],
-        threshold=args.threshold, scale=args.scale, scaleDown=args.down,
-        multiset=not args.euclidean, pairwise=metrics.pairwise[args.pairwise])
+        smooth=args.smooth, summary=summary, threshold=args.threshold,
+        scale=args.scale, scaleDown=args.down, multiset=not args.euclidean,
+        pairwise=pairwise)
 
     profile1 = kLib.kMer()
     profile2 = kLib.kMer()
@@ -276,10 +290,18 @@ def diffMatrix(args):
     if len(args.inputs) < 2:
         raise ValueError("You must give at least two input files.")
 
+    summary = metrics.summary[args.summary]
+    if args.summary_func:
+        summary = lambda x: eval(args.summary_func)
+
+    pairwise = metrics.pairwise[args.pairwise]
+    if args.pairwise_func:
+        pairwise = lambda x, y: eval(args.pairwise_func)
+
     diff = kDiffLib.kMerDiff(balance=args.balance, positive=args.positive,
-        smooth=args.smooth, summary=metrics.summary[args.summary],
-        threshold=args.threshold, scale=args.scale, scaleDown=args.down,
-        multiset=not args.euclidean, pairwise=metrics.pairwise[args.pairwise])
+        smooth=args.smooth, summary=summary, threshold=args.threshold,
+        scale=args.scale, scaleDown=args.down, multiset=not args.euclidean,
+        pairwise=pairwise)
 
     counts = []
     for i in args.inputs:
@@ -320,6 +342,9 @@ def main():
     smooth_parser.add_argument("-s", dest="summary", type=str, default="min",
         choices=metrics.summary, help="summary function for dynamic smoothing "
         '(%(type)s default="%(default)s")')
+    smooth_parser.add_argument("--summary-function", dest="summary_func",
+        type=str, default="", help="custom summary function "
+        '(%(type)s default="%(default)s")')
     smooth_parser.add_argument("-t", dest="threshold", type=int, default=0,
         help="threshold for the summary function "
         "(%(type)s default=%(default)s)")
@@ -345,6 +370,9 @@ def main():
     diff_parser.add_argument("-P", dest="pairwise", type=str,
         default="diff-prod", choices=metrics.pairwise,
         help="paiwise distance function for the multiset distance "
+        '(%(type)s default="%(default)s")')
+    diff_parser.add_argument("--pairwise-function", dest="pairwise_func",
+        type=str, default="", help="custom pairwise function "
         '(%(type)s default="%(default)s")')
 
     usage = __doc__.split("\n\n\n")
