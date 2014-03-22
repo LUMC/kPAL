@@ -19,8 +19,14 @@ lengthError = "k-mer lengths of the files differ."
 
 def makeProfile(input_handle, output_handle, size):
     """
-    Make a k-mer profile from a fasta file.
+    Make a k-mer profile from a FASTA file.
 
+    @arg input_handle: Open readable handle to a FASTA file.
+    @type input_handle: stream
+    @arg output_handle: Open writeable handle to a k-mer profile.
+    @type output_handle: stream
+    @arg size: Size of k.
+    @type size: int
     """
     profile = kLib.kMer()
     profile.analyse(input_handle, size)
@@ -31,6 +37,10 @@ def mergeProfiles(input_handles, output_handle):
     """
     Merge two k-mer profiles.
 
+    @arg input_handles: Open readable handles to a pair of k-mer profiles.
+    @type input_handles: list(stream)
+    @arg output_handle: Open writeable handle to a k-mer profile.
+    @type output_handle: stream
     """
     profile1 = kLib.kMer()
     profile2 = kLib.kMer()
@@ -49,6 +59,10 @@ def balanceProfile(input_handle, output_handle):
     """
     Balance a k-mer profile.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
+    @arg output_handle: Open writeable handle to a k-mer profile.
+    @type output_handle: stream
     """
     profile = kLib.kMer()
 
@@ -57,10 +71,14 @@ def balanceProfile(input_handle, output_handle):
     profile.save(output_handle)
 #balanceProfile
 
-def showBalance(input_handle, precision=3, ):
+def showBalance(input_handle, precision=3):
     """
     Show the balance of a k-mer profile.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
+    @arg precision: Number of digits in the output.
+    @type precision: int
     """
     profile = kLib.kMer()
 
@@ -74,6 +92,10 @@ def showMeanStd(input_handle, precision=3):
     """
     Show the mean and standard deviation of a k-mer profile.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
+    @arg precision: Number of digits in the output.
+    @type precision: int
     """
     profile = kLib.kMer()
 
@@ -86,6 +108,10 @@ def distribution(input_handle, output_handle):
     """
     Calculate the distribution of the values in a k-mer profile.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
+    @arg output_handle: Open writeable handle to distribution file.
+    @type output_handle: stream
     """
     profile = kLib.kMer()
 
@@ -98,6 +124,8 @@ def info(input_handle):
     """
     Print some information about the k-mer profile.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
     """
     profile = kLib.kMer()
 
@@ -111,6 +139,10 @@ def getCount(input_handle, word):
     """
     Retrieve the count for a particular word.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
+    @arg word: The query word.
+    @type word: str
     """
     profile = kLib.kMer()
 
@@ -129,6 +161,10 @@ def positiveProfile(input_handles, output_handles):
     """
     Only keep counts that are positive in both profiles.
 
+    @arg input_handles: Open readable handles to a pair of k-mer profiles.
+    @type input_handles: list(stream)
+    @arg output_handles: Open writeable handles to a pair of k-mer profiles.
+    @type output_handles: list(stream)
     """
     profile1 = kLib.kMer()
     profile2 = kLib.kMer()
@@ -147,6 +183,12 @@ def scaleProfile(input_handles, output_handles, down=False):
     """
     Scale profiles such that the total number of k-mers is equal.
 
+    @arg input_handles: Open readable handles to a pair of k-mer profiles.
+    @type input_handles: list(stream)
+    @arg output_handles: Open writeable handles to a pair of k-mer profiles.
+    @type output_handles: list(stream)
+    @arg down: Scale down.
+    @type down: bool
     """
     profile1 = kLib.kMer()
     profile2 = kLib.kMer()
@@ -168,6 +210,12 @@ def shrinkProfile(input_handle, output_handle, factor):
     """
     Shrink a profile, effectively reducing k.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
+    @arg output_handle: Open writeable handle to a k-mer profile.
+    @type output_handle: stream
+    @arg factor: Scaling factor.
+    @type factor: int
     """
     profile = kLib.kMer()
 
@@ -180,6 +228,10 @@ def shuffleProfile(input_handle, output_handle):
     """
     Randomise a profile.
 
+    @arg input_handle: Open readable handle to a k-mer profile.
+    @type input_handle: stream
+    @arg output_handle: Open writeable handle to a k-mer profile.
+    @type output_handle: stream
     """
     profile = kLib.kMer()
 
@@ -193,6 +245,16 @@ def smoothProfile(input_handles, output_handles, summary, summary_func="",
     """
     Smooth two profiles by collapsing sub-profiles.
 
+    @arg input_handles: Open readable handles to a pair of k-mer profiles.
+    @type input_handles: list(stream)
+    @arg output_handles: Open writeable handles to a pair of k-mer profiles.
+    @type output_handles: list(stream)
+    @arg summary: Name of the summary function.
+    @type summary: str
+    @arg summary_func: Custom summary function.
+    @type summary_func: str
+    @arg threshold: Threshold for the summary function.
+    @type threshold: int
     """
     smooth_function = metrics.summary[summary]
     if summary_func:
@@ -211,12 +273,39 @@ def smoothProfile(input_handles, output_handles, summary, summary_func="",
     profile2.save(output_handles[1])
 #smoothProfile
 
-def diffProfile(input_handles, scale=False, pairwise_func="", euclidean=False,
-        positive=False, smooth=False, precision=3, summary="min", down=False,
-        summary_func="", pairwise="diff-prod", threshold=0, balance=False):
+def diffProfile(input_handles, euclidean=False, pairwise="diff-prod",
+        pairwise_func="", smooth=False, summary="min", summary_func="",
+        threshold=0, scale=False, down=False, positive=False, balance=False,
+        precision=3):
     """
     Calculate the difference between two k-mer profiles.
 
+    @arg input_handles: Open readable handles to a pair of k-mer profiles.
+    @type input_handles: list(stream)
+    @arg euclidean: Use the Euclidean distance.
+    @type euclidean: bool
+    @arg pairwise: Name of the pairwise distance function.
+    @type pairwise: str
+    @arg pairwise_func: Custom pairwise distance function.
+    @type pairwise_func: str
+    @arg smooth: Enable smoothing.
+    @type smooth: bool
+    @arg summary: Name of the summary function.
+    @type summary: str
+    @arg summary_func: Custom summary function.
+    @type summary_func: str
+    @arg threshold: Threshold for the summary function.
+    @type threshold: int
+    @arg scale: Scale the profiles.
+    @type scale: bool
+    @arg down: Scale down.
+    @type down: bool
+    @arg positive: Only use positive values.
+    @type positive: bool
+    @arg balance: Balance the profiles.
+    @type balance: bool
+    @arg precision: Number of digits in the output.
+    @type precision: int
     """
     summary_function = metrics.summary[summary]
     if summary_func:
@@ -242,13 +331,39 @@ def diffProfile(input_handles, scale=False, pairwise_func="", euclidean=False,
     print ("%%.%if" % precision) % diff.calcDistance(profile1, profile2)
 #diffProfile
 
-def diffMatrix(input_handles, output_handle, scale=False, pairwise_func="",
-        euclidean=False, positive=False, smooth=False, precision=3,
-        summary="min", down=False, summary_func="", pairwise="diff-prod",
-        threshold=0, balance=False):
+def diffMatrix(input_handles, euclidean=False, pairwise="diff-prod",
+        pairwise_func="", smooth=False, summary="min", summary_func="",
+        threshold=0, scale=False, down=False, positive=False, balance=False,
+        precision=3):
     """
     Make a distance matrix any number of k-mer profiles.
 
+    @arg input_handles: Open readable handles to a list of k-mer profiles.
+    @type input_handles: list(stream)
+    @arg euclidean: Use the Euclidean distance.
+    @type euclidean: bool
+    @arg pairwise: Name of the pairwise distance function.
+    @type pairwise: str
+    @arg pairwise_func: Custom pairwise distance function.
+    @type pairwise_func: str
+    @arg smooth: Enable smoothing.
+    @type smooth: bool
+    @arg summary: Name of the summary function.
+    @type summary: str
+    @arg summary_func: Custom summary function.
+    @type summary_func: str
+    @arg threshold: Threshold for the summary function.
+    @type threshold: int
+    @arg scale: Scale the profiles.
+    @type scale: bool
+    @arg down: Scale down.
+    @type down: bool
+    @arg positive: Only use positive values.
+    @type positive: bool
+    @arg balance: Balance the profiles.
+    @type balance: bool
+    @arg precision: Number of digits in the output.
+    @type precision: int
     """
     if len(input_handles) < 2:
         raise ValueError("You must give at least two input files.")
