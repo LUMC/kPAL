@@ -20,11 +20,11 @@ __homepage__ = 'https://git.lumc.nl/j.f.j.laros/k-mer'
 
 usage = __doc__.split("\n\n\n")
 
-class NewFileType(argparse.FileType):
+class ProtectedFileType(argparse.FileType):
     def __call__(self, string):
-        if os.path.exists(string):
+        if 'w' in self._mode and os.path.exists(string):
             raise IOError('failed to create "{}": file exists.'.format(string))
-        return super(NewFileType, self).__call__(string)
+        return super(ProtectedFileType, self).__call__(string)
 
 def doc_split(func):
     return func.__doc__.split("\n\n")[0]

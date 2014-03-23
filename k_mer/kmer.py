@@ -11,7 +11,8 @@ import sys
 
 from math import *
 
-from . import NewFileType, doc_split, usage, version, klib, kdifflib, metrics
+from . import (ProtectedFileType, doc_split, usage, version, klib, kdifflib,
+    metrics)
 
 length_error = "k-mer lengths of the files differ."
 
@@ -399,7 +400,7 @@ def main():
     """
     output_parser = argparse.ArgumentParser(add_help=False)
     output_parser.add_argument("output_handle", metavar="OUTPUT",
-        type=NewFileType('w'), help="output file")
+        type=ProtectedFileType('w'), help="output file")
 
     input_parser = argparse.ArgumentParser(add_help=False)
     input_parser.add_argument("input_handle", metavar="INPUT",
@@ -407,7 +408,7 @@ def main():
 
     pair_out_parser = argparse.ArgumentParser(add_help=False)
     pair_out_parser.add_argument("output_handles", metavar="OUTPUT", nargs=2,
-        type=NewFileType('w'), help="pair of output files")
+        type=ProtectedFileType('w'), help="pair of output files")
 
     pair_in_parser = argparse.ArgumentParser(add_help=False)
     pair_in_parser.add_argument("input_handles", metavar="INPUT", nargs=2,
