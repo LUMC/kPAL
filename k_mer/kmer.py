@@ -7,8 +7,8 @@ Toolbox for k-mer profiles.
 import argparse
 import sys
 
-import kLib
-import kDiffLib
+import klib
+import kdifflib
 import metrics
 
 from math import *
@@ -28,7 +28,7 @@ def makeProfile(input_handle, output_handle, size):
     @arg size: Size of k.
     @type size: int
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
     profile.analyse(input_handle, size)
     profile.save(output_handle)
 #makeProfile
@@ -42,8 +42,8 @@ def mergeProfiles(input_handles, output_handle):
     @arg output_handle: Open writeable handle to a k-mer profile.
     @type output_handle: stream
     """
-    profile1 = kLib.kMer()
-    profile2 = kLib.kMer()
+    profile1 = klib.kMer()
+    profile2 = klib.kMer()
 
     profile1.load(input_handles[0])
     profile2.load(input_handles[1])
@@ -64,7 +64,7 @@ def balanceProfile(input_handle, output_handle):
     @arg output_handle: Open writeable handle to a k-mer profile.
     @type output_handle: stream
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     profile.balance()
@@ -80,7 +80,7 @@ def showBalance(input_handle, precision=3):
     @arg precision: Number of digits in the output.
     @type precision: int
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     forward, reverse = profile.split()
@@ -97,7 +97,7 @@ def showMeanStd(input_handle, precision=3):
     @arg precision: Number of digits in the output.
     @type precision: int
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     print ("%%.%if %%.%if" % (precision, precision)) % \
@@ -113,7 +113,7 @@ def distribution(input_handle, output_handle):
     @arg output_handle: Open writeable handle to distribution file.
     @type output_handle: stream
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     for i in metrics.distribution(profile.count):
@@ -127,7 +127,7 @@ def info(input_handle):
     @arg input_handle: Open readable handle to a k-mer profile.
     @type input_handle: stream
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     print "k-mer length: %i" % profile.length
@@ -144,7 +144,7 @@ def getCount(input_handle, word):
     @arg word: The query word.
     @type word: str
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     if profile.length != len(word):
@@ -166,8 +166,8 @@ def positiveProfile(input_handles, output_handles):
     @arg output_handles: Open writeable handles to a pair of k-mer profiles.
     @type output_handles: list(stream)
     """
-    profile1 = kLib.kMer()
-    profile2 = kLib.kMer()
+    profile1 = klib.kMer()
+    profile2 = klib.kMer()
 
     profile1.load(input_handles[0])
     profile2.load(input_handles[1])
@@ -190,8 +190,8 @@ def scaleProfile(input_handles, output_handles, down=False):
     @arg down: Scale down.
     @type down: bool
     """
-    profile1 = kLib.kMer()
-    profile2 = kLib.kMer()
+    profile1 = klib.kMer()
+    profile2 = klib.kMer()
 
     profile1.load(input_handles[0])
     profile2.load(input_handles[1])
@@ -217,7 +217,7 @@ def shrinkProfile(input_handle, output_handle, factor):
     @arg factor: Scaling factor.
     @type factor: int
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     profile.shrink(factor)
@@ -233,7 +233,7 @@ def shuffleProfile(input_handle, output_handle):
     @arg output_handle: Open writeable handle to a k-mer profile.
     @type output_handle: stream
     """
-    profile = kLib.kMer()
+    profile = klib.kMer()
 
     profile.load(input_handle)
     profile.shuffle()
@@ -260,9 +260,9 @@ def smoothProfile(input_handles, output_handles, summary, summary_func="",
     if summary_func:
         smooth_function = lambda x: eval(summary_func)
 
-    diff = kDiffLib.kMerDiff(summary=smooth_function, threshold=threshold)
-    profile1 = kLib.kMer()
-    profile2 = kLib.kMer()
+    diff = kdifflib.kMerDiff(summary=smooth_function, threshold=threshold)
+    profile1 = klib.kMer()
+    profile2 = klib.kMer()
 
     profile1.load(input_handles[0])
     profile2.load(input_handles[1])
@@ -315,12 +315,12 @@ def diffProfile(input_handles, euclidean=False, pairwise="diff-prod",
     if pairwise_func:
         pairwise_function = lambda x, y: eval(pairwise_func)
 
-    diff = kDiffLib.kMerDiff(balance=balance, positive=positive, smooth=smooth,
+    diff = kdifflib.kMerDiff(balance=balance, positive=positive, smooth=smooth,
         summary=summary_function, threshold=threshold, scale=scale,
         scaleDown=down, multiset=not euclidean, pairwise=pairwise_function)
 
-    profile1 = kLib.kMer()
-    profile2 = kLib.kMer()
+    profile1 = klib.kMer()
+    profile2 = klib.kMer()
 
     profile1.load(input_handles[0])
     profile2.load(input_handles[1])
@@ -376,20 +376,20 @@ def diffMatrix(input_handles, euclidean=False, pairwise="diff-prod",
     if pairwise_func:
         pairwise_function = lambda x, y: eval(pairwise_func)
 
-    diff = kDiffLib.kMerDiff(balance=balance, positive=positive,
+    diff = kdifflib.kMerDiff(balance=balance, positive=positive,
         smooth=smooth, summary=summary_function, threshold=threshold,
         scale=scale, scaleDown=down, multiset=not euclidean,
         pairwise=pairwise_function)
 
     counts = []
     for i in input_handles:
-        counts.append(kLib.kMer())
+        counts.append(klib.kMer())
         counts[-1].load(i)
         if counts[0].length != counts[-1].length:
             raise ValueError(lengthError)
     #for
 
-    kDiffLib.makeDistanceMatrix(counts, output_handle, precision, diff)
+    kdifflib.makeDistanceMatrix(counts, output_handle, precision, diff)
 #diffMatrix
 
 def main():

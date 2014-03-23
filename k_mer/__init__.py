@@ -1,5 +1,5 @@
 """
-kMer: Analysis toolkit and programming library for k-mer profiles.
+k_mer: Analysis toolkit and programming library for k-mer profiles.
 
 
 Copyright (c) 2013 Leiden University Medical Center <humgen@lumc.nl>

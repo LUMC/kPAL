@@ -4,7 +4,7 @@
 k-mer profile difference library.
 """
 
-import kLib
+import klib
 import metrics
 import copy
 
