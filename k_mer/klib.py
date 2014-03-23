@@ -44,8 +44,8 @@ class kMer():
         """
         Initialise the rest of the class instance variables.
 
-        @arg length: Length of the k-mers.
-        @type length: int
+        :arg length: Length of the k-mers.
+        :type length: int
         """
         self.length = length
         self.number = 4 ** self.length
@@ -57,8 +57,8 @@ class kMer():
         """
         Add a k-mer and keep track of the non_zero and total counters.
 
-        @arg binary: Binary representation of a k-mer.
-        @type binary: int
+        :arg binary: Binary representation of a k-mer.
+        :type binary: int
         """
         if not self.count[binary]:
             self.non_zero += 1
@@ -70,8 +70,8 @@ class kMer():
         """
         Count all occurrences of  k-mers in a DNA string.
 
-        @arg sequence: A DNA sequence from a fasta file.
-        @type sequence: string
+        :arg sequence: A DNA sequence from a fasta file.
+        :type sequence: string
         """
         if len(sequence) > self.length:
             binary = 0x00
@@ -95,10 +95,10 @@ class kMer():
         """
         Read a fasta file and count all k-mers in each line.
 
-        @arg handle: An open file handle to a fasta file.
-        @type handle: stream
-        @arg length: Length of the k-mers.
-        @type length: int
+        :arg handle: An open file handle to a fasta file.
+        :type handle: stream
+        :arg length: Length of the k-mers.
+        :type length: int
         """
         self.__initialise(length)
         alphabet = re.compile("[^%s]" %
@@ -113,8 +113,8 @@ class kMer():
         """
         Load the k-mer table from a file.
 
-        @arg handle: Open handle to a file.
-        @type handle: stream
+        :arg handle: Open handle to a file.
+        :type handle: stream
         """
         self.__initialise(int(handle.readline()[:-1]))
         self.total = (int(handle.readline()[:-1]))
@@ -134,8 +134,8 @@ class kMer():
         """
         Save the k-mer table in a file.
 
-        @arg handle: Writable open handle to a file.
-        @type handle: stream
+        :arg handle: Writable open handle to a file.
+        :type handle: stream
         """
         handle.write("%i\n" % self.length)
         handle.write("%i\n" % self.total)
@@ -148,8 +148,8 @@ class kMer():
         """
         Add the counts of a (compatible) k-mer profile to this one.
 
-        @arg profile: An other k-mer profile.
-        @type profile: object(kMer)
+        :arg profile: An other k-mer profile.
+        :type profile: object(kMer)
         """
         self.total += profile.total
         self.non_zero = 0
@@ -184,8 +184,8 @@ class kMer():
         its reverse complement in the same position in the second list and vice
         versa.
 
-        @returns: The forward and reverse complement counts.
-        @rtype: tuple(list[float], list[float])
+        :return: The forward and reverse complement counts.
+        :rtype: tuple(list[float], list[float])
         """
         forward = []
         reverse = []
@@ -210,8 +210,8 @@ class kMer():
         Note that this operation may give slightly different values than
         indexing on a lower k directly.
 
-        @arg factor: Shrinking factor.
-        @type factor: int
+        :arg factor: Shrinking factor.
+        :type factor: int
         """
         if self.length < factor:
             raise ValueError(
@@ -244,11 +244,11 @@ class kMer():
         """
         Convert a string of DNA to an integer.
 
-        @arg sequence:
-        @type sequence: string
+        :arg sequence:
+        :type sequence: string
 
-        @returns: Binary representation of a DNA string.
-        @rtype: int
+        :return: Binary representation of a DNA string.
+        :rtype: int
         """
         result = 0x00
 
@@ -264,11 +264,11 @@ class kMer():
         """
         Convert an integer to a DNA string.
 
-        @arg number: Binary representation of a DNA string.
-        @type number: int
+        :arg number: Binary representation of a DNA string.
+        :type number: int
 
-        @returns: A DNA string.
-        @rtype: string
+        :returns A DNA string.
+        :rtype: string
         """
         sequence = ""
 
@@ -285,11 +285,11 @@ class kMer():
         Calculate the complement of an integer (note, not the reverse
         complement).
 
-        @arg number: An integer.
-        @type number: int
+        :arg number: An integer.
+        :type number: int
 
-        @returns: The complement of {number}.
-        @rtype: int
+        :return: The complement of {number}.
+        :rtype: int
         """
         temp_number = number
         result = 0x00
@@ -308,8 +308,8 @@ class kMer():
         Calculate all relative frequencies of k-mers. If a division by 0
         occurs, the frequency will be set to -1.0.
 
-        @returns: A matrix with relative frequencies.
-        @rtype: float[][]
+        :return: A matrix with relative frequencies.
+        :rtype: float[][]
         """
         # Initialise the matrix.
         ratios = []
@@ -333,8 +333,8 @@ class kMer():
         """
         Calculate all frequency differences of k-mers.
 
-        @returns: A matrix with frequency differences.
-        @rtype: float[][]
+        :return: A matrix with frequency differences.
+        :rtype: float[][]
         """
         ratios = []
         for i in range(self.number):
@@ -362,8 +362,8 @@ class kMer():
         """
         Print a ratios matrix.
 
-        @arg ratios: A matrix with relative frequencies.
-        @type ratios: float[][]
+        :arg ratios: A matrix with relative frequencies.
+        :type ratios: float[][]
         """
         # The header.
         print (self.length + 1) * ' ',

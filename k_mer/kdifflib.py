@@ -19,24 +19,24 @@ class kMerDiff():
         """
         Initialise the class.
 
-        @arg do_balance: Balance the profiles.
-        @type do_balance: bool
-        @arg do_positive: Only use positive values.
-        @type do_positive: bool
-        @arg do_smooth: Use dynamic smoothing.
-        @type do_smooth: bool
-        @arg summary: Summary function for dynamic smoothing.
-        @type summary: int
-        @arg threshold: Threshold for the summary function.
-        @type threshold: int
-        @arg do_scale: Scale the profiles.
-        @type do_scale: bool
-        @arg down: Normalise the scaling factors between 0 and 1.
-        @type down: bool
-        @arg multiset: Use the multiset distance metric, euclidean otherwise.
-        @type multiset: bool
-        @arg pairwise: Pairwise distance function for the multiset distance.
-        @type pairwise: int
+        :arg do_balance: Balance the profiles.
+        :type do_balance: bool
+        :arg do_positive: Only use positive values.
+        :type do_positive: bool
+        :arg do_smooth: Use dynamic smoothing.
+        :type do_smooth: bool
+        :arg summary: Summary function for dynamic smoothing.
+        :type summary: int
+        :arg threshold: Threshold for the summary function.
+        :type threshold: int
+        :arg do_scale: Scale the profiles.
+        :type do_scale: bool
+        :arg down: Normalise the scaling factors between 0 and 1.
+        :type down: bool
+        :arg multiset: Use the multiset distance metric, euclidean otherwise.
+        :type multiset: bool
+        :arg pairwise: Pairwise distance function for the multiset distance.
+        :type pairwise: int
         """
 
         self.__do_balance = do_balance
@@ -55,15 +55,15 @@ class kMerDiff():
         Collapse a part of k-mer counts into a list of four numbers,
         representing the k-mers that start with a particular letter.
 
-        @arg vector: Counts of a k-mer profile.
-        @type vector: list[float]
-        @arg start: Start of the area to collapse.
-        @type start: int
-        @arg length: Length of the area to collapse.
-        @type length: int
+        :arg vector: Counts of a k-mer profile.
+        :type vector: list[float]
+        :arg start: Start of the area to collapse.
+        :type start: int
+        :arg length: Length of the area to collapse.
+        :type length: int
 
-        @returns:
-        @rtype: list[float]
+        :return: Collapsed sub-profile.
+        :rtype: list[float]
         """
         step = length / 4
 
@@ -77,14 +77,14 @@ class kMerDiff():
         requirements governed by the selected summary function and the
         threshold.
 
-        @arg profile1: A k-mer profile.
-        @type profile1: object(kMer)
-        @arg profile2: A k-mer profile.
-        @type profile2: object(kMer)
-        @arg start: Start of the sub-profile to smooth.
-        @type start: int
-        @arg length: Length of the sub-profile to smooth.
-        @type length: int
+        :arg profile1: A k-mer profile.
+        :type profile1: object(kMer)
+        :arg profile2: A k-mer profile.
+        :type profile2: object(kMer)
+        :arg start: Start of the sub-profile to smooth.
+        :type start: int
+        :arg length: Length of the sub-profile to smooth.
+        :type length: int
         """
         # If we use function=min and threshold=0, we should get the following
         # transformation:
@@ -129,10 +129,10 @@ class kMerDiff():
         requirements governed by the selected summary function and the
         threshold.
 
-        @arg profile1: A k-mer profile.
-        @type profile1: object(kMer)
-        @arg profile2: A k-mer profile.
-        @type profile2: object(kMer)
+        :arg profile1: A k-mer profile.
+        :type profile1: object(kMer)
+        :arg profile2: A k-mer profile.
+        :type profile2: object(kMer)
         """
         self.__dynamic_smooth(profile1, profile2, 0, profile1.number)
     #dynamic_smooth
@@ -141,13 +141,13 @@ class kMerDiff():
         """
         Calculate the distance between two k-mer profiles.
 
-        @arg profile1: A k-mer profile.
-        @type profile1: object(kMer)
-        @arg profile2: A k-mer profile.
-        @type profile2: object(kMer)
+        :arg profile1: A k-mer profile.
+        :type profile1: object(kMer)
+        :arg profile2: A k-mer profile.
+        :type profile2: object(kMer)
 
-        @returns: The distance between {profile1} and {profile2}.
-        @rtype: float
+        :return: The distance between {profile1} and {profile2}.
+        :rtype: float
         """
         temp1 = copy.deepcopy(profile1)
         temp2 = copy.deepcopy(profile2)
@@ -181,14 +181,14 @@ def distance_matrix(profiles, output, precision, k_diff):
     """
     Make a distance matrix any number of k-mer profiles.
 
-    @arg profiles: List of k-mer profiles.
-    @type profiles: list[kMer]
-    @arg output: Open handle to a writable file.
-    @type output: stream
-    @arg precision: Number of digits in the output.
-    @type precision: int
-    @arg k_diff: A kMerDiff object.
-    @type k_diff: object(kMerDiff)
+    :arg profiles: List of k-mer profiles.
+    :type profiles: list[kMer]
+    :arg output: Open handle to a writable file.
+    :type output: stream
+    :arg precision: Number of digits in the output.
+    :type precision: int
+    :arg k_diff: A kMerDiff object.
+    :type k_diff: object(kMerDiff)
     """
     input_count = len(profiles)
 

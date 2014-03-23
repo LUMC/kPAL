@@ -11,11 +11,11 @@ def median(vector):
     """
     Calculate the median of a vector.
 
-    @arg vector: A vector.
-    @type vector: list[float]
+    :arg vector: A vector.
+    :type vector: list[float]
 
-    @returns: The median of the values in {vector}.
-    @rtype: float
+    :return: The median of the values in {vector}.
+    :rtype: float
     """
     sorted_vector = sorted(vector)
     length = len(vector)
@@ -31,11 +31,11 @@ def distribution(vector):
     """
     Calculate the distribution of the values in a vector.
 
-    @arg vector: A vector.
-    @type vector: list[int]
+    :arg vector: A vector.
+    :type vector: list[int]
 
-    @returns: A list of pairs (count, occurrences).
-    @rtype: list[tuple(int, in)]
+    :return: A list of pairs (count, occurrences).
+    :rtype: list[tuple(int, in)]
     """
     d = collections.defaultdict(int)
 
@@ -48,11 +48,11 @@ def stats(l):
     """
     Calculate the mean and median of l.
 
-    @arg l: A list of values.
-    @type l: list(float)
+    :arg l: A list of values.
+    :type l: list(float)
 
-    @returns: The mean and standard deviation of l.
-    @rtype: tuple(float, float)
+    :return: The mean and standard deviation of l.
+    :rtype: tuple(float, float)
     """
     sum_l = 0
     sum_squared_l = 0
@@ -73,13 +73,13 @@ def get_scale(vector1, vector2):
     Calculate scaling factors based upon total counts. One of the factors
     is always one (the other is either one or larger than one).
 
-    @arg vector1: A vector.
-    @type vector1: list[int]
-    @arg vector2: A vector.
-    @type vector2: list[int]
+    :arg vector1: A vector.
+    :type vector1: list[int]
+    :arg vector2: A vector.
+    :type vector2: list[int]
 
-    @returns: A tuple of scaling factors.
-    @rtype: tuple(float)
+    :return: A tuple of scaling factors.
+    :rtype: tuple(float)
     """
     scale1 = 1.0
     scale2 = 1.0
@@ -101,13 +101,13 @@ def scale_down(scale1, scale2):
     """
     Normalise scaling factor between 0 and 1.
 
-    @arg scale1: Scaling factor.
-    @type scale1: float
-    @arg scale2: Scaling factor.
-    @type scale2: float
+    :arg scale1: Scaling factor.
+    :type scale1: float
+    :arg scale2: Scaling factor.
+    :type scale2: float
 
-    @returns: Tuple of normalised scaling factors.
-    @rtype: tuple(float, float)
+    :return: Tuple of normalised scaling factors.
+    :rtype: tuple(float, float)
     """
     factor = max(scale1, scale2)
 
@@ -118,13 +118,13 @@ def scale(vector, scale):
     """
     Scale a vector.
 
-    @arg vector: A vector.
-    @type vector: list[float]
-    @arg scale: Scaling factor.
-    @type scale: float
+    :arg vector: A vector.
+    :type vector: list[float]
+    :arg scale: Scaling factor.
+    :type scale: float
 
-    @returns: A vector scaled by factor {scale}.
-    @rtype: list[float]
+    :return: A vector scaled by factor {scale}.
+    :rtype: list[float]
     """
     return map(lambda x: scale * x, vector)
 #scale
@@ -133,13 +133,13 @@ def positive(vector1, vector2):
     """
     Set all zero positions in {vector2} to zero in {vector1}.
 
-    @arg vector1: A vector.
-    @type vector1: list[int]
-    @arg vector2: A vector.
-    @type vector2: list[int]
+    :arg vector1: A vector.
+    :type vector1: list[int]
+    :arg vector2: A vector.
+    :type vector2: list[int]
 
-    @returns: {vector1} with all zero positions in {vector2} set to zero.
-    @rtype: list[int]
+    :return: {vector1} with all zero positions in {vector2} set to zero.
+    :rtype: list[int]
     """
     return map(lambda x: x[1] and x[0], zip(vector1, vector2))
 #positive
@@ -148,15 +148,15 @@ def multiset(vector1, vector2, pairwise):
     """
     Calculate the multiset distance between two vectors.
 
-    @arg vector1: A vector.
-    @type vector1: list[float]
-    @arg vector2: A vector.
-    @type vector2: list[float]
-    @arg pairwise: A pairwise distance function.
-    @type pairwise: function
+    :arg vector1: A vector.
+    :type vector1: list[float]
+    :arg vector2: A vector.
+    :type vector2: list[float]
+    :arg pairwise: A pairwise distance function.
+    :type pairwise: function
 
-    @returns: The multiset distance between {vector1} and {vector2}.
-    @rtype: float
+    :return: The multiset distance between {vector1} and {vector2}.
+    :rtype: float
     """
     c = 0.0
     d = 1
@@ -176,13 +176,13 @@ def euclidean(vector1, vector2):
     """
     Calculate the Euclidean distance between two vectors.
 
-    @arg vector1: A vector.
-    @type vector1: list[float]
-    @arg vector2: A vector.
-    @type vector2: list[float]
+    :arg vector1: A vector.
+    :type vector1: list[float]
+    :arg vector2: A vector.
+    :type vector2: list[float]
 
-    @returns: The Euclidean distance between {vector1} and {vector2}.
-    @rtype: float
+    :return: The Euclidean distance between {vector1} and {vector2}.
+    :rtype: float
     """
     sum_of_squares = 1
 

@@ -21,12 +21,12 @@ def index(input_handle, output_handle, size):
     """
     Make a k-mer profile from a FASTA file.
 
-    @arg input_handle: Open readable handle to a FASTA file.
-    @type input_handle: stream
-    @arg output_handle: Open writeable handle to a k-mer profile.
-    @type output_handle: stream
-    @arg size: Size of k.
-    @type size: int
+    :arg input_handle: Open readable handle to a FASTA file.
+    :type input_handle: stream
+    :arg output_handle: Open writeable handle to a k-mer profile.
+    :type output_handle: stream
+    :arg size: Size of k.
+    :type size: int
     """
     profile = klib.kMer()
     profile.analyse(input_handle, size)
@@ -37,10 +37,10 @@ def merge(input_handles, output_handle):
     """
     Merge two k-mer profiles.
 
-    @arg input_handles: Open readable handles to a pair of k-mer profiles.
-    @type input_handles: list(stream)
-    @arg output_handle: Open writeable handle to a k-mer profile.
-    @type output_handle: stream
+    :arg input_handles: Open readable handles to a pair of k-mer profiles.
+    :type input_handles: list(stream)
+    :arg output_handle: Open writeable handle to a k-mer profile.
+    :type output_handle: stream
     """
     profile1 = klib.kMer()
     profile2 = klib.kMer()
@@ -59,10 +59,10 @@ def balance(input_handle, output_handle):
     """
     Balance a k-mer profile.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
-    @arg output_handle: Open writeable handle to a k-mer profile.
-    @type output_handle: stream
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
+    :arg output_handle: Open writeable handle to a k-mer profile.
+    :type output_handle: stream
     """
     profile = klib.kMer()
 
@@ -75,10 +75,10 @@ def get_balance(input_handle, precision=3):
     """
     Show the balance of a k-mer profile.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
-    @arg precision: Number of digits in the output.
-    @type precision: int
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
+    :arg precision: Number of digits in the output.
+    :type precision: int
     """
     profile = klib.kMer()
 
@@ -92,10 +92,10 @@ def get_stats(input_handle, precision=3):
     """
     Show the mean and standard deviation of a k-mer profile.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
-    @arg precision: Number of digits in the output.
-    @type precision: int
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
+    :arg precision: Number of digits in the output.
+    :type precision: int
     """
     profile = klib.kMer()
 
@@ -108,10 +108,10 @@ def distribution(input_handle, output_handle):
     """
     Calculate the distribution of the values in a k-mer profile.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
-    @arg output_handle: Open writeable handle to distribution file.
-    @type output_handle: stream
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
+    :arg output_handle: Open writeable handle to distribution file.
+    :type output_handle: stream
     """
     profile = klib.kMer()
 
@@ -124,8 +124,8 @@ def info(input_handle):
     """
     Print some information about the k-mer profile.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
     """
     profile = klib.kMer()
 
@@ -139,10 +139,10 @@ def get_count(input_handle, word):
     """
     Retrieve the count for a particular word.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
-    @arg word: The query word.
-    @type word: str
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
+    :arg word: The query word.
+    :type word: str
     """
     profile = klib.kMer()
 
@@ -161,10 +161,10 @@ def positive(input_handles, output_handles):
     """
     Only keep counts that are positive in both profiles.
 
-    @arg input_handles: Open readable handles to a pair of k-mer profiles.
-    @type input_handles: list(stream)
-    @arg output_handles: Open writeable handles to a pair of k-mer profiles.
-    @type output_handles: list(stream)
+    :arg input_handles: Open readable handles to a pair of k-mer profiles.
+    :type input_handles: list(stream)
+    :arg output_handles: Open writeable handles to a pair of k-mer profiles.
+    :type output_handles: list(stream)
     """
     profile1 = klib.kMer()
     profile2 = klib.kMer()
@@ -183,12 +183,12 @@ def scale(input_handles, output_handles, down=False):
     """
     Scale profiles such that the total number of k-mers is equal.
 
-    @arg input_handles: Open readable handles to a pair of k-mer profiles.
-    @type input_handles: list(stream)
-    @arg output_handles: Open writeable handles to a pair of k-mer profiles.
-    @type output_handles: list(stream)
-    @arg down: Scale down.
-    @type down: bool
+    :arg input_handles: Open readable handles to a pair of k-mer profiles.
+    :type input_handles: list(stream)
+    :arg output_handles: Open writeable handles to a pair of k-mer profiles.
+    :type output_handles: list(stream)
+    :arg down: Scale down.
+    :type down: bool
     """
     profile1 = klib.kMer()
     profile2 = klib.kMer()
@@ -210,12 +210,12 @@ def shrink(input_handle, output_handle, factor):
     """
     Shrink a profile, effectively reducing k.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
-    @arg output_handle: Open writeable handle to a k-mer profile.
-    @type output_handle: stream
-    @arg factor: Scaling factor.
-    @type factor: int
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
+    :arg output_handle: Open writeable handle to a k-mer profile.
+    :type output_handle: stream
+    :arg factor: Scaling factor.
+    :type factor: int
     """
     profile = klib.kMer()
 
@@ -228,10 +228,10 @@ def shuffle(input_handle, output_handle):
     """
     Randomise a profile.
 
-    @arg input_handle: Open readable handle to a k-mer profile.
-    @type input_handle: stream
-    @arg output_handle: Open writeable handle to a k-mer profile.
-    @type output_handle: stream
+    :arg input_handle: Open readable handle to a k-mer profile.
+    :type input_handle: stream
+    :arg output_handle: Open writeable handle to a k-mer profile.
+    :type output_handle: stream
     """
     profile = klib.kMer()
 
@@ -245,16 +245,16 @@ def smooth(input_handles, output_handles, summary, summary_func="",
     """
     Smooth two profiles by collapsing sub-profiles.
 
-    @arg input_handles: Open readable handles to a pair of k-mer profiles.
-    @type input_handles: list(stream)
-    @arg output_handles: Open writeable handles to a pair of k-mer profiles.
-    @type output_handles: list(stream)
-    @arg summary: Name of the summary function.
-    @type summary: str
-    @arg summary_func: Custom summary function.
-    @type summary_func: str
-    @arg threshold: Threshold for the summary function.
-    @type threshold: int
+    :arg input_handles: Open readable handles to a pair of k-mer profiles.
+    :type input_handles: list(stream)
+    :arg output_handles: Open writeable handles to a pair of k-mer profiles.
+    :type output_handles: list(stream)
+    :arg summary: Name of the summary function.
+    :type summary: str
+    :arg summary_func: Custom summary function.
+    :type summary_func: str
+    :arg threshold: Threshold for the summary function.
+    :type threshold: int
     """
     smooth_function = metrics.summary[summary]
     if summary_func:
@@ -280,32 +280,32 @@ def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
     """
     Calculate the difference between two k-mer profiles.
 
-    @arg input_handles: Open readable handles to a pair of k-mer profiles.
-    @type input_handles: list(stream)
-    @arg euclidean: Use the Euclidean distance.
-    @type euclidean: bool
-    @arg pairwise: Name of the pairwise distance function.
-    @type pairwise: str
-    @arg pairwise_func: Custom pairwise distance function.
-    @type pairwise_func: str
-    @arg do_smooth: Enable smoothing.
-    @type do_smooth: bool
-    @arg summary: Name of the summary function.
-    @type summary: str
-    @arg summary_func: Custom summary function.
-    @type summary_func: str
-    @arg threshold: Threshold for the summary function.
-    @type threshold: int
-    @arg do_scale: Scale the profiles.
-    @type do_scale: bool
-    @arg down: Scale down.
-    @type down: bool
-    @arg do_positive: Only use positive values.
-    @type do_positive: bool
-    @arg do_balance: Balance the profiles.
-    @type do_balance: bool
-    @arg precision: Number of digits in the output.
-    @type precision: int
+    :arg input_handles: Open readable handles to a pair of k-mer profiles.
+    :type input_handles: list(stream)
+    :arg euclidean: Use the Euclidean distance.
+    :type euclidean: bool
+    :arg pairwise: Name of the pairwise distance function.
+    :type pairwise: str
+    :arg pairwise_func: Custom pairwise distance function.
+    :type pairwise_func: str
+    :arg do_smooth: Enable smoothing.
+    :type do_smooth: bool
+    :arg summary: Name of the summary function.
+    :type summary: str
+    :arg summary_func: Custom summary function.
+    :type summary_func: str
+    :arg threshold: Threshold for the summary function.
+    :type threshold: int
+    :arg do_scale: Scale the profiles.
+    :type do_scale: bool
+    :arg down: Scale down.
+    :type down: bool
+    :arg do_positive: Only use positive values.
+    :type do_positive: bool
+    :arg do_balance: Balance the profiles.
+    :type do_balance: bool
+    :arg precision: Number of digits in the output.
+    :type precision: int
     """
     summary_function = metrics.summary[summary]
     if summary_func:
@@ -339,34 +339,34 @@ def matrix_diff(input_handles, output_handle, euclidean=False,
     """
     Make a distance matrix any number of k-mer profiles.
 
-    @arg input_handles: Open readable handles to a list of k-mer profiles.
-    @type input_handles: list(stream)
-    @arg output_handle: Open writeable handle to a distance matrix.
-    @type output_handle: stream
-    @arg euclidean: Use the Euclidean distance.
-    @type euclidean: bool
-    @arg pairwise: Name of the pairwise distance function.
-    @type pairwise: str
-    @arg pairwise_func: Custom pairwise distance function.
-    @type pairwise_func: str
-    @arg do_smooth: Enable smoothing.
-    @type do_smooth: bool
-    @arg summary: Name of the summary function.
-    @type summary: str
-    @arg summary_func: Custom summary function.
-    @type summary_func: str
-    @arg threshold: Threshold for the summary function.
-    @type threshold: int
-    @arg do_scale: Scale the profiles.
-    @type do_scale: bool
-    @arg down: Scale down.
-    @type down: bool
-    @arg do_positive: Only use positive values.
-    @type do_positive: bool
-    @arg do_balance: Balance the profiles.
-    @type do_balance: bool
-    @arg precision: Number of digits in the output.
-    @type precision: int
+    :arg input_handles: Open readable handles to a list of k-mer profiles.
+    :type input_handles: list(stream)
+    :arg output_handle: Open writeable handle to a distance matrix.
+    :type output_handle: stream
+    :arg euclidean: Use the Euclidean distance.
+    :type euclidean: bool
+    :arg pairwise: Name of the pairwise distance function.
+    :type pairwise: str
+    :arg pairwise_func: Custom pairwise distance function.
+    :type pairwise_func: str
+    :arg do_smooth: Enable smoothing.
+    :type do_smooth: bool
+    :arg summary: Name of the summary function.
+    :type summary: str
+    :arg summary_func: Custom summary function.
+    :type summary_func: str
+    :arg threshold: Threshold for the summary function.
+    :type threshold: int
+    :arg do_scale: Scale the profiles.
+    :type do_scale: bool
+    :arg down: Scale down.
+    :type down: bool
+    :arg do_positive: Only use positive values.
+    :type do_positive: bool
+    :arg do_balance: Balance the profiles.
+    :type do_balance: bool
+    :arg precision: Number of digits in the output.
+    :type precision: int
     """
     if len(input_handles) < 2:
         raise ValueError("You must give at least two input files.")
