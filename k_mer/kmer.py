@@ -11,6 +11,7 @@ import klib
 import kdifflib
 import metrics
 
+from __future__ import division
 from math import *
 
 from . import NewFileType, doc_split, usage, version
