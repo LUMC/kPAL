@@ -4,8 +4,8 @@
 General library containing metrics and helper functions.
 """
 
-import math
 import collections
+import math
 
 def median(vector):
     """

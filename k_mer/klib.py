@@ -4,13 +4,13 @@
 k-mer base library.
 """
 
-import sys
 import argparse
-import re
+import os
 import random
-from os import path
-from Bio import Seq
-from Bio import SeqIO
+import re
+import sys
+
+from Bio import Seq, SeqIO
 
 class kMer():
     """
@@ -119,7 +119,7 @@ class kMer():
         self.__initialise(int(handle.readline()[:-1]))
         self.total = (int(handle.readline()[:-1]))
         self.non_zero = (int(handle.readline()[:-1]))
-        self.name = path.basename(handle.name)
+        self.name = os.path.basename(handle.name)
 
         offset = 0
         line = handle.readline()

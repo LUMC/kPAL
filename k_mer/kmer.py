@@ -4,17 +4,14 @@
 Toolbox for k-mer profiles.
 """
 
+from __future__ import division
+
 import argparse
 import sys
 
-import klib
-import kdifflib
-import metrics
-
-from __future__ import division
 from math import *
 
-from . import NewFileType, doc_split, usage, version
+from . import NewFileType, doc_split, usage, version, klib, kdifflib, metrics
 
 length_error = "k-mer lengths of the files differ."
 

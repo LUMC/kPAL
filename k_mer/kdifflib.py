@@ -4,9 +4,9 @@
 k-mer profile difference library.
 """
 
-import klib
-import metrics
 import copy
+
+from . import klib, metrics
 
 class kMerDiff():
     """
