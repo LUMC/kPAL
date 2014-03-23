@@ -13,7 +13,7 @@ import metrics
 
 from math import *
 
-from . import doc_split, usage, version
+from . import NewFileType, doc_split, usage, version
 
 length_error = "k-mer lengths of the files differ."
 
@@ -401,7 +401,7 @@ def main():
     """
     output_parser = argparse.ArgumentParser(add_help=False)
     output_parser.add_argument("output_handle", metavar="OUTPUT",
-        type=argparse.FileType('w'), help="output file")
+        type=NewFileType('w'), help="output file")
 
     input_parser = argparse.ArgumentParser(add_help=False)
     input_parser.add_argument("input_handle", metavar="INPUT",
@@ -409,7 +409,7 @@ def main():
 
     pair_out_parser = argparse.ArgumentParser(add_help=False)
     pair_out_parser.add_argument("output_handles", metavar="OUTPUT", nargs=2,
-        type=argparse.FileType('w'), help="pair of output files")
+        type=NewFileType('w'), help="pair of output files")
 
     pair_in_parser = argparse.ArgumentParser(add_help=False)
     pair_in_parser.add_argument("input_handles", metavar="INPUT", nargs=2,
@@ -538,7 +538,10 @@ def main():
         list_in_parser, output_parser], description=doc_split(matrix_diff))
     parser_matrix.set_defaults(func=matrix_diff)
 
-    arguments = parser.parse_args()
+    try:
+        arguments = parser.parse_args()
+    except IOError, error:
+        parser.error(error)
 
     try:
         arguments.func(**{k: v for k, v in vars(arguments).items()
