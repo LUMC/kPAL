@@ -33,7 +33,7 @@ __homepage__ = 'https://git.lumc.nl/j.f.j.laros/k-mer'
 
 usage = __doc__.split("\n\n\n")
 
-def docSplit(func):
+def doc_split(func):
     return func.__doc__.split("\n\n")[0]
 
 def version(name):

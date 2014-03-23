@@ -66,7 +66,7 @@ class kMer():
         self.total += 1
     #__add
 
-    def __scanLine(self, sequence):
+    def __scan_line(self, sequence):
         """
         Count all occurrences of  k-mers in a DNA string.
 
@@ -89,7 +89,7 @@ class kMer():
                 self.__add(binaryRepresentation)
             #for
         #if
-    #__scanLine
+    #__scan_line
 
     def analyse(self, handle, length):
         """
@@ -105,7 +105,7 @@ class kMer():
 
         for record in SeqIO.parse(handle, "fasta"):
             for sequence in S.split(str(record.seq)):
-                self.__scanLine(sequence)
+                self.__scan_line(sequence)
     #analyse
 
     def load(self, handle):
@@ -166,8 +166,8 @@ class kMer():
         vice versa.
         """
         for i in range(self.number):
-            i_rc = self.DNAToBinary(Seq.reverse_complement(
-                self.binaryToDNA(i)))
+            i_rc = self.dna_to_binary(Seq.reverse_complement(
+                self.binary_to_dna(i)))
 
             if i <= i_rc:
                 temp = self.count[i]
@@ -190,8 +190,8 @@ class kMer():
         reverse = []
 
         for i in range(self.number):
-            i_rc = self.DNAToBinary(Seq.reverse_complement(
-                self.binaryToDNA(i)))
+            i_rc = self.dna_to_binary(Seq.reverse_complement(
+                self.binary_to_dna(i)))
 
             if i <= i_rc:
                 forward.append(self.count[i])
@@ -239,7 +239,7 @@ class kMer():
         random.shuffle(self.count)
     #shuffle
 
-    def DNAToBinary(self, sequence):
+    def dna_to_binary(self, sequence):
         """
         Convert a string of DNA to an integer.
 
@@ -257,9 +257,9 @@ class kMer():
         #for
 
         return result
-    #DNAToBinary
+    #dna_to_binary
 
-    def binaryToDNA(self, number):
+    def binary_to_dna(self, number):
         """
         Convert an integer to a DNA string.
 
@@ -277,7 +277,7 @@ class kMer():
         #while
 
         return sequence[::-1]
-    #binaryToDNA
+    #binary_to_dna
 
     def complement(self, number):
         """
@@ -302,7 +302,7 @@ class kMer():
         return result
     #complement
 
-    def calculateRatios(self):
+    def ratios_matrix(self):
         """
         Calculate all relative frequencies of k-mers. If a division by 0
         occurs, the frequency will be set to -1.0.
@@ -326,9 +326,9 @@ class kMer():
             #for
 
         return ratios
-    #calculateRatios
+    #ratios_matrix
 
-    def calculateDiff(self):
+    def freq_diff_matrix(self):
         """
         Calculate all frequency differences of k-mers.
 
@@ -347,17 +347,17 @@ class kMer():
                         self.count[j])) / self.total
 
         return ratios
-    #calculateDiff
+    #freq_diff_matrix
 
-    def printCounts(self):
+    def print_counts(self):
         """
         Print the k-mer counts.
         """
         for i in range(self.number):
-            print self.binaryToDNA(i), self.count[i]
-    #printCounts
+            print self.binary_to_dna(i), self.count[i]
+    #print_counts
 
-    def printRatios(self, ratios):
+    def print_ratios(self, ratios):
         """
         Print a ratios matrix.
 
@@ -367,15 +367,15 @@ class kMer():
         # The header.
         print (self.length + 1) * ' ',
         for i in range(self.number):
-            print "%s%s" % (self.binaryToDNA(i), 2 * ' '),
+            print "%s%s" % (self.binary_to_dna(i), 2 * ' '),
         print
 
         # The matrix.
         for i in range(self.number):
-            print "%s" % self.binaryToDNA(i),
+            print "%s" % self.binary_to_dna(i),
             for j in range(self.number):
                 print ("%%.%if" % self.length) % ratios[i][j],
             print
         #for
-    #printRatios
+    #print_ratios
 #kMer

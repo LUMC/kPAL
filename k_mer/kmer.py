@@ -13,11 +13,11 @@ import metrics
 
 from math import *
 
-from . import docSplit, usage, version
+from . import doc_split, usage, version
 
 lengthError = "k-mer lengths of the files differ."
 
-def makeProfile(input_handle, output_handle, size):
+def index(input_handle, output_handle, size):
     """
     Make a k-mer profile from a FASTA file.
 
@@ -31,9 +31,9 @@ def makeProfile(input_handle, output_handle, size):
     profile = klib.kMer()
     profile.analyse(input_handle, size)
     profile.save(output_handle)
-#makeProfile
+#index
 
-def mergeProfiles(input_handles, output_handle):
+def merge(input_handles, output_handle):
     """
     Merge two k-mer profiles.
 
@@ -53,9 +53,9 @@ def mergeProfiles(input_handles, output_handle):
 
     profile2.merge(profile1)
     profile2.save(output_handle)
-#mergeProfiles
+#merge
 
-def balanceProfile(input_handle, output_handle):
+def balance(input_handle, output_handle):
     """
     Balance a k-mer profile.
 
@@ -69,9 +69,9 @@ def balanceProfile(input_handle, output_handle):
     profile.load(input_handle)
     profile.balance()
     profile.save(output_handle)
-#balanceProfile
+#balance
 
-def showBalance(input_handle, precision=3):
+def get_balance(input_handle, precision=3):
     """
     Show the balance of a k-mer profile.
 
@@ -84,11 +84,11 @@ def showBalance(input_handle, precision=3):
 
     profile.load(input_handle)
     forward, reverse = profile.split()
-    print ("%%.%if" % precision) %  metrics.multisetDistance(forward,
-        reverse, metrics.pairwise["diff-prod"])
-#showBalance
+    print ("%%.%if" % precision) %  metrics.multiset(forward, reverse,
+        metrics.pairwise["diff-prod"])
+#get_balance
 
-def showMeanStd(input_handle, precision=3):
+def get_stats(input_handle, precision=3):
     """
     Show the mean and standard deviation of a k-mer profile.
 
@@ -101,8 +101,8 @@ def showMeanStd(input_handle, precision=3):
 
     profile.load(input_handle)
     print ("%%.%if %%.%if" % (precision, precision)) % \
-        metrics.meanStd(profile.count)
-#showBalance
+        metrics.stats(profile.count)
+#get_stats
 
 def distribution(input_handle, output_handle):
     """
@@ -135,7 +135,7 @@ def info(input_handle):
     print "Non-zero counts: %i" % profile.nonZero
 #info
 
-def getCount(input_handle, word):
+def get_count(input_handle, word):
     """
     Retrieve the count for a particular word.
 
@@ -151,13 +151,13 @@ def getCount(input_handle, word):
         raise ValueError("The length of the query does not match the profile "
             "length.")
     try:
-        offset = profile.DNAToBinary(word)
+        offset = profile.dna_to_binary(word)
     except KeyError, error:
         raise ValueError("The input is not a valid DNA sequence.")
     print profile.count[offset]
-#getCount
+#get_count
 
-def positiveProfile(input_handles, output_handles):
+def positive(input_handles, output_handles):
     """
     Only keep counts that are positive in both profiles.
 
@@ -177,9 +177,9 @@ def positiveProfile(input_handles, output_handles):
 
     profile1.save(output_handles[0])
     profile2.save(output_handles[1])
-#positiveProfile
+#positive
 
-def scaleProfile(input_handles, output_handles, down=False):
+def scale(input_handles, output_handles, down=False):
     """
     Scale profiles such that the total number of k-mers is equal.
 
@@ -196,17 +196,17 @@ def scaleProfile(input_handles, output_handles, down=False):
     profile1.load(input_handles[0])
     profile2.load(input_handles[1])
 
-    scale1, scale2 = metrics.calcScale(profile1.count, profile2.count)
+    scale1, scale2 = metrics.get_scale(profile1.count, profile2.count)
     if down:
-        scale1, scale2 = metrics.scaleDown(scale1, scale2)
-    metrics.scale(profile1.count, scale1)
-    metrics.scale(profile2.count, scale2)
+        scale1, scale2 = metrics.scale_down(scale1, scale2)
+    profile1.count = metrics.scale(profile1.count, scale1)
+    profile2.count = metrics.scale(profile2.count, scale2)
 
     profile1.save(output_handles[0])
     profile2.save(output_handles[1])
-#scaleProfile
+#scale
 
-def shrinkProfile(input_handle, output_handle, factor):
+def shrink(input_handle, output_handle, factor):
     """
     Shrink a profile, effectively reducing k.
 
@@ -222,9 +222,9 @@ def shrinkProfile(input_handle, output_handle, factor):
     profile.load(input_handle)
     profile.shrink(factor)
     profile.save(output_handle)
-#shrinkProfile
+#shrink
 
-def shuffleProfile(input_handle, output_handle):
+def shuffle(input_handle, output_handle):
     """
     Randomise a profile.
 
@@ -238,9 +238,9 @@ def shuffleProfile(input_handle, output_handle):
     profile.load(input_handle)
     profile.shuffle()
     profile.save(output_handle)
-#shuffleProfile
+#shuffle
 
-def smoothProfile(input_handles, output_handles, summary, summary_func="",
+def smooth(input_handles, output_handles, summary, summary_func="",
         threshold=0):
     """
     Smooth two profiles by collapsing sub-profiles.
@@ -267,16 +267,16 @@ def smoothProfile(input_handles, output_handles, summary, summary_func="",
     profile1.load(input_handles[0])
     profile2.load(input_handles[1])
 
-    diff.dynamicSmooth(profile1, profile2)
+    diff.dynamic_smooth(profile1, profile2)
 
     profile1.save(output_handles[0])
     profile2.save(output_handles[1])
-#smoothProfile
+#smooth
 
-def diffProfile(input_handles, euclidean=False, pairwise="diff-prod",
-        pairwise_func="", smooth=False, summary="min", summary_func="",
-        threshold=0, scale=False, down=False, positive=False, balance=False,
-        precision=3):
+def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
+        pairwise_func="", do_smooth=False, summary="min", summary_func="",
+        threshold=0, do_scale=False, down=False, do_positive=False,
+        do_balance=False, precision=3):
     """
     Calculate the difference between two k-mer profiles.
 
@@ -288,22 +288,22 @@ def diffProfile(input_handles, euclidean=False, pairwise="diff-prod",
     @type pairwise: str
     @arg pairwise_func: Custom pairwise distance function.
     @type pairwise_func: str
-    @arg smooth: Enable smoothing.
-    @type smooth: bool
+    @arg do_smooth: Enable smoothing.
+    @type do_smooth: bool
     @arg summary: Name of the summary function.
     @type summary: str
     @arg summary_func: Custom summary function.
     @type summary_func: str
     @arg threshold: Threshold for the summary function.
     @type threshold: int
-    @arg scale: Scale the profiles.
-    @type scale: bool
+    @arg do_scale: Scale the profiles.
+    @type do_scale: bool
     @arg down: Scale down.
     @type down: bool
-    @arg positive: Only use positive values.
-    @type positive: bool
-    @arg balance: Balance the profiles.
-    @type balance: bool
+    @arg do_positive: Only use positive values.
+    @type do_positive: bool
+    @arg do_balance: Balance the profiles.
+    @type do_balance: bool
     @arg precision: Number of digits in the output.
     @type precision: int
     """
@@ -315,9 +315,10 @@ def diffProfile(input_handles, euclidean=False, pairwise="diff-prod",
     if pairwise_func:
         pairwise_function = lambda x, y: eval(pairwise_func)
 
-    diff = kdifflib.kMerDiff(balance=balance, positive=positive, smooth=smooth,
-        summary=summary_function, threshold=threshold, scale=scale,
-        scaleDown=down, multiset=not euclidean, pairwise=pairwise_function)
+    diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,
+        do_smooth=do_smooth, summary=summary_function, threshold=threshold,
+        do_scale=do_scale, down=down, multiset=not euclidean,
+        pairwise=pairwise_function)
 
     profile1 = klib.kMer()
     profile2 = klib.kMer()
@@ -328,40 +329,42 @@ def diffProfile(input_handles, euclidean=False, pairwise="diff-prod",
     if profile1.length != profile2.length:
         raise ValueError(lengthError)
 
-    print ("%%.%if" % precision) % diff.calcDistance(profile1, profile2)
-#diffProfile
+    print ("%%.%if" % precision) % diff.distance(profile1, profile2)
+#pair_diff
 
-def diffMatrix(input_handles, euclidean=False, pairwise="diff-prod",
-        pairwise_func="", smooth=False, summary="min", summary_func="",
-        threshold=0, scale=False, down=False, positive=False, balance=False,
-        precision=3):
+def matrix_diff(input_handles, output_handle, euclidean=False,
+        pairwise="diff-prod", pairwise_func="", do_smooth=False, summary="min",
+        summary_func="", threshold=0, do_scale=False, down=False,
+        do_positive=False, do_balance=False, precision=3):
     """
     Make a distance matrix any number of k-mer profiles.
 
     @arg input_handles: Open readable handles to a list of k-mer profiles.
     @type input_handles: list(stream)
+    @arg output_handle: Open writeable handle to a distance matrix.
+    @type output_handle: stream
     @arg euclidean: Use the Euclidean distance.
     @type euclidean: bool
     @arg pairwise: Name of the pairwise distance function.
     @type pairwise: str
     @arg pairwise_func: Custom pairwise distance function.
     @type pairwise_func: str
-    @arg smooth: Enable smoothing.
-    @type smooth: bool
+    @arg do_smooth: Enable smoothing.
+    @type do_smooth: bool
     @arg summary: Name of the summary function.
     @type summary: str
     @arg summary_func: Custom summary function.
     @type summary_func: str
     @arg threshold: Threshold for the summary function.
     @type threshold: int
-    @arg scale: Scale the profiles.
-    @type scale: bool
+    @arg do_scale: Scale the profiles.
+    @type do_scale: bool
     @arg down: Scale down.
     @type down: bool
-    @arg positive: Only use positive values.
-    @type positive: bool
-    @arg balance: Balance the profiles.
-    @type balance: bool
+    @arg do_positive: Only use positive values.
+    @type do_positive: bool
+    @arg do_balance: Balance the profiles.
+    @type do_balance: bool
     @arg precision: Number of digits in the output.
     @type precision: int
     """
@@ -376,9 +379,9 @@ def diffMatrix(input_handles, euclidean=False, pairwise="diff-prod",
     if pairwise_func:
         pairwise_function = lambda x, y: eval(pairwise_func)
 
-    diff = kdifflib.kMerDiff(balance=balance, positive=positive,
-        smooth=smooth, summary=summary_function, threshold=threshold,
-        scale=scale, scaleDown=down, multiset=not euclidean,
+    diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,
+        do_smooth=do_smooth, summary=summary_function, threshold=threshold,
+        do_scale=do_scale, down=down, multiset=not euclidean,
         pairwise=pairwise_function)
 
     counts = []
@@ -389,8 +392,8 @@ def diffMatrix(input_handles, euclidean=False, pairwise="diff-prod",
             raise ValueError(lengthError)
     #for
 
-    kdifflib.makeDistanceMatrix(counts, output_handle, precision, diff)
-#diffMatrix
+    kdifflib.distance_matrix(counts, output_handle, precision, diff)
+#matrix_diff
 
 def main():
     """
@@ -437,14 +440,14 @@ def main():
 
     diff_parser = argparse.ArgumentParser(add_help=False,
         parents=[scale_parser, smooth_parser, precision_parser])
-    diff_parser.add_argument("-b", dest="balance", default=False,
+    diff_parser.add_argument("-b", dest="do_balance", default=False,
         action="store_true", help="balance the profiles (default=%(default)s)")
-    diff_parser.add_argument("-p", dest="positive", default=False,
+    diff_parser.add_argument("-p", dest="do_positive", default=False,
         action="store_true", help="use only positive values "
         "(default=%(default)s)")
-    diff_parser.add_argument("-S", dest="scale", default=False,
+    diff_parser.add_argument("-S", dest="do_scale", default=False,
         action="store_true", help="scale the profiles (default=%(default)s)")
-    diff_parser.add_argument("-m", dest="smooth", default=False,
+    diff_parser.add_argument("-m", dest="do_smooth", default=False,
         action="store_true", help="smooth the profiles (default=%(default)s)")
     diff_parser.add_argument("-e", dest="euclidean", default=False,
         action="store_true", help="use the euclidean distance metric "
@@ -464,76 +467,76 @@ def main():
     subparsers = parser.add_subparsers()
 
     parser_index = subparsers.add_parser("index", parents=[input_parser,
-        output_parser], description=docSplit(makeProfile))
+        output_parser], description=doc_split(index))
     parser_index.add_argument("size", metavar="SIZE", type=int,
         help="k-mer size (%(type)s)")
-    parser_index.set_defaults(func=makeProfile)
+    parser_index.set_defaults(func=index)
 
     parser_merge = subparsers.add_parser("merge", parents=[pairIn_parser,
-        output_parser], description=docSplit(mergeProfiles))
-    parser_merge.set_defaults(func=mergeProfiles)
+        output_parser], description=doc_split(merge))
+    parser_merge.set_defaults(func=merge)
 
     parser_balance = subparsers.add_parser("balance", parents=[input_parser,
-        output_parser], description=docSplit(balanceProfile))
-    parser_balance.set_defaults(func=balanceProfile)
+        output_parser], description=doc_split(balance))
+    parser_balance.set_defaults(func=balance)
 
-    parser_balance = subparsers.add_parser("showbalance",
+    parser_showbalance = subparsers.add_parser("showbalance",
         parents=[input_parser, precision_parser],
-        description=docSplit(showBalance))
-    parser_balance.set_defaults(func=showBalance)
+        description=doc_split(get_balance))
+    parser_showbalance.set_defaults(func=get_balance)
 
-    parser_meanstd = subparsers.add_parser("meanstd", 
+    parser_stats = subparsers.add_parser("stats", 
         parents=[input_parser, precision_parser],
-        description=docSplit(showMeanStd))
-    parser_meanstd.set_defaults(func=showMeanStd)
+        description=doc_split(get_stats))
+    parser_stats.set_defaults(func=get_stats)
 
     parser_distr = subparsers.add_parser("distr", 
         parents=[input_parser, output_parser],
-        description=docSplit(distribution))
+        description=doc_split(distribution))
     parser_distr.set_defaults(func=distribution)
 
     parser_info = subparsers.add_parser("info", 
         parents=[input_parser],
-        description=docSplit(info))
+        description=doc_split(info))
     parser_info.set_defaults(func=info)
 
     parser_getcount = subparsers.add_parser("getcount", 
         parents=[input_parser],
-        description=docSplit(getCount))
+        description=doc_split(get_count))
     parser_getcount.add_argument("word", metavar="WORD", type=str,
         help="the word in question (%(type)s)")
-    parser_getcount.set_defaults(func=getCount)
+    parser_getcount.set_defaults(func=get_count)
 
     parser_positive = subparsers.add_parser("positive",
         parents=[pairIn_parser, pairOut_parser],
-        description=docSplit(positiveProfile))
-    parser_positive.set_defaults(func=positiveProfile)
+        description=doc_split(positive))
+    parser_positive.set_defaults(func=positive)
 
     parser_scale = subparsers.add_parser("scale", parents=[pairIn_parser,
-        pairOut_parser, scale_parser], description=docSplit(scaleProfile))
-    parser_scale.set_defaults(func=scaleProfile)
+        pairOut_parser, scale_parser], description=doc_split(scale))
+    parser_scale.set_defaults(func=scale)
 
     parser_shrink = subparsers.add_parser("shrink", parents=[input_parser,
-        output_parser], description=docSplit(shrinkProfile))
+        output_parser], description=doc_split(shrink))
     parser_shrink.add_argument("factor", metavar="FACTOR", type=int,
         help="shrinking factor")
-    parser_shrink.set_defaults(func=shrinkProfile)
+    parser_shrink.set_defaults(func=shrink)
 
     parser_shrink = subparsers.add_parser("shuffle", parents=[input_parser,
-        output_parser], description=docSplit(shuffleProfile))
-    parser_shrink.set_defaults(func=shuffleProfile)
+        output_parser], description=doc_split(shuffle))
+    parser_shrink.set_defaults(func=shuffle)
 
     parser_smooth = subparsers.add_parser("smooth", parents=[pairIn_parser,
-        pairOut_parser, smooth_parser], description=docSplit(smoothProfile))
-    parser_smooth.set_defaults(func=smoothProfile)
+        pairOut_parser, smooth_parser], description=doc_split(smooth))
+    parser_smooth.set_defaults(func=smooth)
 
     parser_diff = subparsers.add_parser("diff", parents=[diff_parser,
-        pairIn_parser], description=docSplit(diffProfile))
-    parser_diff.set_defaults(func=diffProfile)
+        pairIn_parser], description=doc_split(pair_diff))
+    parser_diff.set_defaults(func=pair_diff)
 
     parser_matrix = subparsers.add_parser("matrix", parents=[diff_parser,
-        listIn_parser, output_parser], description=docSplit(diffMatrix))
-    parser_matrix.set_defaults(func=diffMatrix)
+        listIn_parser, output_parser], description=doc_split(matrix_diff))
+    parser_matrix.set_defaults(func=matrix_diff)
 
     arguments = parser.parse_args()
 

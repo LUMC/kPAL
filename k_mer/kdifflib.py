@@ -12,39 +12,39 @@ class kMerDiff():
     """
     Class of distance functions.
     """
-    def __init__(self, balance=False, positive=False, smooth=False,
-            summary=metrics.summary["min"], threshold=0, scale=False,
-            scaleDown=False, multiset=True,
+    def __init__(self, do_balance=False, do_positive=False, do_smooth=False,
+            summary=metrics.summary["min"], threshold=0, do_scale=False,
+            down=False, multiset=True,
             pairwise=metrics.pairwise["diff-prod"]):
         """
         Initialise the class.
 
-        @arg balance: Balance the profiles.
-        @type balance: bool
-        @arg positive: Only use positive values.
-        @type positive: bool
-        @arg smooth: Use dynamic smoothing.
-        @type smooth: bool
+        @arg do_balance: Balance the profiles.
+        @type do_balance: bool
+        @arg do_positive: Only use positive values.
+        @type do_positive: bool
+        @arg do_smooth: Use dynamic smoothing.
+        @type do_smooth: bool
         @arg summary: Summary function for dynamic smoothing.
         @type summary: int
         @arg threshold: Threshold for the summary function.
         @type threshold: int
-        @arg scale: Scale the profiles.
-        @type scale: bool
-        @arg scaleDown: Normalise the scaling factors between 0 and 1.
-        @type scaleDown: bool
+        @arg do_scale: Scale the profiles.
+        @type do_scale: bool
+        @arg down: Normalise the scaling factors between 0 and 1.
+        @type down: bool
         @arg multiset: Use the multiset distance metric, euclidean otherwise.
         @type multiset: bool
         @arg pairwise: Pairwise distance function for the multiset distance.
         @type pairwise: int
         """
 
-        self.__balance = balance
-        self.__positive = positive
-        self.__smooth = smooth
+        self.__do_balance = do_balance
+        self.__do_positive = do_positive
+        self.__do_smooth = do_smooth
         self.__threshold = threshold
-        self.__scale = scale
-        self.__scaleDown = scaleDown
+        self.__do_scale = do_scale
+        self.__down = down
         self.__multiset = multiset
         self.__pairwise = pairwise
         self.__function = summary
@@ -71,7 +71,7 @@ class kMerDiff():
             map(lambda x: (x * step, (x + 1) * step), range(4)))
     #__collapse
 
-    def __dynamicSmooth(self, profile1, profile2, start, length):
+    def __dynamic_smooth(self, profile1, profile2, start, length):
         """
         Smooth two profiles by collapsing sub-profiles that do not meet the
         requirements governed by the selected summary function and the
@@ -119,11 +119,11 @@ class kMerDiff():
         #if
         newLength = length / 4
         for i in range(4):
-            self.__dynamicSmooth(profile1, profile2, start + i * newLength,
+            self.__dynamic_smooth(profile1, profile2, start + i * newLength,
                 newLength)
-    #__dynamicSmooth
+    #__dynamic_smooth
 
-    def dynamicSmooth(self, profile1, profile2):
+    def dynamic_smooth(self, profile1, profile2):
         """
         Smooth two profiles by collapsing sub-profiles that do not meet the
         requirements governed by the selected summary function and the
@@ -134,10 +134,10 @@ class kMerDiff():
         @arg profile2: A k-mer profile.
         @type profile2: object(kMer)
         """
-        self.__dynamicSmooth(profile1, profile2, 0, profile1.number)
-    #dynamicSmooth
+        self.__dynamic_smooth(profile1, profile2, 0, profile1.number)
+    #dynamic_smooth
 
-    def calcDistance(self, profile1, profile2):
+    def distance(self, profile1, profile2):
         """
         Calculate the distance between two k-mer profiles.
 
@@ -152,32 +152,32 @@ class kMerDiff():
         temp1 = copy.deepcopy(profile1)
         temp2 = copy.deepcopy(profile2)
 
-        if self.__balance:
+        if self.__do_balance:
             temp1.balance()
             temp2.balance()
         #if
-        if self.__positive:
+        if self.__do_positive:
             temp1.count = metrics.positive(temp1.count, temp2.count)
             temp2.count = metrics.positive(temp2.count, temp1.count)
         #if
-        if self.__smooth:
-            self.dynamicSmooth(temp1, temp2)
-        if self.__scale:
-            scale1, scale2 = metrics.calcScale(temp1.count, temp2.count)
+        if self.__do_smooth:
+            self.dynamic_smooth(temp1, temp2)
+        if self.__do_scale:
+            scale1, scale2 = metrics.get_scale(temp1.count, temp2.count)
 
-            if self.__scaleDown:
-                scale1, scale2 = metrics.scaleDown(scale1, scale2)
+            if self.__down:
+                scale1, scale2 = metrics.scale_down(scale1, scale2)
             temp1.count = metrics.scale(temp1.count, scale1)
             temp2.count = metrics.scale(temp2.count, scale2)
         #if
         if not self.__multiset:
-            return metrics.euclideanDistance(temp1.count, temp2.count)
-        return metrics.multisetDistance(temp1.count, temp2.count,
+            return metrics.euclidean(temp1.count, temp2.count)
+        return metrics.multiset(temp1.count, temp2.count,
             self.__pairwise)
-    #calcDistance
+    #distance
 #kMerDiff
 
-def makeDistanceMatrix(profiles, output, precision, kDiff):
+def distance_matrix(profiles, output, precision, kDiff):
     """
     Make a distance matrix any number of k-mer profiles.
 
@@ -200,8 +200,8 @@ def makeDistanceMatrix(profiles, output, precision, kDiff):
             if (j):
                 output.write(' ')
             output.write(("%%.%if" % precision) % 
-                kDiff.calcDistance(profiles[i], profiles[j]))
+                kDiff.distance(profiles[i], profiles[j]))
         #for
         output.write('\n')
     #for
-#makeDistanceMatrix
+#distance_matrix

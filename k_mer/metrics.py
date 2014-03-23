@@ -44,7 +44,7 @@ def distribution(vector):
     return map(lambda x: (x, d[x]), sorted(d))
 #distribution
 
-def meanStd(l):
+def stats(l):
     """
     Calculate the mean and median of l.
 
@@ -66,9 +66,9 @@ def meanStd(l):
     
     mean = sum_l / float(n)
     return mean, math.sqrt((sumSquared_l / float(n)) - (mean * mean))
-#meanStd
+#stats
 
-def calcScale(vector1, vector2):
+def get_scale(vector1, vector2):
     """
     Calculate scaling factors based upon total counts. One of the factors
     is always one (the other is either one or larger than one).
@@ -95,9 +95,9 @@ def calcScale(vector1, vector2):
         scale2 = float(vector1_total) / vector2_total
 
     return scale1, scale2
-#calcScale
+#get_scale
 
-def scaleDown(scale1, scale2):
+def scale_down(scale1, scale2):
     """
     Normalise scaling factor between 0 and 1.
 
@@ -112,7 +112,7 @@ def scaleDown(scale1, scale2):
     factor = max(scale1, scale2)
 
     return scale1 / factor, scale2 / factor
-#scaleDown
+#scale_down
 
 def scale(vector, scale):
     """
@@ -144,7 +144,7 @@ def positive(vector1, vector2):
     return map(lambda x: x[1] and x[0], zip(vector1, vector2))
 #positive
 
-def multisetDistance(vector1, vector2, pairwise):
+def multiset(vector1, vector2, pairwise):
     """
     Calculate the multiset distance between two vectors.
 
@@ -170,9 +170,9 @@ def multisetDistance(vector1, vector2, pairwise):
     #for
 
     return c / d
-#multisetDistance
+#multiset
 
-def euclideanDistance(vector1, vector2):
+def euclidean(vector1, vector2):
     """
     Calculate the Euclidean distance between two vectors.
 
@@ -191,7 +191,7 @@ def euclideanDistance(vector1, vector2):
         sumOfSquares += (vector1[i] - vector2[i]) ** 2
 
     return math.sqrt(sumOfSquares)
-#euclideanDistance
+#euclidean
 
 pairwise = {
     "diff-prod": lambda x, y: abs(x - y) / float((x + 1) * (y + 1)),
