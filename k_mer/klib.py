@@ -53,16 +53,16 @@ class kMer():
         self.__bitMask = self.number - 0x01
     #__initialise
 
-    def __add(self, binaryRepresentation):
+    def __add(self, binary):
         """
         Add a k-mer and keep track of the nonZero and total counters.
 
-        @arg binaryRepresentation: Binary representation of a k-mer.
-        @type binaryRepresentation: int
+        @arg binary: Binary representation of a k-mer.
+        @type binary: int
         """
-        if not self.count[binaryRepresentation]:
+        if not self.count[binary]:
             self.nonZero += 1
-        self.count[binaryRepresentation] += 1
+        self.count[binary] += 1
         self.total += 1
     #__add
 
@@ -74,19 +74,19 @@ class kMer():
         @type sequence: string
         """
         if len(sequence) > self.length:
-            binaryRepresentation = 0x00
+            binary = 0x00
 
             # Calculate the binary representation of a k-mer.
             for i in sequence[:self.length]:
-                binaryRepresentation = ((binaryRepresentation << 2) |
+                binary = ((binary << 2) |
                     self.__nucleotideToBinary[i])
-            self.__add(binaryRepresentation)
+            self.__add(binary)
 
             # Calculate the binary representation of the next k-mer.
             for i in sequence[self.length:]:
-                binaryRepresentation = ((binaryRepresentation << 2) |
+                binary = ((binary << 2) |
                     self.__nucleotideToBinary[i]) & self.__bitMask
-                self.__add(binaryRepresentation)
+                self.__add(binary)
             #for
         #if
     #__scan_line

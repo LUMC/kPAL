@@ -177,7 +177,7 @@ class kMerDiff():
     #distance
 #kMerDiff
 
-def distance_matrix(profiles, output, precision, kDiff):
+def distance_matrix(profiles, output, precision, k_diff):
     """
     Make a distance matrix any number of k-mer profiles.
 
@@ -187,8 +187,8 @@ def distance_matrix(profiles, output, precision, kDiff):
     @type output: stream
     @arg precision: Number of digits in the output.
     @type precision: int
-    @arg kDiff: A kMerDiff object.
-    @type kDiff: object(kMerDiff)
+    @arg k_diff: A kMerDiff object.
+    @type k_diff: object(kMerDiff)
     """
     numberOfInputs = len(profiles)
 
@@ -200,7 +200,7 @@ def distance_matrix(profiles, output, precision, kDiff):
             if (j):
                 output.write(' ')
             output.write(("%%.%if" % precision) % 
-                kDiff.distance(profiles[i], profiles[j]))
+                k_diff.distance(profiles[i], profiles[j]))
         #for
         output.write('\n')
     #for
