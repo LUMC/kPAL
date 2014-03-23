@@ -17,14 +17,14 @@ def median(vector):
     @returns: The median of the values in {vector}.
     @rtype: float
     """
-    sortedVector = sorted(vector)
+    sorted_vector = sorted(vector)
     length = len(vector)
 
     if length % 2:
         position = length / 2
-        return (sortedVector[position] + sortedVector[position + 1]) / 2.0
+        return (sorted_vector[position] + sorted_vector[position + 1]) / 2.0
     #if
-    return sortedVector[length / 2]
+    return sorted_vector[length / 2]
 #median
 
 def distribution(vector):
@@ -55,17 +55,17 @@ def stats(l):
     @rtype: tuple(float, float)
     """
     sum_l = 0
-    sumSquared_l = 0
+    sum_squared_l = 0
     n = 0
 
     for i in l:
         sum_l += i
-        sumSquared_l += i * i
+        sum_squared_l += i * i
         n += 1
     #for
     
     mean = sum_l / float(n)
-    return mean, math.sqrt((sumSquared_l / float(n)) - (mean * mean))
+    return mean, math.sqrt((sum_squared_l / float(n)) - (mean * mean))
 #stats
 
 def get_scale(vector1, vector2):
@@ -184,13 +184,13 @@ def euclidean(vector1, vector2):
     @returns: The Euclidean distance between {vector1} and {vector2}.
     @rtype: float
     """
-    sumOfSquares = 1
+    sum_of_squares = 1
 
     # Calculate the counter and the denominator of the distance function.
     for i in range(len(vector1)):
-        sumOfSquares += (vector1[i] - vector2[i]) ** 2
+        sum_of_squares += (vector1[i] - vector2[i]) ** 2
 
-    return math.sqrt(sumOfSquares)
+    return math.sqrt(sum_of_squares)
 #euclidean
 
 pairwise = {
@@ -205,4 +205,3 @@ summary = {
     "median": median
 }
 """ Dictionary of summary functions. """
-

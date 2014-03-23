@@ -15,7 +15,7 @@ from math import *
 
 from . import doc_split, usage, version
 
-lengthError = "k-mer lengths of the files differ."
+length_error = "k-mer lengths of the files differ."
 
 def index(input_handle, output_handle, size):
     """
@@ -49,7 +49,7 @@ def merge(input_handles, output_handle):
     profile2.load(input_handles[1])
 
     if profile1.length != profile2.length:
-        raise ValueError(lengthError)
+        raise ValueError(length_error)
 
     profile2.merge(profile1)
     profile2.save(output_handle)
@@ -132,7 +132,7 @@ def info(input_handle):
     profile.load(input_handle)
     print "k-mer length: %i" % profile.length
     print "Total number of counts: %i" % profile.total
-    print "Non-zero counts: %i" % profile.nonZero
+    print "Non-zero counts: %i" % profile.non_zero
 #info
 
 def get_count(input_handle, word):
@@ -327,7 +327,7 @@ def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
     profile2.load(input_handles[1])
 
     if profile1.length != profile2.length:
-        raise ValueError(lengthError)
+        raise ValueError(length_error)
 
     print ("%%.%if" % precision) % diff.distance(profile1, profile2)
 #pair_diff
@@ -389,7 +389,7 @@ def matrix_diff(input_handles, output_handle, euclidean=False,
         counts.append(klib.kMer())
         counts[-1].load(i)
         if counts[0].length != counts[-1].length:
-            raise ValueError(lengthError)
+            raise ValueError(length_error)
     #for
 
     kdifflib.distance_matrix(counts, output_handle, precision, diff)
@@ -407,16 +407,16 @@ def main():
     input_parser.add_argument("input_handle", metavar="INPUT",
         type=argparse.FileType('r'), help="input file")
 
-    pairOut_parser = argparse.ArgumentParser(add_help=False)
-    pairOut_parser.add_argument("output_handles", metavar="OUTPUT", nargs=2,
+    pair_out_parser = argparse.ArgumentParser(add_help=False)
+    pair_out_parser.add_argument("output_handles", metavar="OUTPUT", nargs=2,
         type=argparse.FileType('w'), help="pair of output files")
 
-    pairIn_parser = argparse.ArgumentParser(add_help=False)
-    pairIn_parser.add_argument("input_handles", metavar="INPUT", nargs=2,
+    pair_in_parser = argparse.ArgumentParser(add_help=False)
+    pair_in_parser.add_argument("input_handles", metavar="INPUT", nargs=2,
         type=argparse.FileType('r'), help="pair of input files")
 
-    listIn_parser = argparse.ArgumentParser(add_help=False)
-    listIn_parser.add_argument("input_handles", metavar="INPUT", nargs='+',
+    list_in_parser = argparse.ArgumentParser(add_help=False)
+    list_in_parser.add_argument("input_handles", metavar="INPUT", nargs='+',
         type=argparse.FileType('r'), help="list of input files")
 
     scale_parser = argparse.ArgumentParser(add_help=False)
@@ -472,7 +472,7 @@ def main():
         help="k-mer size (%(type)s)")
     parser_index.set_defaults(func=index)
 
-    parser_merge = subparsers.add_parser("merge", parents=[pairIn_parser,
+    parser_merge = subparsers.add_parser("merge", parents=[pair_in_parser,
         output_parser], description=doc_split(merge))
     parser_merge.set_defaults(func=merge)
 
@@ -508,12 +508,12 @@ def main():
     parser_getcount.set_defaults(func=get_count)
 
     parser_positive = subparsers.add_parser("positive",
-        parents=[pairIn_parser, pairOut_parser],
+        parents=[pair_in_parser, pair_out_parser],
         description=doc_split(positive))
     parser_positive.set_defaults(func=positive)
 
-    parser_scale = subparsers.add_parser("scale", parents=[pairIn_parser,
-        pairOut_parser, scale_parser], description=doc_split(scale))
+    parser_scale = subparsers.add_parser("scale", parents=[pair_in_parser,
+        pair_out_parser, scale_parser], description=doc_split(scale))
     parser_scale.set_defaults(func=scale)
 
     parser_shrink = subparsers.add_parser("shrink", parents=[input_parser,
@@ -526,16 +526,16 @@ def main():
         output_parser], description=doc_split(shuffle))
     parser_shrink.set_defaults(func=shuffle)
 
-    parser_smooth = subparsers.add_parser("smooth", parents=[pairIn_parser,
-        pairOut_parser, smooth_parser], description=doc_split(smooth))
+    parser_smooth = subparsers.add_parser("smooth", parents=[pair_in_parser,
+        pair_out_parser, smooth_parser], description=doc_split(smooth))
     parser_smooth.set_defaults(func=smooth)
 
     parser_diff = subparsers.add_parser("diff", parents=[diff_parser,
-        pairIn_parser], description=doc_split(pair_diff))
+        pair_in_parser], description=doc_split(pair_diff))
     parser_diff.set_defaults(func=pair_diff)
 
     parser_matrix = subparsers.add_parser("matrix", parents=[diff_parser,
-        listIn_parser, output_parser], description=doc_split(matrix_diff))
+        list_in_parser, output_parser], description=doc_split(matrix_diff))
     parser_matrix.set_defaults(func=matrix_diff)
 
     arguments = parser.parse_args()

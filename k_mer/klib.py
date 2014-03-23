@@ -16,14 +16,14 @@ class kMer():
     """
     Handle the counting of k-mers in a fasta file.
     """
-    __nucleotideToBinary = {
+    __nucleotide_to_binary = {
         'A': 0x00, 'a': 0x00,
         'C': 0x01, 'c': 0x01,
         'G': 0x02, 'g': 0x02,
         'T': 0x03, 't': 0x03
     }
     """ Conversion table form nucleotide to binary. """
-    __binaryToNucleotide = {
+    __binary_to_nucleotide = {
         0x00: 'A',
         0x01: 'C',
         0x02: 'G',
@@ -36,7 +36,7 @@ class kMer():
         Initialise the class instance.
         """
         self.total = 0
-        self.nonZero = 0
+        self.non_zero = 0
         self.name = ""
     #__init__
 
@@ -50,18 +50,18 @@ class kMer():
         self.length = length
         self.number = 4 ** self.length
         self.count = self.number * [0]
-        self.__bitMask = self.number - 0x01
+        self.__bitmask = self.number - 0x01
     #__initialise
 
     def __add(self, binary):
         """
-        Add a k-mer and keep track of the nonZero and total counters.
+        Add a k-mer and keep track of the non_zero and total counters.
 
         @arg binary: Binary representation of a k-mer.
         @type binary: int
         """
         if not self.count[binary]:
-            self.nonZero += 1
+            self.non_zero += 1
         self.count[binary] += 1
         self.total += 1
     #__add
@@ -79,13 +79,13 @@ class kMer():
             # Calculate the binary representation of a k-mer.
             for i in sequence[:self.length]:
                 binary = ((binary << 2) |
-                    self.__nucleotideToBinary[i])
+                    self.__nucleotide_to_binary[i])
             self.__add(binary)
 
             # Calculate the binary representation of the next k-mer.
             for i in sequence[self.length:]:
                 binary = ((binary << 2) |
-                    self.__nucleotideToBinary[i]) & self.__bitMask
+                    self.__nucleotide_to_binary[i]) & self.__bitmask
                 self.__add(binary)
             #for
         #if
@@ -101,10 +101,11 @@ class kMer():
         @type length: int
         """
         self.__initialise(length)
-        S = re.compile("[^%s]" % ''.join(self.__nucleotideToBinary.keys()))
+        alphabet = re.compile("[^%s]" %
+            ''.join(self.__nucleotide_to_binary.keys()))
 
         for record in SeqIO.parse(handle, "fasta"):
-            for sequence in S.split(str(record.seq)):
+            for sequence in alphabet.split(str(record.seq)):
                 self.__scan_line(sequence)
     #analyse
 
@@ -117,7 +118,7 @@ class kMer():
         """
         self.__initialise(int(handle.readline()[:-1]))
         self.total = (int(handle.readline()[:-1]))
-        self.nonZero = (int(handle.readline()[:-1]))
+        self.non_zero = (int(handle.readline()[:-1]))
         self.name = path.basename(handle.name)
 
         offset = 0
@@ -138,7 +139,7 @@ class kMer():
         """
         handle.write("%i\n" % self.length)
         handle.write("%i\n" % self.total)
-        handle.write("%i\n" % self.nonZero)
+        handle.write("%i\n" % self.non_zero)
         for i in self.count:
             handle.write("%i\n" % i)
     #save
@@ -151,12 +152,12 @@ class kMer():
         @type profile: object(kMer)
         """
         self.total += profile.total
-        self.nonZero = 0
+        self.non_zero = 0
 
         for i in range(self.number):
             self.count[i] += profile.count[i]
             if self.count[i]:
-                self.nonZero += 1
+                self.non_zero += 1
         #for
     #merge
 
@@ -216,20 +217,20 @@ class kMer():
             raise ValueError(
                 "Reduction factor should be smaller than k-mer size.")
 
-        mergeSize = 4 ** factor
-        self.nonZero = 0
-        newCount = []
-        for i in range(0, self.number, mergeSize):
-            sub = sum(map(lambda x: self.count[x], range(i, i + mergeSize)))
+        merge_size = 4 ** factor
+        self.non_zero = 0
+        new_count = []
+        for i in range(0, self.number, merge_size):
+            sub = sum(map(lambda x: self.count[x], range(i, i + merge_size)))
 
             if sub:
-                self.nonZero += 1
-            newCount.append(sub)
+                self.non_zero += 1
+            new_count.append(sub)
         #for
-        self.count = newCount
+        self.count = new_count
         self.length -= factor
-        self.number -= mergeSize
-        self.__bitMask >>= 2 * factor
+        self.number -= merge_size
+        self.__bitmask >>= 2 * factor
     #shrink
 
     def shuffle(self):
@@ -253,7 +254,7 @@ class kMer():
 
         for i in sequence:
             result <<= 2
-            result |= self.__nucleotideToBinary[i]
+            result |= self.__nucleotide_to_binary[i]
         #for
 
         return result
@@ -272,7 +273,7 @@ class kMer():
         sequence = ""
 
         for i in range(self.length):
-            sequence += self.__binaryToNucleotide[number & 0x03]
+            sequence += self.__binary_to_nucleotide[number & 0x03]
             number >>= 2
         #while
 
@@ -290,13 +291,13 @@ class kMer():
         @returns: The complement of {number}.
         @rtype: int
         """
-        myNumber = number
+        temp_number = number
         result = 0x00
 
         for i in range(self.length):
             result <<= 2
-            result |= ~myNumber & 0x03
-            myNumber <<= 2
+            result |= ~temp_number & 0x03
+            temp_number <<= 2
         #for
 
         return result

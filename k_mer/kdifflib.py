@@ -117,10 +117,10 @@ class kMerDiff():
             #for
             return
         #if
-        newLength = length / 4
+        new_length = length / 4
         for i in range(4):
-            self.__dynamic_smooth(profile1, profile2, start + i * newLength,
-                newLength)
+            self.__dynamic_smooth(profile1, profile2, start + i * new_length,
+                new_length)
     #__dynamic_smooth
 
     def dynamic_smooth(self, profile1, profile2):
@@ -190,12 +190,12 @@ def distance_matrix(profiles, output, precision, k_diff):
     @arg k_diff: A kMerDiff object.
     @type k_diff: object(kMerDiff)
     """
-    numberOfInputs = len(profiles)
+    input_count = len(profiles)
 
-    output.write("%i\n" % numberOfInputs)
+    output.write("%i\n" % input_count)
     for i in profiles:
         output.write("%s\n" % i.name)
-    for i in range(1, numberOfInputs):
+    for i in range(1, input_count):
         for j in range(i):
             if (j):
                 output.write(' ')
