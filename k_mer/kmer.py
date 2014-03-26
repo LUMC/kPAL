@@ -257,7 +257,7 @@ def smooth(input_handles, output_handles, summary, summary_func="",
     """
     smooth_function = metrics.summary[summary]
     if summary_func:
-        smooth_function = lambda x: eval(summary_func)
+        smooth_function = eval("lambda " + summary_func)
 
     diff = kdifflib.kMerDiff(summary=smooth_function, threshold=threshold)
     profile1 = klib.kMer()
@@ -308,11 +308,11 @@ def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
     """
     summary_function = metrics.summary[summary]
     if summary_func:
-        summary_function = lambda x: eval(summary_func)
+        summary_function = eval("lambda " + summary_func)
 
     pairwise_function = metrics.pairwise[pairwise]
     if pairwise_func:
-        pairwise_function = lambda x, y: eval(pairwise_func)
+        pairwise_function = eval("lambda " + pairwise_func)
 
     diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,
         do_smooth=do_smooth, summary=summary_function, threshold=threshold,
@@ -372,11 +372,11 @@ def matrix_diff(input_handles, output_handle, euclidean=False,
 
     summary_function = metrics.summary[summary]
     if summary_func:
-        summary_function = lambda x: eval(summary_func)
+        summary_function = eval("lambda " + summary_func)
 
     pairwise_function = metrics.pairwise[pairwise]
     if pairwise_func:
-        pairwise_function = lambda x, y: eval(pairwise_func)
+        pairwise_function = eval("lambda " + pairwise_func)
 
     diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,
         do_smooth=do_smooth, summary=summary_function, threshold=threshold,
