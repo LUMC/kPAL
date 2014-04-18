@@ -12,6 +12,8 @@ import sys
 
 from Bio import Seq, SeqIO
 
+from . import metrics
+
 class kMer():
     """
     Handle the counting of k-mers in a fasta file.
@@ -144,18 +146,21 @@ class kMer():
             handle.write("%i\n" % i)
     #save
 
-    def merge(self, profile):
+    def merge(self, profile, merger=metrics.mergers["sum"]):
         """
-        Add the counts of a (compatible) k-mer profile to this one.
+        Merge two profiles.
 
         :arg profile: An other k-mer profile.
         :type profile: object(kMer)
+        :arg merger: Merge function.
+        :type merger: function
         """
-        self.total += profile.total
+        self.total = 0
         self.non_zero = 0
 
         for i in range(self.number):
-            self.count[i] += profile.count[i]
+            self.count[i] = merger(self.count[i], profile.count[i])
+            self.total += self.count[i]
             if self.count[i]:
                 self.non_zero += 1
         #for

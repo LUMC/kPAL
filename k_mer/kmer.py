@@ -32,7 +32,7 @@ def index(input_handle, output_handle, size):
     profile.save(output_handle)
 #index
 
-def merge(input_handles, output_handle):
+def merge(input_handles, output_handle, merger="sum", merge_func=""):
     """
     Merge two k-mer profiles.
 
@@ -40,7 +40,15 @@ def merge(input_handles, output_handle):
     :type input_handles: list(stream)
     :arg output_handle: Open writeable handle to a k-mer profile.
     :type output_handle: stream
+    :arg merger: Merge function.
+    :type merger: function
+    :arg merge_func: Custom merge function.
+    :type merge_func: str
     """
+    merge_function = metrics.mergers[merger]
+    if merge_func:
+        merge_function = eval("lambda " + merge_func)
+
     profile1 = klib.kMer()
     profile2 = klib.kMer()
 
@@ -50,7 +58,7 @@ def merge(input_handles, output_handle):
     if profile1.length != profile2.length:
         raise ValueError(length_error)
 
-    profile2.merge(profile1)
+    profile2.merge(profile1, merge_function)
     profile2.save(output_handle)
 #merge
 
@@ -473,6 +481,12 @@ def main():
 
     parser_merge = subparsers.add_parser("merge", parents=[pair_in_parser,
         output_parser], description=doc_split(merge))
+    parser_merge.add_argument("-m", dest="merger", type=str,
+        default="sum", choices=metrics.mergers,
+        help='merge function (%(type)s default="%(default)s")')
+    parser_merge.add_argument("--merge-function", dest="merge_func",
+        type=str, default="", help="custom merge function "
+        '(%(type)s default="%(default)s")')
     parser_merge.set_defaults(func=merge)
 
     parser_balance = subparsers.add_parser("balance", parents=[input_parser,

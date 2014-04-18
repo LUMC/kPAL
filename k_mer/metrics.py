@@ -205,3 +205,11 @@ summary = {
     "median": median
 }
 """ Dictionary of summary functions. """
+
+mergers = {
+    "sum": lambda x, y: x + y,
+    "xor": lambda x, y: (x + y) * (not (x and y)),
+    "int": lambda x, y: x * bool(y),
+    "nint": lambda x, y: x * (not bool(y))
+}
+""" Merge functions. """
