@@ -13,7 +13,7 @@ try:
 except ImportError:
     requires.append('argparse')
 
-import kMer as distmeta
+import k_mer as distmeta
 
 setup(
     name='kMer',
@@ -25,10 +25,10 @@ setup(
     url=distmeta.__homepage__,
     license='MIT License',
     platforms=['any'],
-    packages=['kMer'],
+    packages=['k_mer'],
     install_requires=requires,
     entry_points = {
-        'console_scripts': ['kMer = kMer.kMer:main']
+        'console_scripts': ['kMer = k_mer.kmer:main']
         },
     classifiers = [
         'Development Status :: 3 - Alpha',
