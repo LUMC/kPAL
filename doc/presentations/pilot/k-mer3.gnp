@@ -1,0 +1,13 @@
+set xrange [-1:11]
+set yrange [0:60]
+set style data boxes
+set style fill solid
+set boxwidth 0.4
+set xtics("AAA\nAAC" 0, "AAA\nAAG" 1, "AAA\nAAT" 2, "AAA\nACA" 3,  "AAA\nACC" \
+4, "AAA\nACG" 5, "AAA\nACT" 6, "AAA\nAGA" 7, "AAA\nAGC" 8, "AAA\nAGG" 9, \
+"AAA\nAGT" 10)
+set size 4,1 #ratio 0.25
+set ytics 20
+set terminal postscript color eps font "default, 80"
+set output "k-mer3.eps"
+plot "k-mer3.dat" notitle

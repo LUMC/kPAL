@@ -1,0 +1,6 @@
+[submodule "presentation"]
+	path = presentation
+	url = https://git.lumc.nl/j.f.j.laros/presentation.git
+[submodule "presentation-pics"]
+	path = presentation-pics
+	url = https://git.lumc.nl/humgen/presentation-pics.git

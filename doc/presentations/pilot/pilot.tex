@@ -1,0 +1,432 @@
+\documentclass[slidestop]{beamer}
+
+\title{Usage of $k$-mer profiles in NGS data}
+\providecommand{\myConference}{Work discussion}
+\providecommand{\myDate}{Tuesday, 15 November 2011}
+\author{Jeroen F. J. Laros}
+\providecommand{\myGroup}{Leiden Genome Technology Center}
+\providecommand{\myDepartment}{Department of Human Genetics}
+\providecommand{\myCenter}{Center for Human and Clinical Genetics}
+\providecommand{\lastCenterLogo}{
+  \raisebox{-0.1cm}{
+    \includegraphics[height = 1cm]{lgtc_logo}
+  }
+}
+\providecommand{\lastRightLogo}{
+  \includegraphics[height = 0.7cm]{nbic_logo}
+  %\includegraphics[height = 0.8cm]{nwo_logo_en}
+}
+
+\usetheme{lumc}
+
+\begin{document}
+
+% This disables the \pause command, handy in the editing phase.
+%\renewcommand{\pause}{}
+
+% Make the title page.
+\bodytemplate
+
+% First page of the presentation.
+\section{Introduction}
+\begin{frame}
+  \frametitle{Calculate distances}
+
+  We frequently want to know how datasets are related.
+  \bigskip
+  \pause
+
+  Between reference sequences:
+  \begin{itemize}
+    \item Phylogeny.
+  \end{itemize}
+  \bigskip
+  \pause
+
+  Between raw files:
+  \begin{itemize}
+    \item Phylogeny.
+    \item Quality control.
+    \item Potential measure for the quality of a de novo assembly.
+  \end{itemize}
+  \bigskip
+  \pause
+
+  In combination:
+  \begin{itemize}
+    \item Metagenomics.
+    \item Quality control.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Counting $k$-mers}
+
+  We choose a $k$ and count all occurrences of substrings of length $k$.
+  \pause
+
+  \begin{figure}
+    \colorbox{white}{
+      \includegraphics[width = \textwidth]{k-mer}
+    }
+    \vspace{-0.5cm}
+    \caption{A profile of $3$-mer counts.} \label{fig:kmerprofile}
+  \end{figure}
+
+  In Figure~\ref{fig:kmerprofile} we see a part of $3$-mer counts; \bt{AAA}
+  occurs $10$ times, \bt{AAC} occurs 20 times, etc.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why $k$-mers?}
+
+  The usage of $k$-mers is appealing since:
+  \begin{itemize}
+    \item They are easy to work with.
+    \item Fingerprinting of samples is possible (even for a small $k$-mer
+      length (around $10$)).
+    \item Can be used to make a database to match against.
+  \end{itemize}
+  \bigskip
+  \pause
+
+  Some possible extensions:
+  \begin{itemize}
+    \item How realistic is it to disassemble a ``mixed'' $k$-mer profile?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Choosing $k$}
+
+  $k$ can not be too small:
+  \pause
+  \begin{itemize}
+    \item $k = 1$ will result in loss of all subsequence information.
+    \item $k = 2$ will give you information about di-nucleotides.
+    \begin{itemize}
+      \item But, pattern growth needs also position information.
+    \end{itemize}
+    \item There is only one unique $10$-mer in Human (hg18).
+  \end{itemize}
+  \bigskip
+  \pause
+
+  But, $k$ can not be too large either:
+  \pause
+  \begin{itemize}
+    \item Almost all $18$-mers are unique in the Human genome.
+    \item Since this is not error tolerant:
+    \begin{itemize}
+      \item Read errors.
+      \item Assembly errors.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparing $k$-mer profiles}
+
+  \vspace{-0.5cm}
+  \begin{figure}
+    \colorbox{white}{
+      \includegraphics[width = \textwidth]{k-mer}
+    }
+    \smallskip
+
+    \colorbox{white}{
+      \includegraphics[width = \textwidth]{k-mer2}
+    }
+    \vspace{-0.5cm}
+    \caption{Two profiles of $k$-mer counts.}
+  \end{figure}
+  \pause
+
+  How to express this difference with one value.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Pairwise distance function}
+
+  We use the following function:
+  \begin{displaymath}
+    f(x, y) = \frac{|x - y|}{(x + 1) (y + 1)}
+  \end{displaymath}
+  \pause
+
+  Properties:
+  \begin{itemize}
+    \item $f(0, 1) = \frac12$
+    \item $f(0, 1) > f(7, 8)$
+  \end{itemize}
+  \bigskip
+  \bigskip
+  \pause
+
+  This is desirable:
+  \begin{itemize}
+    \item The fact that a $k$-mer is not present is more important than the
+      number of times it is present.
+    \item Differences in the low end of the spectrum are more important than
+      ones at the high end.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Multiset distance function}
+
+  Let $f$ be a function $f : \mathbb{R}_{\ge 0} \times \mathbb{R}_{\ge 0} 
+                               \to \mathbb{R}_{\ge 0}$
+  with finite supremum $M$ and the following properties:
+  \begin{eqnarray*}
+    f(x, y) &=& f(y, x) \hspace*{2cm}\mathrm{\ for\ all\ } x, y \in
+      \mathbb{R}_{\ge 0}\\
+    f(x, x) &=& 0 \hspace*{2.85cm}\mathrm{\ for\ all\ } x \in \mathbb{R}_{\ge
+      0}\\
+    f(x, 0) &\ge& {M}/2 \hspace*{2.3cm}\mathrm{\ for\ all\ } x \in
+      \mathbb{R}_{> 0}\\
+    f(x, y) &\le& f(x, z) + f(z, y) \hspace*{0.56cm}\mathrm{\ for\ all\ } x, y,
+      z \in \mathbb{R}_{\ge 0}
+  \end{eqnarray*}
+  \smallskip
+  \pause
+
+  For a multiset $X$, let $S(X)$ denote its underlying set. For multisets $X,
+  Y$ with $S(X),S(Y) \subseteq \{1, 2, \ldots, n\}$ we define 
+  \smallskip
+
+  \begin{displaymath}
+    d_f(X, Y) = \frac{\sum_{i = 1}^n f(x_i, y_i)}{|S(X) \cup S(Y)| + 1}
+  \end{displaymath}
+  \bigskip
+\end{frame}
+
+\section{Reference sequences}
+\begin{frame}
+  \frametitle{Results for reference sequences}
+
+  Comparisons from a previous study.
+  \vspace{-0.5cm}
+  \begin{table}
+    \begin{center}
+      {\small
+        \begin{tabular}
+          {lr@{\ \ }|@{\ \ }r@{\ \ }|@{\ \ }r@{\ \ }|@{\ \ }r@{\ \ }|@{\ \ }r}
+              &         & \multicolumn{4}{c}{Human}\\
+              &         & \multicolumn{1}{c@{\ \ }|@{\ \ }}{0} &
+                          \multicolumn{1}{c@{\ \ }|@{\ \ }}{1} &
+                          \multicolumn{1}{c@{\ \ }|@{\ \ }}{2} &
+                          \multicolumn{1}{c}{$\ge 3$}\\
+        \hline
+              & 0       & 150,783,349 & 4,486,933 & 1,216,093 &    498,090 \\
+              & 1       &   3,212,656 & 7,352,318 & 3,737,739 &  2,333,341 \\
+        Chimp & 2       &     602,927 & 2,621,970 & 4,011,169 &  4,907,515 \\
+              & $\ge 3$ &     145,530 &   950,955 & 2,697,230 & 78,877,641
+        \end{tabular}
+      }
+    \end{center}
+    \caption{Differences between Human and Chimpanzee ($k = 14$)}
+  \end{table}
+  \pause
+
+  Observations:
+  \begin{itemize}
+    \item There are over six million $14$-mers that can identify Human DNA in
+      a mix of Human and Chimpanzee DNA.
+    \item Nearly half a million $14$-mers are abundant in Human, but are not
+      present in the Chimpanzee.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Results for reference sequences}
+
+  \begin{figure}
+    \includegraphics[width = 0.48\textwidth]{clusterall_bw}
+    \hfill
+    \includegraphics[width = 0.48\textwidth]{clusterzoom_bw}
+    \caption{Left: ten species. Right: four mammals.}
+  \end{figure}
+\end{frame}
+
+\section{Application on raw data}
+\begin{frame}
+  \frametitle{Fastq files}
+
+  We want to extend this to \emph{raw} data.
+  \pause
+  \begin{itemize}
+    \item Often we do not have a reference sequence.
+    \item Sometimes we do not know which species we are looking at.
+  \end{itemize}
+  \bigskip
+  \pause
+
+  Characteristics:
+  \begin{itemize}
+    \item Short reads.
+    \item Unique $k$-mers can be present more than once.
+    \item $k$-mers that are present in the sample can be missing in this file.
+  \end{itemize}
+  \bigskip
+  \pause
+
+  Things to think about:
+  \begin{itemize}
+    \item Normalisation.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A dataset of owls}
+
+  \begin{figure}
+    \includegraphics[width = 0.7\textwidth]{owl}
+    \caption{Western brown fish owl.}
+  \end{figure}
+  \vspace{-0.25cm}
+  Four samples, paired end.
+\end{frame}
+
+\begin{frame}
+  \frametitle{First results}
+
+  \begin{table}
+    {\scriptsize
+    \begin{tabular}{cc|cc|cc|cc|cc}
+      & &
+      \multicolumn{2}{c|}{1} &
+      \multicolumn{2}{c|}{2} &
+      \multicolumn{2}{c|}{3} &
+      \multicolumn{2}{c}{4} \\
+        &   &     1 &     2 &     1 &     2 &     1 &     2 &     1 &     2 \\
+      \hline
+      1 & 1 & 0.000 &       &       &       &       &       &       &       \\
+        & 2 & \only<2>{\color{yellow}}0.257 & 0.000 &       &       &       &
+          &       &       \\
+      \hline
+      2 & 1 & 0.649 & 0.655 & 0.000 &       &       &       &       &       \\
+        & 2 & 0.663 & 0.670 & \only<2>{\color{yellow}}0.206 & 0.000 &       &
+          &       &       \\
+      \hline
+      3 & 1 & 0.427 & 0.428 & 0.754 & 0.784 & 0.000 &       &       &       \\
+        & 2 & 0.430 & 0.427 & 0.763 & 0.786 & \only<2>{\color{yellow}}0.364 &
+          0.000 &       &       \\
+      \hline
+      4 & 1 & 0.552 & 0.556 & \only<3>{\color{yellow}}0.254 &
+        \only<3>{\color{yellow}}0.262 & 0.774 & 0.783 & 0.000 &       \\
+        & 2 & 0.584 & 0.589 & \only<3>{\color{yellow}}0.260 &
+          \only<3>{\color{yellow}}0.254 & 0.814 & 0.822 &
+          \only<2>{\color{yellow}}0.146 & 0.000 \\
+    \end{tabular}
+    }
+    \caption{$k$-mer difference between 8 fastq files.}
+  \end{table}
+  \pause
+
+  Observations:
+  \begin{itemize}
+    \item The distance between two files of one sample is low.
+    \pause
+    \item There is an apparent low distance between sample $2$ and $4$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sizes of the datasets}
+
+  The sizes of the datasets differ quite a lot.
+  \begin{table}
+    \begin{tabular}{c|r}
+      sample & size \\
+      \hline
+      1      &  6.1 \\
+      2      & 31.6 \\
+      3      &  3.9 \\
+      4      & 30.7
+    \end{tabular}
+    \caption{Sizes of the samples in gigabytes.}
+  \end{table}
+  \pause
+
+  The chance that a $k$-mer is present in a small dataset is low.
+  \begin{itemize}
+    \item Sample $2$ and $4$ are more alike than sample $3$ internally.
+    \item This may give an indication on how deep to sequence.
+    \item Apparently, global normalisation is not effective.
+  \end{itemize}
+\end{frame}
+
+\section{Variations on the theme}
+\begin{frame}
+  \frametitle{Possible ways to deal with this data}
+
+  Throwing out data:
+  \pause
+  \begin{itemize}
+    \item Random.
+    \begin{itemize}
+      \item Not in favour, probably the ``random'' selection of sequences by
+        the sequencer is not random.
+    \end{itemize}
+    \pause
+    \item Low abundant sequences.
+    \begin{itemize}
+      \item Worth a try.
+    \end{itemize}
+  \end{itemize}
+  \bigskip
+  \pause
+
+  Different distance measures:
+  \medskip
+
+  \begin{tabular}{@{\,\ \ \ $\bullet$\ \,}ll}
+    Euclidean distance & \uncover<5->{No good results}\\
+    Positive multiset  & \uncover<6->{Relatively good results}\\
+    Relative multiset  & \uncover<7->{Not done yet}\\
+  \end{tabular}
+  \bigskip
+
+  \uncover<8->{The last algorithm is rather expensive.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Look at relative $k$-mer occurrences}
+
+  \begin{figure}
+    \colorbox{white}{
+      \includegraphics[width = \textwidth]{k-mer}
+    }
+    \smallskip
+
+    \colorbox{white}{
+      \includegraphics[width = \textwidth]{k-mer3}
+    }
+    \vspace{-0.5cm}
+    \caption{Conversion to differences in counts.}
+  \end{figure}
+\end{frame}
+
+\section{Questions?}
+\lastpagetemplate
+\begin{frame}
+  \begin{center}
+    Acknowledgements:
+    \bigskip
+    \bigskip
+
+    Walter Kosters
+
+    Hendrik Jan Hoogeboom
+
+    Ken Kraaijeveld
+
+    Johan den Dunnen
+    \vspace{3.5cm}
+
+    \bt{https://humgenprojects.lumc.nl/svn/k-mer}
+  \end{center}
+\end{frame}
+
+\end{document}
