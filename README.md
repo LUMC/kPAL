@@ -28,6 +28,7 @@ When installing from source, make sure you have the following packages installed
 Releases
 --------
 
+- [0.2.0](https://pypi.python.org/packages/source/k/kMer/kMer-0.2.0.tar.gz)
 - [0.1.dev](https://pypi.python.org/packages/source/k/kMer/kMer-0.1.dev.tar.gz)
 
 Please note that the [latest](https://pypi.python.org/pypi/kMer) version will always be available on the [Python Package Index](https://pypi.python.org/).
