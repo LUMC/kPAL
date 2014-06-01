@@ -15,7 +15,7 @@ __version_info__ = ('0', '2', '0')
 
 __version__ = '.'.join(__version_info__)
 __author__ = 'LUMC, Jeroen F.J. Laros'
-__contact__ = 'J.F.J.Laros@@lumc.nl'
+__contact__ = 'J.F.J.Laros@lumc.nl'
 __homepage__ = 'https://git.lumc.nl/j.f.j.laros/k-mer'
 
 usage = __doc__.split("\n\n\n")
