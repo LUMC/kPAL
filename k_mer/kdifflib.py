@@ -14,7 +14,7 @@ class kMerDiff():
     """
     def __init__(self, do_balance=False, do_positive=False, do_smooth=False,
             summary=metrics.summary["min"], threshold=0, do_scale=False,
-            down=False, multiset=True,
+            down=False, distance_function=None,
             pairwise=metrics.pairwise["diff-prod"]):
         """
         Initialise the class.
@@ -33,8 +33,8 @@ class kMerDiff():
         :type do_scale: bool
         :arg down: Normalise the scaling factors between 0 and 1.
         :type down: bool
-        :arg multiset: Use the multiset distance metric, euclidean otherwise.
-        :type multiset: bool
+        :arg distance_function: Use a specific distance function.
+        :type distance_function: function
         :arg pairwise: Pairwise distance function for the multiset distance.
         :type pairwise: int
         """
@@ -45,7 +45,7 @@ class kMerDiff():
         self.__threshold = threshold
         self.__do_scale = do_scale
         self.__down = down
-        self.__multiset = multiset
+        self.__distance_function = distance_function
         self.__pairwise = pairwise
         self.__function = summary
     #__init__
@@ -170,10 +170,10 @@ class kMerDiff():
             temp1.count = metrics.scale(temp1.count, scale1)
             temp2.count = metrics.scale(temp2.count, scale2)
         #if
-        if not self.__multiset:
-            return metrics.euclidean(temp1.count, temp2.count)
-        return metrics.multiset(temp1.count, temp2.count,
-            self.__pairwise)
+        if not self.__distance_function:
+            return metrics.multiset(temp1.count, temp2.count,
+                self.__pairwise)
+        return self.__distance_function(temp1.count, temp2.count)
     #distance
 #kMerDiff
 

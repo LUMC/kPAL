@@ -280,7 +280,7 @@ def smooth(input_handles, output_handles, summary, summary_func="",
     profile2.save(output_handles[1])
 #smooth
 
-def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
+def pair_diff(input_handles, distance_function="default", pairwise="diff-prod",
         pairwise_func="", do_smooth=False, summary="min", summary_func="",
         threshold=0, do_scale=False, down=False, do_positive=False,
         do_balance=False, precision=3):
@@ -289,8 +289,8 @@ def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
 
     :arg input_handles: Open readable handles to a pair of k-mer profiles.
     :type input_handles: list(stream)
-    :arg euclidean: Use the Euclidean distance.
-    :type euclidean: bool
+    :arg distance_function: Use a specific distance function.
+    :type distance_function: str
     :arg pairwise: Name of the pairwise distance function.
     :type pairwise: str
     :arg pairwise_func: Custom pairwise distance function.
@@ -324,7 +324,8 @@ def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
 
     diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,
         do_smooth=do_smooth, summary=summary_function, threshold=threshold,
-        do_scale=do_scale, down=down, multiset=not euclidean,
+        do_scale=do_scale, down=down,
+        distance_function=metrics.vector_distance[distance_function],
         pairwise=pairwise_function)
 
     profile1 = klib.kMer()
@@ -339,7 +340,7 @@ def pair_diff(input_handles, euclidean=False, pairwise="diff-prod",
     print ("%%.%if" % precision) % diff.distance(profile1, profile2)
 #pair_diff
 
-def matrix_diff(input_handles, output_handle, euclidean=False,
+def matrix_diff(input_handles, output_handle, distance_function="default",
         pairwise="diff-prod", pairwise_func="", do_smooth=False, summary="min",
         summary_func="", threshold=0, do_scale=False, down=False,
         do_positive=False, do_balance=False, precision=3):
@@ -388,7 +389,8 @@ def matrix_diff(input_handles, output_handle, euclidean=False,
 
     diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,
         do_smooth=do_smooth, summary=summary_function, threshold=threshold,
-        do_scale=do_scale, down=down, multiset=not euclidean,
+        do_scale=do_scale, down=down,
+        distance_function=metrics.vector_distance[distance_function],
         pairwise=pairwise_function)
 
     counts = []
@@ -456,9 +458,9 @@ def main():
         action="store_true", help="scale the profiles (default=%(default)s)")
     diff_parser.add_argument("-m", dest="do_smooth", default=False,
         action="store_true", help="smooth the profiles (default=%(default)s)")
-    diff_parser.add_argument("-e", dest="euclidean", default=False,
-        action="store_true", help="use the euclidean distance metric "
-        "(default=%(default)s)")
+    diff_parser.add_argument("-D", dest="distance_function", type=str,
+        default="default", choices=metrics.vector_distance,
+        help='choose distance function (%(type)s default="%(default)s")')
     diff_parser.add_argument("-P", dest="pairwise", type=str,
         default="diff-prod", choices=metrics.pairwise,
         help="paiwise distance function for the multiset distance "
