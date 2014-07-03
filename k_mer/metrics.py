@@ -46,7 +46,7 @@ def distribution(vector):
 
 def vector_length(vector):
     """
-    Calculate the Euclidean lenght of a vector.
+    Calculate the Euclidean length of a vector.
 
     :arg vector: A vector.
     :type vector: list[int]
@@ -55,7 +55,7 @@ def vector_length(vector):
     :rtype: float
     """
     return math.sqrt(sum(map(lambda x: x * x, vector)))
-#sum_of_squares
+#vector_length
 
 def stats(l):
     """
