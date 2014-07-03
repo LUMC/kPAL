@@ -206,26 +206,26 @@ def euclidean(vector1, vector2):
     return math.sqrt(sum_of_squares)
 #euclidean
 
-def cosine_simularity(vector1, vector2):
+def cosine_similarity(vector1, vector2):
     """
-    Calculate the Cosine simularity between two vectors.
+    Calculate the Cosine similarity between two vectors.
 
     :arg vector1: A vector.
     :type vector1: list[float]
     :arg vector2: A vector.
     :type vector2: list[float]
 
-    :return: The Cosine simularity between {vector1} and {vector2}.
+    :return: The Cosine similarity between {vector1} and {vector2}.
     :rtype: float
     """
     return (sum(map(lambda x: x[0] * x[1], zip(vector1, vector2))) /
         (vector_length(vector1) * vector_length(vector2)))
-#cosine_simularity
+#cosine_similarity
 
 vector_distance = {
     "default": None,
     "euclidean": euclidean,
-    "cosine": cosine_simularity
+    "cosine": cosine_similarity
 }
 """ Dictionary of vector distance functions. """
 
