@@ -5,7 +5,7 @@ if sys.version_info < (2, 6):
     raise Exception('kMer requires Python 2.6 or higher.')
 
 # Todo: How does this play with pip freeze requirement files?
-requires = ['biopython']
+requires = ['biopython', 'numpy', 'h5py']
 
 # Python 2.6 does not include the argparse module.
 try:
