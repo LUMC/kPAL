@@ -41,6 +41,16 @@ Usage
 
 The *kMer* program has a large number of subcommands and options. See the help (`-h`) of this program for a full description of the parameters.
 
+
+Unit tests
+----------
+
+To run the unit tests with [pytest](http://pytest.org/), just run
+`py.test`. Or, if you have [tox](https://testrun.org/tox/) installed, you can
+use it to run the unit tests in all supported Python environments
+automatically.
+
+
 Feedback
 --------
 
