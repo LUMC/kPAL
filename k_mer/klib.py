@@ -75,7 +75,7 @@ class kMer():
         :arg sequence: A DNA sequence from a fasta file.
         :type sequence: string
         """
-        if len(sequence) > self.length:
+        if len(sequence) >= self.length:
             binary = 0x00
 
             # Calculate the binary representation of a k-mer.
