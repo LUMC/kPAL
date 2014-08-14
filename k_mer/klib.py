@@ -142,8 +142,7 @@ class kMer():
         handle.write("%i\n" % self.length)
         handle.write("%i\n" % self.total)
         handle.write("%i\n" % self.non_zero)
-        for i in self.count:
-            handle.write("%i\n" % i)
+        handle.write("%s\n" % '\n'.join(str(i) for i in self.count))
     #save
 
     def merge(self, profile, merger=metrics.mergers["sum"]):
