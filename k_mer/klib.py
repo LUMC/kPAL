@@ -177,10 +177,12 @@ class kMer():
             i_rc = self.dna_to_binary(Seq.reverse_complement(
                 self.binary_to_dna(i)))
 
-            if i <= i_rc:
+            if i < i_rc:
                 temp = self.count[i]
                 self.count[i] += self.count[i_rc]
                 self.count[i_rc] += temp
+            elif i == i_rc:
+                self.count[i] += self.count[i]
             #if
 
             self.total += self.count[i]
