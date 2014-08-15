@@ -170,6 +170,9 @@ class kMer():
         Add the counts of the reverse complement of a k-mer to the k-mer and
         vice versa.
         """
+        self.total = 0
+        self.non_zero = 0
+
         for i in range(self.number):
             i_rc = self.dna_to_binary(Seq.reverse_complement(
                 self.binary_to_dna(i)))
@@ -179,6 +182,10 @@ class kMer():
                 self.count[i] += self.count[i_rc]
                 self.count[i_rc] += temp
             #if
+
+            self.total += self.count[i]
+            if self.count[i]:
+                self.non_zero += 1
         #for
     #balance
 
