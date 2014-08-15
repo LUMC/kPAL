@@ -3,6 +3,8 @@ Tests for the `k_mer.klib` module.
 """
 
 
+from Bio import Seq
+
 from k_mer import klib
 
 import utils
@@ -153,3 +155,23 @@ class TestKlib(utils.TestEnvironment):
         assert profile_save.total == profile_load.total
         assert profile_save.non_zero == profile_load.non_zero
         assert profile_save.count == profile_load.count
+
+    def test_profile_balance(self):
+        profile = klib.kMer()
+        with open(self.touch(utils.fasta(LENGTH_60))) as fasta_handle:
+            profile.analyse(fasta_handle, 8)
+        profile.balance()
+
+        counts = utils.counts(LENGTH_60, 8)
+        counts.update(dict((str(Seq.reverse_complement(s)), c) for s, c in counts.items()))
+        self._test_profile(profile, counts, 8)
+
+    def test_profile_balance_palindrome(self):
+        profile = klib.kMer()
+        with open(self.touch(utils.fasta(['AATT']))) as fasta_handle:
+            profile.analyse(fasta_handle, 4)
+        profile.balance()
+
+        counts = utils.counts(['AATT'], 4)
+        counts.update(dict((str(Seq.reverse_complement(s)), c) for s, c in counts.items()))
+        self._test_profile(profile, counts, 4)
