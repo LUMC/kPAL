@@ -38,6 +38,7 @@ def distribution(vector):
     :return: A list of pairs (count, occurrences).
     :rtype: list[tuple(int, in)]
     """
+    # Todo: Use numpy.bincount?
     d = collections.defaultdict(int)
 
     for i in vector:
@@ -55,6 +56,8 @@ def vector_length(vector):
     :return: The length of {vector}.
     :rtype: float
     """
+    # Todo: Use numpy.linalg.norm
+    #   (although np.sqrt(np.dot(a, a)) seems faster)
     return math.sqrt(sum(map(lambda x: x * x, vector)))
 #vector_length
 
@@ -68,6 +71,7 @@ def stats(l):
     :return: The mean and standard deviation of l.
     :rtype: tuple(float, float)
     """
+    # Todo: Use numpy.mean and numpy.std
     sum_l = 0
     sum_squared_l = 0
     n = 0
@@ -77,7 +81,7 @@ def stats(l):
         sum_squared_l += i * i
         n += 1
     #for
-    
+
     mean = sum_l / float(n)
     return mean, math.sqrt((sum_squared_l / float(n)) - (mean * mean))
 #stats
@@ -140,6 +144,7 @@ def scale(vector, scale):
     :return: A vector scaled by factor {scale}.
     :rtype: list[float]
     """
+    # Todo: Use NumPy vector multiplication.
     return map(lambda x: scale * x, vector)
 #scale
 
@@ -155,6 +160,7 @@ def positive(vector1, vector2):
     :return: {vector1} with all zero positions in {vector2} set to zero.
     :rtype: list[int]
     """
+    # Todo: Use NumPy vectorized function.
     return map(lambda x: x[1] and x[0], zip(vector1, vector2))
 #positive
 
@@ -172,8 +178,9 @@ def multiset(vector1, vector2, pairwise):
     :return: The multiset distance between {vector1} and {vector2}.
     :rtype: float
     """
+    # Todo: Default value for `pairwise`.
     c = 0.0
-    d = 1
+    d = 1 # Todo: Why not 0? Just to ensure multiset([], []) == 0?
 
     # Calculate the counter and the denominator of the distance function.
     for i in range(len(vector1)):
@@ -198,7 +205,8 @@ def euclidean(vector1, vector2):
     :return: The Euclidean distance between {vector1} and {vector2}.
     :rtype: float
     """
-    sum_of_squares = 1
+    # Todo: Use a NumPy operation.
+    sum_of_squares = 1 # Todo: why not 0?
 
     # Calculate the counter and the denominator of the distance function.
     for i in range(len(vector1)):
@@ -219,6 +227,8 @@ def cosine_similarity(vector1, vector2):
     :return: The Cosine similarity between {vector1} and {vector2}.
     :rtype: float
     """
+    # Todo: Use numpy.linalg.norm (see unit test)
+    #   (although np.sqrt(np.dot(a, a)) seems faster)
     return (sum(map(lambda x: x[0] * x[1], zip(vector1, vector2))) /
         (vector_length(vector1) * vector_length(vector2)))
 #cosine_similarity
