@@ -144,8 +144,7 @@ class kMer():
         vice versa.
         """
         for i in range(self.number):
-            i_rc = self.dna_to_binary(Seq.reverse_complement(
-                self.binary_to_dna(i)))
+            i_rc = self.reverse_complement(i)
 
             if i < i_rc:
                 temp = self.counts[i]
@@ -175,8 +174,7 @@ class kMer():
         reverse = []
 
         for i in range(self.number):
-            i_rc = self.dna_to_binary(Seq.reverse_complement(
-                self.binary_to_dna(i)))
+            i_rc = self.reverse_complement(i)
 
             if i < i_rc:
                 forward.append(self.counts[i] * 2)
@@ -266,28 +264,26 @@ class kMer():
         return sequence[::-1]
     #binary_to_dna
 
-    def complement(self, number):
+    def reverse_complement(self, number):
         """
-        Calculate the complement of an integer (note, not the reverse
-        complement).
+        Calculate the reverse complement of an integer.
 
         :arg number: An integer.
         :type number: int
 
-        :return: The complement of {number}.
+        :return: The reverse complement of {number}.
         :rtype: int
         """
-        temp_number = number
+        number = ~number
         result = 0x00
 
         for i in range(self.length):
-            result <<= 2
-            result |= ~temp_number & 0x03
-            temp_number <<= 2
+            result = (result << 2) | (number & 0x03)
+            number >>= 2
         #for
 
         return result
-    #complement
+    #reverse_complement
 
     def ratios_matrix(self):
         """

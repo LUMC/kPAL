@@ -163,6 +163,22 @@ class TestKlib(utils.TestEnvironment):
     def test_profile_split_palindrome(self):
         self._test_profile_split(utils.SEQUENCES + ['ACCTAGGT'], 8)
 
+    def test_profile_reverse_complement(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.kMer(utils.as_array(counts, 8))
+
+        for i in range(profile.length):
+            assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
+                    str(Seq.reverse_complement(profile.binary_to_dna(i))))
+
+    def test_profile_reverse_complement_palindrome(self):
+        counts = utils.counts(['ACCTAGGT'], 8)
+        profile = klib.kMer(utils.as_array(counts, 8))
+
+        for i in range(profile.length):
+            assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
+                    str(Seq.reverse_complement(profile.binary_to_dna(i))))
+
     def test_profile_shrink(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         profile = klib.kMer(utils.as_array(counts, 8))
