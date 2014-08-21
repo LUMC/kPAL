@@ -39,3 +39,15 @@ class TestKmer(utils.TestEnvironment):
                 kmer.balance(input_handle, output_handle)
         counts.update(dict((str(Seq.reverse_complement(s)), c) for s, c in counts.items()))
         utils.test_profile_file(filename, counts, 8)
+
+    def test_shrink(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        filename = self.empty()
+
+        with utils.open_profile(self.profile(counts, 8)) as input_handle:
+            with utils.open_profile(filename, 'w') as output_handle:
+                kmer.shrink(input_handle, output_handle, 1)
+        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-1] for s in counts)))
+        utils.test_profile_file(filename, counts, 7)

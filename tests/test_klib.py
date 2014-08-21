@@ -4,6 +4,7 @@ Tests for the `k_mer.klib` module.
 
 
 from Bio import Seq
+import pytest
 
 from k_mer import klib
 
@@ -124,3 +125,49 @@ class TestKlib(utils.TestEnvironment):
         counts.update(dict((str(Seq.reverse_complement(s)), c)
                            for s, c in counts.items()))
         utils.test_profile(profile, counts, 4)
+
+    def test_profile_shrink(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.kMer(utils.as_array(counts, 8))
+        profile.shrink(1)
+
+        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-1] for s in counts)))
+        utils.test_profile(profile, counts, 7)
+
+    def test_profile_shrink_two(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.kMer(utils.as_array(counts, 8))
+        profile.shrink(2)
+
+        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-2] for s in counts)))
+        utils.test_profile(profile, counts, 6)
+
+    def test_profile_shrink_three(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.kMer(utils.as_array(counts, 8))
+        profile.shrink(3)
+
+        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-3] for s in counts)))
+        utils.test_profile(profile, counts, 5)
+
+    def test_profile_shrink_max(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.kMer(utils.as_array(counts, 4))
+        profile.shrink(3)
+
+        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-3] for s in counts)))
+        utils.test_profile(profile, counts, 1)
+
+    def test_profile_shrink_invalid(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.kMer(utils.as_array(counts, 4))
+        with pytest.raises(ValueError):
+            profile.shrink(4)

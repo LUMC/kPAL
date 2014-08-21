@@ -193,7 +193,7 @@ class kMer():
         return forward, reverse
     #split
 
-    def shrink(self, factor):
+    def shrink(self, factor=1):
         """
         Shrink the profile, effectively reducing the value of k.
 
@@ -203,19 +203,23 @@ class kMer():
         :arg factor: Shrinking factor.
         :type factor: int
         """
-        # Todo: Should we rewrite this now we use a NumPy array?
-        if self.length < factor:
+        if self.length <= factor:
             raise ValueError(
                 "Reduction factor should be smaller than k-mer size.")
 
+        # I don't know how to do this operation directly with NumPy
+        # instructions without creating a complete copy of the counts in
+        # memory (e.g., using `np.split(self.counts, ...)`).
+        # So instead we just build the new counts one at a time. Note that
+        # the builtin Python `sum` is actually faster than `np.sum` here,
+        # since the arrays are very small.
         merge_size = 4 ** factor
-        new_count = []
-        for i in range(0, self.number, merge_size):
-            sub = sum(map(lambda x: self.counts[x], range(i, i + merge_size)))
-            new_count.append(sub)
-        #for
-        self.counts = new_count
+        new_counts = (sum(self.counts[i:i + merge_size])
+                      for i in range(0, self.number, merge_size))
+        self.counts = np.fromiter(new_counts, dtype='int64')
         self.length -= factor
+
+        # Todo: store dtype='int64' in a module variable or something.
     #shrink
 
     def shuffle(self):
