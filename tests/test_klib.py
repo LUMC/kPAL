@@ -3,7 +3,12 @@ Tests for the `k_mer.klib` module.
 """
 
 
+from __future__ import division
+
+import itertools
+
 from Bio import Seq
+import numpy as np
 import pytest
 
 from k_mer import klib
@@ -12,10 +17,12 @@ import utils
 
 
 class TestKlib(utils.TestEnvironment):
+    def test_profile(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.kMer(utils.as_array(counts, 8))
+        utils.test_profile(profile, counts, 8)
+
     def _test_from_fasta(self, sequences, k):
-        """
-        Test `k_mer.klib.analyse` with `sequences` and `k=k`.
-        """
         counts = utils.counts(sequences, k)
         with open(self.fasta(sequences)) as fasta_handle:
             profile = klib.kMer.from_fasta(fasta_handle, k)
@@ -224,3 +231,71 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.kMer(utils.as_array(counts, 4))
         with pytest.raises(ValueError):
             profile.shrink(4)
+
+    def test_profile_shuffle(self):
+        counts = utils.counts(utils.SEQUENCES, 2)
+        profile = klib.kMer(utils.as_array(counts, 2))
+
+        np.random.seed(100)
+        profile.shuffle()
+
+        counts = dict(zip([''.join(s) for s in itertools.product('ACGT', repeat=2)],
+                          [13,  7,  6, 18, 12,  1, 13, 17, 16, 12, 23, 27, 24, 17, 18, 12]))
+        utils.test_profile(profile, counts, 2)
+
+    def test_profile_dna_to_binary(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.kMer(utils.as_array(counts, 4))
+
+        for i, s in enumerate(itertools.product('ACGT', repeat=4)):
+            assert i == profile.dna_to_binary(''.join(s))
+
+    def test_profile_binary_to_dna(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.kMer(utils.as_array(counts, 4))
+
+        for i, s in enumerate(itertools.product('ACGT', repeat=4)):
+            assert ''.join(s) == profile.binary_to_dna(i)
+
+    def test_profile_ratios_matrix(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.kMer(utils.as_array(counts, 4))
+
+        ratios = profile._ratios_matrix()
+        total = sum(counts.values())
+
+        for left in itertools.product('ACGT', repeat=4):
+            for right in itertools.product('ACGT', repeat=4):
+                left = ''.join(left)
+                right = ''.join(right)
+                ratio = ratios[utils.count_index(left)][utils.count_index(right)]
+                try:
+                    assert ratio == counts[left] / counts[right] / total
+                except ZeroDivisionError:
+                    assert ratio == -1.0
+
+    def test_profile_freq_diff_matrix(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.kMer(utils.as_array(counts, 4))
+        freq_diffs = profile._freq_diff_matrix()
+
+        total = sum(counts.values())
+
+        for left in itertools.product('ACGT', repeat=4):
+            for right in itertools.product('ACGT', repeat=4):
+                left = ''.join(left)
+                right = ''.join(right)
+                freq_diff = freq_diffs[utils.count_index(left)][utils.count_index(right)]
+                if counts[right] > 0:
+                    assert freq_diff == abs(counts[left] - counts[right]) / total
+                else:
+                    assert freq_diff == 0
+
+    def test_profile_print_counts(self, capsys):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.kMer(utils.as_array(counts, 4))
+        profile.print_counts()
+
+        out, err = capsys.readouterr()
+        assert out == ''.join('%s %d\n' % (''.join(s), counts[''.join(s)])
+                              for s in itertools.product('ACGT', repeat=4))

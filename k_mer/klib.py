@@ -285,7 +285,7 @@ class kMer():
         return result
     #reverse_complement
 
-    def ratios_matrix(self):
+    def _ratios_matrix(self):
         """
         Calculate all relative frequencies of k-mers. If a division by 0
         occurs, the frequency will be set to -1.0.
@@ -293,7 +293,9 @@ class kMer():
         :return: A matrix with relative frequencies.
         :rtype: float[][]
         """
-        # Initialise the matrix.
+        # Perhaps we can use something like this for a future normalization
+        # operation.
+        # Todo: Do this directly with NumPy.
         ratios = []
         for i in range(self.number):
             ratios.append(self.number * [0.0])
@@ -311,7 +313,7 @@ class kMer():
         return ratios
     #ratios_matrix
 
-    def freq_diff_matrix(self):
+    def _freq_diff_matrix(self):
         """
         Calculate all frequency differences of k-mers.
 
