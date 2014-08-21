@@ -126,6 +126,43 @@ class TestKlib(utils.TestEnvironment):
                            for s, c in counts.items()))
         utils.test_profile(profile, counts, 4)
 
+    def _test_profile_split(self, sequences, length):
+        counts = utils.counts(sequences, length)
+        profile = klib.kMer(utils.as_array(counts, length))
+        left, right = profile.split()
+
+        assert len(left) == len(right)
+        assert sum(left) + sum(right) == sum(counts.values()) * 2
+
+        indices_left = {}
+        indices_right = {}
+        indices_palindrome = {}
+
+        for s, c in counts.items():
+            r = str(Seq.reverse_complement(s))
+            if s < r:
+                indices_left[utils.count_index(s)] = c * 2
+            elif s > r:
+                indices_right[utils.count_index(r)] = counts[s] * 2
+            else:
+                indices_palindrome[utils.count_index(s)] = c
+
+        assert ([c for c in left if c > 0] ==
+                [c for i, c in sorted(indices_left.items() +
+                                      indices_palindrome.items())])
+        assert ([c for c in right if c > 0] ==
+                [c for i, c in sorted(indices_right.items() +
+                                      indices_palindrome.items())])
+
+    def test_profile_split(self):
+        self._test_profile_split(utils.SEQUENCES, 8)
+
+    def test_profile_split_short(self):
+        self._test_profile_split(utils.SEQUENCES, 2)
+
+    def test_profile_split_palindrome(self):
+        self._test_profile_split(utils.SEQUENCES + ['ACCTAGGT'], 8)
+
     def test_profile_shrink(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         profile = klib.kMer(utils.as_array(counts, 8))

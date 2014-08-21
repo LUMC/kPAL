@@ -96,6 +96,8 @@ def get_balance(input_handle, precision=3):
     :arg precision: Number of digits in the output.
     :type precision: int
     """
+    # Todo: Wouldn't it make more sense conceptually to create the reverse
+    # complement profile and calculate the distance to that?
     profile = klib.kMer.from_file(input_handle)
 
     forward, reverse = profile.split()

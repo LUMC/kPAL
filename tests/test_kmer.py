@@ -40,6 +40,18 @@ class TestKmer(utils.TestEnvironment):
         counts.update(dict((str(Seq.reverse_complement(s)), c) for s, c in counts.items()))
         utils.test_profile_file(filename, counts, 8)
 
+    def test_get_balance(self, capsys):
+        # For the `capsys` fixture, see:
+        # http://pytest.org/latest/capture.html
+        counts = utils.counts(utils.SEQUENCES, 8)
+        filename = self.empty()
+
+        with utils.open_profile(self.profile(counts, 8)) as input_handle:
+            kmer.get_balance(input_handle)
+
+        out, err = capsys.readouterr()
+        assert out == '0.669\n'
+
     def test_shrink(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         filename = self.empty()

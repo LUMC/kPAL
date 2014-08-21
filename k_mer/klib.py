@@ -161,9 +161,14 @@ class kMer():
         """
         Split the profile into two lists, every position in the first list has
         its reverse complement in the same position in the second list and vice
-        versa.
+        versa. All counts are doubled, so we can equaly distribute palindrome
+        counts over both lists.
 
-        :return: The forward and reverse complement counts.
+        Note that the returned counts are not k-mer profiles. They can be used
+        to show the balance of the original profile by calculating the distance
+        between them.
+
+        :return: The doubled forward and reverse complement counts.
         :rtype: tuple(list[float], list[float])
         """
         forward = []
@@ -173,20 +178,12 @@ class kMer():
             i_rc = self.dna_to_binary(Seq.reverse_complement(
                 self.binary_to_dna(i)))
 
-            if i <= i_rc:
-                # Todo: Palindromes end up in both list, effectively increasing
-                #   the combined total. Not sure what the alternative is, in
-                #   general we cannot divide the counts over the two list (odd
-                #   counts).
-                #   It is clear that we can never really know what to do with
-                #   palindrome counts. We just have to decide on a behaviour
-                #   here. Perhaps we want to maintain the invariant that the
-                #   combined total is the same as the original total? Then we
-                #   could just divide by two and in case of an odd count put it
-                #   in either one (always the first, random, or depending on
-                #   the k-mer).
+            if i < i_rc:
+                forward.append(self.counts[i] * 2)
+                reverse.append(self.counts[i_rc] * 2)
+            elif i == i_rc:
                 forward.append(self.counts[i])
-                reverse.append(self.counts[i_rc])
+                reverse.append(self.counts[i])
             #if
         #for
 
