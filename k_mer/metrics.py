@@ -17,14 +17,15 @@ def median(vector):
     :return: The median of the values in {vector}.
     :rtype: float
     """
+    # Todo: Use numpy.median
     sorted_vector = sorted(vector)
     length = len(vector)
 
-    if length % 2:
-        position = length / 2
-        return (sorted_vector[position] + sorted_vector[position + 1]) / 2.0
+    if not length % 2:
+        position = length // 2
+        return (sorted_vector[position - 1] + sorted_vector[position]) / 2.0
     #if
-    return sorted_vector[length / 2]
+    return sorted_vector[length // 2]
 #median
 
 def distribution(vector):
