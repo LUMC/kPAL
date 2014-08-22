@@ -102,18 +102,18 @@ class kMerDiff():
         if length == 1:
             return
 
-        c1 = self.__collapse(profile1.count, start, length)
-        c2 = self.__collapse(profile2.count, start, length)
+        c1 = self.__collapse(profile1.counts, start, length)
+        c2 = self.__collapse(profile2.counts, start, length)
 
         if min(self.__function(c1), self.__function(c2)) <= self.__threshold:
             # Collapse the sub-profile.
-            profile1.count[start] = sum(c1)
-            profile2.count[start] = sum(c2)
+            profile1.counts[start] = sum(c1)
+            profile2.counts[start] = sum(c2)
 
             # Remove the k-mer counts used to collapse.
             for i in range(start + 1, start + length):
-                profile1.count[i] = 0
-                profile2.count[i] = 0
+                profile1.counts[i] = 0
+                profile2.counts[i] = 0
             #for
             return
         #if
@@ -157,23 +157,23 @@ class kMerDiff():
             temp2.balance()
         #if
         if self.__do_positive:
-            temp1.count = metrics.positive(temp1.count, temp2.count)
-            temp2.count = metrics.positive(temp2.count, temp1.count)
+            temp1.counts = metrics.positive(temp1.counts, temp2.counts)
+            temp2.counts = metrics.positive(temp2.counts, temp1.counts)
         #if
         if self.__do_smooth:
             self.dynamic_smooth(temp1, temp2)
         if self.__do_scale:
-            scale1, scale2 = metrics.get_scale(temp1.count, temp2.count)
+            scale1, scale2 = metrics.get_scale(temp1.counts, temp2.counts)
 
             if self.__down:
                 scale1, scale2 = metrics.scale_down(scale1, scale2)
-            temp1.count = metrics.scale(temp1.count, scale1)
-            temp2.count = metrics.scale(temp2.count, scale2)
+            temp1.counts = metrics.scale(temp1.counts, scale1)
+            temp2.counts = metrics.scale(temp2.counts, scale2)
         #if
         if not self.__distance_function:
-            return metrics.multiset(temp1.count, temp2.count,
+            return metrics.multiset(temp1.counts, temp2.counts,
                 self.__pairwise)
-        return self.__distance_function(temp1.count, temp2.count)
+        return self.__distance_function(temp1.counts, temp2.counts)
     #distance
 #kMerDiff
 
@@ -199,7 +199,7 @@ def distance_matrix(profiles, output, precision, k_diff):
         for j in range(i):
             if (j):
                 output.write(' ')
-            output.write(("%%.%if" % precision) % 
+            output.write(("%%.%if" % precision) %
                 k_diff.distance(profiles[i], profiles[j]))
         #for
         output.write('\n')
