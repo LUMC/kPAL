@@ -106,6 +106,18 @@ class kMer():
     def non_zero(self):
         return np.count_nonzero(self.counts)
 
+    @property
+    def mean(self):
+        return self.counts.mean()
+
+    @property
+    def median(self):
+        return np.median(self.counts)
+
+    @property
+    def std(self):
+        return self.counts.std()
+
     def save(self, handle):
         """
         Save the k-mer table in a file.
@@ -121,6 +133,9 @@ class kMer():
         profile.attrs['length'] = self.length
         profile.attrs['total'] = self.total
         profile.attrs['non_zero'] = self.non_zero
+        profile.attrs['mean'] = self.mean
+        profile.attrs['median'] = self.median
+        profile.attrs['std'] = self.std
         handle.flush()
     #save
 
@@ -133,9 +148,7 @@ class kMer():
         :arg merger: Merge function.
         :type merger: function
         """
-        for i in range(self.number):
-            self.counts[i] = merger(self.counts[i], profile.counts[i])
-        #for
+        self.counts = merger(self.counts, profile.counts)
     #merge
 
     def balance(self):
@@ -185,7 +198,7 @@ class kMer():
             #if
         #for
 
-        return forward, reverse
+        return np.array(forward), np.array(reverse)
     #split
 
     def shrink(self, factor=1):

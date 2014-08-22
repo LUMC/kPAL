@@ -11,10 +11,14 @@ import itertools
 import os
 import sys
 
-from math import *
+import numpy as np
 
 from . import (ProtectedFileType, ProfileFileType, doc_split, usage, version,
                klib, kdifflib, metrics)
+
+# Todo: Probably only used in user-defined custom functions, we should only
+#   import it there.
+from math import *
 
 length_error = "k-mer lengths of the files differ."
 names_count_error = "number of profile names does not match number of profiles"
@@ -61,6 +65,7 @@ def merge(input_handles, output_handle, merger="sum", merge_func=""):
     """
     merge_function = metrics.mergers[merger]
     if merge_func:
+        # Todo: I guess this must be vectorized to an ufunc.
         merge_function = eval("lambda " + merge_func)
 
     profile1 = klib.kMer.from_file(input_handles[0])
@@ -97,7 +102,8 @@ def get_balance(input_handle, precision=3):
     :type precision: int
     """
     # Todo: Wouldn't it make more sense conceptually to create the reverse
-    # complement profile and calculate the distance to that?
+    # complement profile and calculate the distance to that? Perhaps it's
+    # even easier to vectorize in NumPy, so faster?
     profile = klib.kMer.from_file(input_handle)
 
     forward, reverse = profile.split()
@@ -117,7 +123,7 @@ def get_stats(input_handle, precision=3):
     profile = klib.kMer.from_file(input_handle)
 
     print ("%%.%if %%.%if" % (precision, precision)) % \
-        metrics.stats(profile.counts)
+        (profile.mean, profile.std)
 #get_stats
 
 def distribution(input_handle, output_handle):
@@ -218,8 +224,8 @@ def scale(input_handles, output_handles, down=False):
     scale1, scale2 = metrics.get_scale(profile1.counts, profile2.counts)
     if down:
         scale1, scale2 = metrics.scale_down(scale1, scale2)
-    profile1.counts = metrics.scale(profile1.counts, scale1)
-    profile2.counts = metrics.scale(profile2.counts, scale2)
+    profile1.counts = profile1.counts * scale1
+    profile2.counts = profile2.counts * scale2
 
     profile1.save(output_handles[0])
     profile2.save(output_handles[1])
@@ -279,6 +285,7 @@ def smooth(input_handles, output_handles, summary, summary_func="",
     """
     smooth_function = metrics.summary[summary]
     if summary_func:
+        # Todo: I guess this must be vectorized to an ufunc.
         smooth_function = eval("lambda " + summary_func)
 
     diff = kdifflib.kMerDiff(summary=smooth_function, threshold=threshold)
@@ -334,10 +341,12 @@ def pair_diff(input_handle_left, input_handle_right, names_left=None, names_righ
 
     summary_function = metrics.summary[summary]
     if summary_func:
+        # Todo: I guess this must be vectorized to an ufunc.
         summary_function = eval("lambda " + summary_func)
 
     pairwise_function = metrics.pairwise[pairwise]
     if pairwise_func:
+        # Todo: I guess this must be vectorized to an ufunc.
         pairwise_function = eval("lambda " + pairwise_func)
 
     diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,
@@ -398,10 +407,12 @@ def matrix_diff(input_handles, output_handle, distance_function="default",
 
     summary_function = metrics.summary[summary]
     if summary_func:
+        # Todo: I guess this must be vectorized to an ufunc.
         summary_function = eval("lambda " + summary_func)
 
     pairwise_function = metrics.pairwise[pairwise]
     if pairwise_func:
+        # Todo: I guess this must be vectorized to an ufunc.
         pairwise_function = eval("lambda " + pairwise_func)
 
     diff = kdifflib.kMerDiff(do_balance=do_balance, do_positive=do_positive,

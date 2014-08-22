@@ -15,22 +15,6 @@ import utils
 
 
 class TestMetrics():
-    def test_median_float_even(self):
-        a = np.random.rand(100)
-        assert metrics.median(a) == np.median(a)
-
-    def test_median_float_odd(self):
-        a = np.random.rand(101)
-        assert metrics.median(a) == np.median(a)
-
-    def test_median_int_even(self):
-        a = np.random.random_integers(0, 100, 100)
-        assert metrics.median(a) == np.median(a)
-
-    def test_median_int_odd(self):
-        a = np.random.random_integers(0, 100, 101)
-        assert metrics.median(a) == np.median(a)
-
     def test_distribution(self):
         a = np.random.random_integers(0, 20, 100)
         counts = utils.Counter(a)
@@ -38,25 +22,13 @@ class TestMetrics():
 
     def test_vector_length_float(self):
         a = np.random.rand(100)
-        assert metrics.vector_length(a) == math.sqrt(sum(x * x for x in a))
+        np.testing.assert_almost_equal(metrics.vector_length(a),
+                                       math.sqrt(sum(x * x for x in a)))
 
     def test_vector_length_int(self):
         a = np.random.random_integers(0, 100, 100)
-        assert metrics.vector_length(a) == math.sqrt(sum(x * x for x in a))
-
-    def test_stats_float(self):
-        a = np.random.rand(100)
-        mean, dev = metrics.stats(a)
-
-        assert mean == np.mean(a)
-        np.testing.assert_almost_equal(dev, np.std(a))
-
-    def test_stats_int(self):
-        a = np.random.random_integers(0, 100, 100)
-        mean, dev = metrics.stats(a)
-
-        assert mean == np.mean(a)
-        np.testing.assert_almost_equal(dev, np.std(a))
+        np.testing.assert_almost_equal(metrics.vector_length(a),
+                                       math.sqrt(sum(x * x for x in a)))
 
     def test_get_scale(self):
         a = np.random.random_integers(0, 100, 100)
@@ -80,13 +52,6 @@ class TestMetrics():
         b = 1.0
         assert metrics.scale_down(a, b) == (1.0, b / a)
 
-    def test_scale(self):
-        a = np.random.rand(100)
-        scale = np.random.random()
-
-        np.testing.assert_array_equal(metrics.scale(a, scale),
-                                      [i * scale for i in a])
-
     def test_positive(self):
         a = np.random.random_integers(0, 20, 100)
         b = np.random.random_integers(0, 20, 100)
@@ -97,6 +62,22 @@ class TestMetrics():
     def test_multiset(self):
         a = np.random.random_integers(1, 100, 100)
         b = np.random.random_integers(1, 100, 100)
+        pairwise = metrics.pairwise['diff-prod']
+
+        values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
+        assert metrics.multiset(a, b, pairwise) == sum(values) / (len(values) + 1)
+
+    def test_multiset_zeros(self):
+        a = np.random.random_integers(0, 20, 100)
+        b = np.random.random_integers(0, 20, 100)
+        pairwise = metrics.pairwise['diff-prod']
+
+        values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
+        assert metrics.multiset(a, b, pairwise) == sum(values) / (len(values) + 1)
+
+    def test_multiset_many_zeros(self):
+        a = np.random.random_integers(0, 2, 100)
+        b = np.random.random_integers(0, 2, 100)
         pairwise = metrics.pairwise['diff-prod']
 
         values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
@@ -113,8 +94,9 @@ class TestMetrics():
         a = np.random.random_integers(1, 100, 100)
         b = np.random.random_integers(1, 100, 100)
 
-        assert metrics.cosine_similarity(a, b) == np.dot(a, b) / (np.linalg.norm(a) *
-                                                                  np.linalg.norm(b))
+        cs = sum(map(lambda x: x[0] * x[1], zip(a, b))) / (math.sqrt(sum(x * x for x in a)) *
+                                                           math.sqrt(sum(x * x for x in b)))
+        assert metrics.cosine_similarity(a, b) == cs
 
     def test_pairwise_diff_prod(self):
         i = np.random.randint(100)

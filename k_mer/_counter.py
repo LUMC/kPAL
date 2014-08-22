@@ -2,6 +2,8 @@
 Python >= 2.5 compatile implementation of `collections.Counter` as found in
 Python 2.7 and up.
 
+Created by Raymond Hettinger on Mon, 12 Jan 2009 (MIT licensed).
+
 http://code.activestate.com/recipes/576611-counter-class/
 """
 

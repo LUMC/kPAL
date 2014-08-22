@@ -167,8 +167,8 @@ class kMerDiff():
 
             if self.__down:
                 scale1, scale2 = metrics.scale_down(scale1, scale2)
-            temp1.counts = metrics.scale(temp1.counts, scale1)
-            temp2.counts = metrics.scale(temp2.counts, scale2)
+            temp1.counts = temp1.counts * scale1
+            temp2.counts = temp2.counts * scale2
         #if
         if not self.__distance_function:
             return metrics.multiset(temp1.counts, temp2.counts,

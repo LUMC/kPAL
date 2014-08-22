@@ -12,11 +12,7 @@ import tempfile
 import h5py
 import numpy as np
 
-try:
-    # Python 2.7 and up.
-    from collections import Counter
-except ImportError:
-    from _counter import Counter
+from k_mer.compat import Counter
 
 
 # Some 8-mers.
