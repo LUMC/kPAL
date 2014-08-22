@@ -117,7 +117,7 @@ def get_stats(input_handle, precision=3):
     profile = klib.kMer.from_file(input_handle)
 
     print ("%%.%if %%.%if" % (precision, precision)) % \
-        metrics.stats(profile.count)
+        metrics.stats(profile.counts)
 #get_stats
 
 def distribution(input_handle, output_handle):
@@ -131,7 +131,7 @@ def distribution(input_handle, output_handle):
     """
     profile = klib.kMer.from_file(input_handle)
 
-    for i in metrics.distribution(profile.count):
+    for i in metrics.distribution(profile.counts):
         output_handle.write("%i %i\n" % i)
 #distribution
 
@@ -179,7 +179,7 @@ def get_count(input_handle, word, names=None):
             offset = profile.dna_to_binary(word)
         except KeyError:
             raise ValueError("The input is not a valid DNA sequence.")
-        print name, profile.count[offset]
+        print name, profile.counts[offset]
 #get_count
 
 def positive(input_handles, output_handles):
@@ -194,8 +194,8 @@ def positive(input_handles, output_handles):
     profile1 = klib.kMer.from_file(input_handles[0])
     profile2 = klib.kMer.from_file(input_handles[1])
 
-    profile1.count = metrics.positive(profile1.count, profile2.count)
-    profile2.count = metrics.positive(profile2.count, profile1.count)
+    profile1.counts = metrics.positive(profile1.counts, profile2.counts)
+    profile2.counts = metrics.positive(profile2.counts, profile1.counts)
 
     profile1.save(output_handles[0])
     profile2.save(output_handles[1])
@@ -215,11 +215,11 @@ def scale(input_handles, output_handles, down=False):
     profile1 = klib.kMer.from_file(input_handles[0])
     profile2 = klib.kMer.from_file(input_handles[1])
 
-    scale1, scale2 = metrics.get_scale(profile1.count, profile2.count)
+    scale1, scale2 = metrics.get_scale(profile1.counts, profile2.counts)
     if down:
         scale1, scale2 = metrics.scale_down(scale1, scale2)
-    profile1.count = metrics.scale(profile1.count, scale1)
-    profile2.count = metrics.scale(profile2.count, scale2)
+    profile1.counts = metrics.scale(profile1.counts, scale1)
+    profile2.counts = metrics.scale(profile2.counts, scale2)
 
     profile1.save(output_handles[0])
     profile2.save(output_handles[1])
@@ -291,7 +291,7 @@ def smooth(input_handles, output_handles, summary, summary_func="",
     profile2.save(output_handles[1])
 #smooth
 
-def pair_diff(input_handle_left, input_handle_right, names_left, names_right,
+def pair_diff(input_handle_left, input_handle_right, names_left=None, names_right=None,
         distance_function="default", pairwise="diff-prod", pairwise_func="",
         do_smooth=False, summary="min", summary_func="", threshold=0,
         do_scale=False, down=False, do_positive=False, do_balance=False,

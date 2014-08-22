@@ -7,6 +7,8 @@ General library containing metrics and helper functions.
 import collections
 import math
 
+import numpy as np
+
 def median(vector):
     """
     Calculate the median of a vector.
@@ -145,7 +147,7 @@ def scale(vector, scale):
     :rtype: list[float]
     """
     # Todo: Use NumPy vector multiplication.
-    return map(lambda x: scale * x, vector)
+    return np.array(map(lambda x: scale * x, vector))
 #scale
 
 def positive(vector1, vector2):
@@ -161,7 +163,7 @@ def positive(vector1, vector2):
     :rtype: list[int]
     """
     # Todo: Use NumPy vectorized function.
-    return map(lambda x: x[1] and x[0], zip(vector1, vector2))
+    return np.array(map(lambda x: x[1] and x[0], zip(vector1, vector2)))
 #positive
 
 def multiset(vector1, vector2, pairwise):

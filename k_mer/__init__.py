@@ -48,7 +48,7 @@ class ProfileFileType(object):
             handle = h5py.File(string, self._mode)
             if 'w' in self._mode:
                 handle.attrs['format'] = 'kMer'
-                handle.attrs['version'] = '1.0.0'
+                handle.attrs['version'] = '1.0.0'  # Todo: module variable
                 handle.attrs['producer'] = 'kMer %s' % __version__
                 handle.create_group('profiles')
             # Todo: When reading and/or appending, check if format is 'kMer'

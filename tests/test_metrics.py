@@ -84,13 +84,15 @@ class TestMetrics():
         a = np.random.rand(100)
         scale = np.random.random()
 
-        assert metrics.scale(a, scale) == [i * scale for i in a]
+        np.testing.assert_array_equal(metrics.scale(a, scale),
+                                      [i * scale for i in a])
 
     def test_positive(self):
         a = np.random.random_integers(0, 20, 100)
         b = np.random.random_integers(0, 20, 100)
 
-        assert metrics.positive(a, b) == [i if j else 0 for i, j in zip(a, b)]
+        np.testing.assert_array_equal(metrics.positive(a, b),
+                                      [i if j else 0 for i, j in zip(a, b)])
 
     def test_multiset(self):
         a = np.random.random_integers(1, 100, 100)
