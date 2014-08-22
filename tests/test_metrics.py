@@ -104,8 +104,8 @@ class TestMetrics():
         a = np.random.random_integers(1, 100, 100)
         b = np.random.random_integers(1, 100, 100)
 
-        assert metrics.euclidean(a, b) == math.sqrt(sum((i - j) ** 2 for i, j
-                                                        in zip(a, b)) + 1)
+        assert metrics.euclidean(a, b) == math.sqrt(sum((i - j) ** 2
+                                                        for i, j in zip(a, b)))
 
     def test_cosine_similarity(self):
         a = np.random.random_integers(1, 100, 100)

@@ -180,7 +180,7 @@ def multiset(vector1, vector2, pairwise):
     """
     # Todo: Default value for `pairwise`.
     c = 0.0
-    d = 1 # Todo: Why not 0? Just to ensure multiset([], []) == 0?
+    d = 1
 
     # Calculate the counter and the denominator of the distance function.
     for i in range(len(vector1)):
@@ -206,7 +206,7 @@ def euclidean(vector1, vector2):
     :rtype: float
     """
     # Todo: Use a NumPy operation.
-    sum_of_squares = 1 # Todo: why not 0?
+    sum_of_squares = 0
 
     # Calculate the counter and the denominator of the distance function.
     for i in range(len(vector1)):
