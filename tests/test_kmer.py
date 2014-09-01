@@ -31,7 +31,7 @@ class TestKmer(utils.TestEnvironment):
         with utils.open_profile(self.profile(counts_left, 8)) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8)) as handle_right:
                 with utils.open_profile(filename, 'w') as profile_handle:
-                    kmer.merge([handle_left, handle_right], profile_handle)
+                    kmer.merge(handle_left, handle_right, profile_handle)
         utils.test_profile_file(filename, counts_left + counts_right, 8)
 
     def test_balance(self):
@@ -44,27 +44,24 @@ class TestKmer(utils.TestEnvironment):
         counts.update(dict((str(Seq.reverse_complement(s)), c) for s, c in counts.items()))
         utils.test_profile_file(filename, counts, 8)
 
-    def test_get_balance(self, capsys):
-        # For the `capsys` fixture, see:
-        # http://pytest.org/latest/capture.html
+    def test_get_balance(self):
         counts = utils.counts(utils.SEQUENCES, 8)
+        out = StringIO()
 
         with utils.open_profile(self.profile(counts, 8)) as input_handle:
-            kmer.get_balance(input_handle)
+            kmer.get_balance(input_handle, out)
 
-        out, err = capsys.readouterr()
-        assert out == '0.669\n'
+        assert out.getvalue() == '1 0.669\n'
 
-    def test_get_stats(self, capsys):
-        # For the `capsys` fixture, see:
-        # http://pytest.org/latest/capture.html
+    def test_get_stats(self):
         counts = utils.counts(utils.SEQUENCES, 8)
+        out = StringIO()
 
         with utils.open_profile(self.profile(counts, 8)) as input_handle:
-            kmer.get_stats(input_handle)
+            kmer.get_stats(input_handle, out)
 
-        out, err = capsys.readouterr()
-        mean, std = out.strip().split()
+        name, mean, std = out.getvalue().strip().split()
+        assert name == '1'
         assert mean == '%.3f' % np.mean(utils.as_array(counts, 8))
         assert std == '%.3f' % np.std(utils.as_array(counts, 8))
 
@@ -76,38 +73,38 @@ class TestKmer(utils.TestEnvironment):
             kmer.distribution(input_handle, out)
 
         counter = utils.Counter(utils.as_array(counts, 8))
-        assert out.getvalue() == '\n'.join('%i %i' % x
+        assert out.getvalue() == '\n'.join('1 %i %i' % x
                                            for x in sorted(counter.items())) + '\n'
 
-    def test_info(self, capsys):
-        # For the `capsys` fixture, see:
-        # http://pytest.org/latest/capture.html
+    def test_info(self):
         counts = utils.counts(utils.SEQUENCES, 8)
+        out = StringIO()
 
         with utils.open_profile(self.profile(counts, 8, 'a')) as input_handle:
-            kmer.info(input_handle)
-
-        out, err = capsys.readouterr()
+            kmer.info(input_handle, out)
 
         expected = 'File format version: 1.0.0\n'
         expected += 'Produced by: kMer unit tests\n\n'
         expected += 'Profile: a\n'
-        expected += 'k-mer length: 8\n'
-        expected += 'Total number of counts: %i\n' % sum(counts.values())
-        expected += 'Non-zero counts: %i\n' % len(counts)
-        assert out == expected
+        expected += '- k-mer length: 8 (%d k-mers)\n' % (4**8)
+        expected += '- Zero counts: %i\n' % (4**8 - len(counts))
+        expected += '- Non-zero counts: %i\n' % len(counts)
+        expected += '- Sum of counts: %i\n' % sum(counts.values())
+        expected += '- Mean of counts: %.3f\n' % np.mean([0] * (4**8 - len(counts)) + counts.values())
+        expected += '- Median of counts: %i\n' % np.median([0] * (4**8 - len(counts)) + counts.values())
+        expected += '- Standard deviation of counts: %.3f\n' % np.std([0] * (4**8 - len(counts)) + counts.values())
 
-    def test_get_count(self, capsys):
-        # For the `capsys` fixture, see:
-        # http://pytest.org/latest/capture.html
+        assert out.getvalue() == expected
+
+    def test_get_count(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         word, count = counts.most_common(1)[0]
+        out = StringIO()
 
         with utils.open_profile(self.profile(counts, 8, 'a')) as input_handle:
-            kmer.get_count(input_handle, word)
+            kmer.get_count(input_handle, out, word)
 
-        out, err = capsys.readouterr()
-        assert out == 'a %d\n' % count
+        assert out.getvalue() == 'a %d\n' % count
 
     def test_positive(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
@@ -119,7 +116,7 @@ class TestKmer(utils.TestEnvironment):
             with utils.open_profile(self.profile(counts_right, 8)) as handle_right:
                 with utils.open_profile(filename_left, 'w') as out_left:
                     with utils.open_profile(filename_right, 'w') as out_right:
-                        kmer.positive([handle_left, handle_right], [out_left, out_right])
+                        kmer.positive(handle_left, handle_right, out_left, out_right)
 
         utils.test_profile_file(filename_left, utils.Counter(s for s in counts_left.elements()
                                                              if s in counts_right), 8)
@@ -136,7 +133,7 @@ class TestKmer(utils.TestEnvironment):
             with utils.open_profile(self.profile(counts_right, 8)) as handle_right:
                 with utils.open_profile(filename_left, 'w') as out_left:
                     with utils.open_profile(filename_right, 'w') as out_right:
-                        kmer.scale([handle_left, handle_right], [out_left, out_right])
+                        kmer.scale(handle_left, handle_right, out_left, out_right)
 
         if sum(counts_left.values()) < sum(counts_right.values()):
             scale_left = sum(counts_right.values()) / sum(counts_left.values())
@@ -191,7 +188,7 @@ class TestKmer(utils.TestEnvironment):
             with utils.open_profile(self.profile(counts_right, 2)) as handle_right:
                 with utils.open_profile(filename_left, 'w') as out_left:
                     with utils.open_profile(filename_right, 'w') as out_right:
-                        kmer.smooth([handle_left, handle_right], [out_left, out_right], 'min')
+                        kmer.smooth(handle_left, handle_right, out_left, out_right, summary='min')
 
         counts_left = utils.Counter(['AA', 'AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA'])
         counts_right = utils.Counter(['AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA', 'TA'])
@@ -199,27 +196,27 @@ class TestKmer(utils.TestEnvironment):
         utils.test_profile_file(filename_left, counts_left, 2)
         utils.test_profile_file(filename_right, counts_right, 2)
 
-    def test_pair_diff(self, capsys):
-        # For the `capsys` fixture, see:
-        # http://pytest.org/latest/capture.html
+    def test_pair_diff(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right)
+                kmer.pair_diff(handle_left, handle_right, out)
 
-        out, err = capsys.readouterr()
-        assert out == 'left right %.3f\n' % 0.4626209322
+        assert out.getvalue() == 'left right %.3f\n' % 0.4626209322
 
     def test_matrix_diff(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
-        with utils.open_profile(self.profile(counts_left, 8, 'a')) as handle_a:
-            with utils.open_profile(self.profile(counts_right, 8, 'b')) as handle_b:
-                with utils.open_profile(self.profile(counts_left, 8, 'c')) as handle_c:
-                    kmer.matrix_diff([handle_a, handle_b, handle_c], out)
+        with utils.open_profile(self.multi_profile(8,
+                                                   [counts_left,
+                                                    counts_right,
+                                                    counts_left],
+                                                   ['a', 'b', 'c'])) as handle:
+                    kmer.matrix_diff(handle, out)
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.463', '0.000 0.463']

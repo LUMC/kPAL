@@ -193,3 +193,24 @@ class TestEnvironment():
             profile.attrs['non_zero'] = len(counts)
 
         return filename
+
+    def multi_profile(self, k, counts_list, names=None):
+        """
+        Create a file and write multiple `counts` to it in HDF5 format.
+        Filename is returned.
+        """
+        names = names or [str(i + 1) for i in range(len(counts_list))]
+
+        filename = self.empty()
+
+        with open_profile(filename, 'w') as f:
+            for counts, name in zip(counts_list, names):
+                profile = f.create_dataset(
+                    'profiles/%s' % name, dtype='int64', compression='gzip',
+                    data=[counts[''.join(s)]
+                          for s in itertools.product('ACGT', repeat=k)])
+                profile.attrs['length'] = k
+                profile.attrs['total'] = sum(counts.values())
+                profile.attrs['non_zero'] = len(counts)
+
+        return filename

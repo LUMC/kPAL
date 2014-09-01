@@ -44,7 +44,7 @@ class kMer():
         :arg handle: Open handle to a file.
         :type handle: stream
         """
-        name = name or handle['profiles'].keys()[0]
+        name = name or sorted(handle['profiles'].keys())[0]
         counts = handle['profiles/%s' % name][:]
         return cls(counts, name=name)
     #from_file
@@ -118,15 +118,15 @@ class kMer():
     def std(self):
         return self.counts.std()
 
-    def save(self, handle):
+    def save(self, handle, name=None):
         """
         Save the k-mer table in a file.
 
         :arg handle: Writable open handle to a file.
         :type handle: stream
         """
-        name = self.name or next(str(n) for n in itertools.count(1)
-                                 if str(n) not in handle['profiles'])
+        name = name or self.name or next(str(n) for n in itertools.count(1)
+                                         if str(n) not in handle['profiles'])
 
         profile = handle.create_dataset('profiles/%s' % name, data=self.counts,
                                         dtype='int64', compression='gzip')

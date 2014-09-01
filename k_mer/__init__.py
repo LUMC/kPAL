@@ -37,6 +37,8 @@ class ProfileFileType(object):
     Keyword Arguments:
         - mode -- A string indicating how the file is to be opened. Accepts the
             same values as the builtin open() function.
+
+    Todo: Tidy and docstring.
     """
     def __init__(self, mode='r'):
         self._mode = mode
