@@ -111,16 +111,14 @@ def multiset(vector1, vector2, pairwise):
 
     :return: The multiset distance between {vector1} and {vector2}.
     :rtype: float
+
+    Note that `function` must be vectorized, i.e., it is called directly on
+    NumPy arrays, instead of on their pairwise elements. If your function only
+    works on individual elements, convert it to a NumPy ufunc first. For
+    example:
+
+        f = np.vectorize(f, otypes=['float'])
     """
-    # Todo: Document that `pairwise` must be an ufunc. Or perhaps we could
-    #   accommodate both ufuncs and general Python functions. Checking for
-    #   `isinstance(pairwise, np.ufunc)` won't work, since for example
-    #   overloaded operators (and our default pairwise functions defined
-    #   below) will not be recognized.
-    #   Maybe we can first try to apply as an ufunc and check the resulting
-    #   dimensions. If they are not as expected, try to apply it as a
-    #   general Python function.
-    #pairwise = np.vectorize(pairwise, otypes=[np.float])
     vector1 = np.asanyarray(vector1)
     vector2 = np.asanyarray(vector2)
 
@@ -167,7 +165,7 @@ vector_distance = {
 """ Dictionary of vector distance functions. """
 
 
-# Todo: Document that this must be an ufunc.
+# Note: These definitions are safe to call on arrays.
 pairwise = {
     "diff-prod": lambda x, y: abs(x - y) / ((x + 1) * (y + 1)),
     "diff-sum": lambda x, y: abs(x - y) / (x + y + 1)
@@ -183,11 +181,11 @@ summary = {
 """ Dictionary of summary functions. """
 
 
-# Todo: Test different mergers, especially whether or not they work as ufunc.
+# Note: These definitions are safe to call on arrays.
 mergers = {
     "sum": lambda x, y: x + y,
-    "xor": lambda x, y: (x + y) * (not (x and y)),
-    "int": lambda x, y: x * bool(y),
-    "nint": lambda x, y: x * (not bool(y))
+    "xor": lambda x, y: (x + y) * np.logical_xor(x, y),
+    "int": lambda x, y: x * np.asanyarray(y, dtype=bool),
+    "nint": lambda x, y: x * np.logical_not(y)
 }
 """ Merge functions. """

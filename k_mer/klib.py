@@ -213,8 +213,15 @@ class Profile():
 
         :arg profile: Another k-mer profile.
         :type profile: Profile
-        :arg merger: Merge function.
+        :arg merger: A pairwise merge function.
         :type merger: function
+
+        Note that `function` must be vectorized, i.e., it is called directly
+        on NumPy arrays, instead of on their pairwise elements. If your
+        function only works on individual elements, convert it to a NumPy
+        ufunc first. For example:
+
+            f = np.vectorize(f, otypes=['int64'])
         """
         self.counts = merger(self.counts, profile.counts)
     #merge

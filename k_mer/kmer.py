@@ -114,8 +114,8 @@ def merge(input_handle_left, input_handle_right, output_handle,
 
     if merge_func:
         # Todo: Use the more general approach from Wiggelen.
-        # Todo: I guess this must be vectorized to an ufunc.
-        merge_function = eval('lambda ' + merge_func)
+        merge_function = np.vectorize(eval('lambda ' + merge_func),
+                                      otypes=['int64'])
     else:
         merge_function = metrics.mergers[merger]
 
@@ -272,7 +272,6 @@ def info(input_handle, output_handle, names=None):
             '- Mean of counts: %.3f' % profile.mean,
             '- Median of counts: %i' % profile.median,
             '- Standard deviation of counts: %.3f' % profile.std]) + '\n')
-        # Todo: Mean/median/std of non-zero counts.
 
 
 def get_count(input_handle, output_handle, word, names=None):
@@ -466,7 +465,6 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
 
     if summary_func:
         # Todo: Use the more general approach from Wiggelen.
-        # Todo: I guess this must be vectorized to an ufunc.
         smooth_function = eval('lambda ' + summary_func)
     else:
         smooth_function = metrics.summary[summary]
@@ -538,15 +536,14 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
 
     if summary_func:
         # Todo: Use the more general approach from Wiggelen.
-        # Todo: I guess this must be vectorized to an ufunc.
         summary_function = eval('lambda ' + summary_func)
     else:
         summary_function = metrics.summary[summary]
 
     if pairwise_func:
         # Todo: Use the more general approach from Wiggelen.
-        # Todo: I guess this must be vectorized to an ufunc.
-        pairwise_function = eval('lambda ' + pairwise_func)
+        pairwise_function = np.vectorize(eval('lambda ' + pairwise_func),
+                                         otypes=['float'])
     else:
         pairwise_function = metrics.pairwise[pairwise]
 
@@ -619,15 +616,14 @@ def matrix_diff(input_handle, output_handle, names=None,
 
     if summary_func:
         # Todo: Use the more general approach from Wiggelen.
-        # Todo: I guess this must be vectorized to an ufunc.
         summary_function = eval('lambda ' + summary_func)
     else:
         summary_function = metrics.summary[summary]
 
     if pairwise_func:
         # Todo: Use the more general approach from Wiggelen.
-        # Todo: I guess this must be vectorized to an ufunc.
-        pairwise_function = eval('lambda ' + pairwise_func)
+        pairwise_function = np.vectorize(eval('lambda ' + pairwise_func),
+                                         otypes=['float'])
     else:
         pairwise_function = metrics.pairwise[pairwise]
 
