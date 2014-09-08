@@ -39,7 +39,7 @@ class kMer():
     @classmethod
     def from_file(cls, handle, name=None):
         """
-        Load the k-mer table from a file.
+        Load the k-mer profile from a file.
 
         :arg handle: Open handle to a file.
         :type handle: stream
@@ -48,6 +48,22 @@ class kMer():
         counts = handle['profiles/%s' % name][:]
         return cls(counts, name=name)
     #from_file
+
+    @classmethod
+    def from_file_old_format(cls, handle, name=None):
+        """
+        Load the k-mer profile from a file in the old plaintext format.
+
+        :arg handle: Open handle to a file.
+        :type handle: stream
+        """
+        # Ignore lines with length, total, nonzero.
+        for _ in range(3):
+            next(handle)
+
+        counts = np.loadtxt(handle, dtype='int64')
+        return cls(counts, name=name)
+    #from_file_old_format
 
     @classmethod
     def from_fasta(cls, handle, length, name=None):
@@ -82,7 +98,7 @@ class kMer():
                             cls.__nucleotide_to_binary[i]) & bitmask
                         counts[binary] += 1
 
-        return cls(np.array(counts), name=name)
+        return cls(np.array(counts, dtype='int64'), name=name)
     #from_fasta
 
     def __init__(self, counts, name=None):

@@ -177,6 +177,22 @@ class TestEnvironment():
 
         return filename
 
+    def profile_old_format(self, counts, k):
+        """
+        Create a file and write `counts` to it in the old plaintext format.
+        Filename is returned.
+        """
+        content = '%d\n%d\n%d\n' % (k, sum(counts.values()), len(counts))
+        content += '\n'.join(str(counts[''.join(s)]) for s in
+                             itertools.product('ACGT', repeat=k)) + '\n'
+
+        filename = self.empty()
+
+        with open(filename, 'w') as f:
+            f.write(content)
+
+        return filename
+
     def profile(self, counts, k, name='1'):
         """
         Create a file and write `counts` to it in HDF5 format. Filename is

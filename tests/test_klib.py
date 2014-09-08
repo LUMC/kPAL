@@ -74,6 +74,13 @@ class TestKlib(utils.TestEnvironment):
 
         utils.test_profile_file(filename, counts, 4)
 
+    def test_profile_from_file_old_format(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        with open(self.profile_old_format(counts, 4)) as handle:
+            profile = klib.kMer.from_file_old_format(handle)
+
+        utils.test_profile(profile, counts, 4)
+
     def test_profile_from_file(self):
         counts = utils.counts(utils.SEQUENCES, 4)
         with utils.open_profile(self.profile(counts, 4), 'r') as profile_handle:

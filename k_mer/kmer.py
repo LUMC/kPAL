@@ -34,6 +34,31 @@ def _name_from_handle(handle):
     return os.path.splitext(os.path.basename(handle.name))[0]
 
 
+def convert(input_handles, output_handle, names=None):
+    """
+    Save k-mer profiles from files in the old plaintext format (used by kMer
+    versions < 1.0.0) to a k-mer profile file in the current HDF5 format.
+
+    :arg input_handles: Open readable k-mer profile file handles (old format).
+    :type input_handles: list(file-like object)
+    :arg output_handle: Open writeable k-mer profile file handle.
+    :type output_handle: h5py.File
+    :arg names: Optional list of names for the saved k-mer profiles (must have
+      the same length as `input_handles`). If not provided, profiles are named
+      according to the input filenames, or numbered consecutively from 1 if no
+      filenames are available.
+    :type names: list(str)
+    """
+    names = names or [_name_from_handle(h) for h in input_handles]
+
+    if len(names) != len(input_handles):
+        raise ValueError(NAMES_COUNT_ERROR)
+
+    for input_handle, name in zip(input_handles, names):
+        profile = klib.kMer.from_file_old_format(input_handle, name=name)
+        profile.save(output_handle)
+
+
 def index(input_handles, output_handle, size, names=None):
     """
     Make k-mer profiles from FASTA files.
@@ -725,6 +750,16 @@ def main():
         description=usage[0], epilog=usage[1])
     parser.add_argument('-v', action="version", version=version(parser.prog))
     subparsers = parser.add_subparsers()
+
+    parser_convert = subparsers.add_parser(
+        'convert', parents=[output_profile_parser, multi_input_parser],
+        description=doc_split(convert))
+    parser_convert.add_argument(
+        '-p', '--profiles', dest='names', metavar='NAME', nargs='+',
+        help='names for the saved k-mer profiles, one per INPUT (default: '
+        'profiles are named according to the input filenames, or numbered '
+        'consecutively from 1 if no filenames are available)')
+    parser_convert.set_defaults(func=convert)
 
     # Todo: Option to generate a profile per FASTA record instead of per FASTA
     #   file.

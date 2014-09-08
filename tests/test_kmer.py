@@ -15,6 +15,14 @@ import utils
 
 
 class TestKmer(utils.TestEnvironment):
+    def test_convert(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        filename = self.empty()
+        with open(self.profile_old_format(counts, 8)) as handle:
+            with utils.open_profile(filename, 'w') as profile_handle:
+                kmer.convert([handle], profile_handle)
+        utils.test_profile_file(filename, counts, 8)
+
     def test_index(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         filename = self.empty()
