@@ -55,7 +55,7 @@ def convert(input_handles, output_handle, names=None):
         raise ValueError(NAMES_COUNT_ERROR)
 
     for input_handle, name in zip(input_handles, names):
-        profile = klib.kMer.from_file_old_format(input_handle, name=name)
+        profile = klib.Profile.from_file_old_format(input_handle, name=name)
         profile.save(output_handle)
 
 
@@ -81,7 +81,7 @@ def index(input_handles, output_handle, size, names=None):
         raise ValueError(NAMES_COUNT_ERROR)
 
     for input_handle, name in zip(input_handles, names):
-        profile = klib.kMer.from_fasta(input_handle, size, name=name)
+        profile = klib.Profile.from_fasta(input_handle, size, name=name)
         profile.save(output_handle)
 
 
@@ -120,9 +120,10 @@ def merge(input_handle_left, input_handle_right, output_handle,
         merge_function = metrics.mergers[merger]
 
     for name_left, name_right in zip(names_left, names_right):
-        profile_left = klib.kMer.from_file(input_handle_left, name=name_left)
-        profile_right = klib.kMer.from_file(input_handle_right,
-                                            name=name_right)
+        profile_left = klib.Profile.from_file(input_handle_left,
+                                              name=name_left)
+        profile_right = klib.Profile.from_file(input_handle_right,
+                                               name=name_right)
 
         if profile_left.length != profile_right.length:
             raise ValueError(LENGTH_ERROR)
@@ -152,7 +153,7 @@ def balance(input_handle, output_handle, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.kMer.from_file(input_handle, name=name)
+        profile = klib.Profile.from_file(input_handle, name=name)
         profile.balance()
         profile.save(output_handle)
 
@@ -178,7 +179,7 @@ def get_balance(input_handle, output_handle, precision=3, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.kMer.from_file(input_handle, name=name)
+        profile = klib.Profile.from_file(input_handle, name=name)
 
         forward, reverse = profile.split()
         output_handle.write(
@@ -205,7 +206,7 @@ def get_stats(input_handle, output_handle, precision=3, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.kMer.from_file(input_handle, name=name)
+        profile = klib.Profile.from_file(input_handle, name=name)
 
         output_handle.write(
             ('%%s %%.%if %%.%if\n' % (precision, precision)) %
@@ -230,7 +231,7 @@ def distribution(input_handle, output_handle, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.kMer.from_file(input_handle)
+        profile = klib.Profile.from_file(input_handle)
 
         output_handle.write(''.join('%s %i %i\n' % (name, v, c) for v, c in
                                     metrics.distribution(profile.counts)))
@@ -259,7 +260,7 @@ def info(input_handle, output_handle, names=None):
         # Todo: This loads the entire profile, which we actually do not need.
         #   Especially for files with many profiles, we might want to just
         #   get the statistics without loading the profile.
-        profile = klib.kMer.from_file(input_handle, name=name)
+        profile = klib.Profile.from_file(input_handle, name=name)
 
         output_handle.write('\n' + '\n'.join([
             'Profile: %s' % profile.name,
@@ -292,7 +293,7 @@ def get_count(input_handle, output_handle, word, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.kMer.from_file(input_handle, name=name)
+        profile = klib.Profile.from_file(input_handle, name=name)
         if profile.length != len(word):
             raise ValueError('the length of the query does not match the '
                              'profile length')
@@ -327,9 +328,10 @@ def positive(input_handle_left, input_handle_right, output_handle_left,
         raise ValueError(PAIRED_NAMES_COUNT_ERROR)
 
     for name_left, name_right in zip(names_left, names_right):
-        profile_left = klib.kMer.from_file(input_handle_left, name=name_left)
-        profile_right = klib.kMer.from_file(input_handle_right,
-                                            name=name_right)
+        profile_left = klib.Profile.from_file(input_handle_left,
+                                              name=name_left)
+        profile_right = klib.Profile.from_file(input_handle_right,
+                                               name=name_right)
 
         if profile_left.length != profile_right.length:
             raise ValueError(LENGTH_ERROR)
@@ -369,9 +371,10 @@ def scale(input_handle_left, input_handle_right, output_handle_left,
         raise ValueError(PAIRED_NAMES_COUNT_ERROR)
 
     for name_left, name_right in zip(names_left, names_right):
-        profile_left = klib.kMer.from_file(input_handle_left, name=name_left)
-        profile_right = klib.kMer.from_file(input_handle_right,
-                                            name=name_right)
+        profile_left = klib.Profile.from_file(input_handle_left,
+                                              name=name_left)
+        profile_right = klib.Profile.from_file(input_handle_right,
+                                               name=name_right)
 
         if profile_left.length != profile_right.length:
             raise ValueError(LENGTH_ERROR)
@@ -406,7 +409,7 @@ def shrink(input_handle, output_handle, factor, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.kMer.from_file(input_handle, name=name)
+        profile = klib.Profile.from_file(input_handle, name=name)
         profile.shrink(factor)
         profile.save(output_handle)
 
@@ -427,7 +430,7 @@ def shuffle(input_handle, output_handle, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.kMer.from_file(input_handle, name=name)
+        profile = klib.Profile.from_file(input_handle, name=name)
         profile.shuffle()
         profile.save(output_handle)
 
@@ -471,9 +474,10 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
     diff = kdifflib.kMerDiff(summary=smooth_function, threshold=threshold)
 
     for name_left, name_right in zip(names_left, names_right):
-        profile_left = klib.kMer.from_file(input_handle_left, name=name_left)
-        profile_right = klib.kMer.from_file(input_handle_right,
-                                            name=name_right)
+        profile_left = klib.Profile.from_file(input_handle_left,
+                                              name=name_left)
+        profile_right = klib.Profile.from_file(input_handle_right,
+                                               name=name_right)
 
         if profile_left.length != profile_right.length:
             raise ValueError(LENGTH_ERROR)
@@ -553,9 +557,10 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
         distance_function=metrics.vector_distance[distance_function])
 
     for name_left, name_right in zip(names_left, names_right):
-        profile_left = klib.kMer.from_file(input_handle_left, name=name_left)
-        profile_right = klib.kMer.from_file(input_handle_right,
-                                            name=name_right)
+        profile_left = klib.Profile.from_file(input_handle_left,
+                                              name=name_left)
+        profile_right = klib.Profile.from_file(input_handle_right,
+                                               name=name_right)
 
         if profile_left.length != profile_right.length:
             raise ValueError(LENGTH_ERROR)
@@ -639,7 +644,7 @@ def matrix_diff(input_handle, output_handle, names=None,
     #   read from file on each use.
     counts = []
     for name in names:
-        counts.append(klib.kMer.from_file(input_handle, name=name))
+        counts.append(klib.Profile.from_file(input_handle, name=name))
         if counts[0].length != counts[-1].length:
             raise ValueError(LENGTH_ERROR)
 

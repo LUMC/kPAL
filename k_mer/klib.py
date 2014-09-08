@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 k-mer base library.
 """
@@ -17,9 +15,9 @@ import numpy as np
 
 from . import metrics
 
-class kMer():
+class Profile():
     """
-    Handle the counting of k-mers in a fasta file.
+    Handle k-mer counts.
     """
     __nucleotide_to_binary = {
         'A': 0x00, 'a': 0x00,
@@ -41,8 +39,13 @@ class kMer():
         """
         Load the k-mer profile from a file.
 
-        :arg handle: Open handle to a file.
-        :type handle: stream
+        :arg handle: Open readable k-mer profile file handle.
+        :type handle: h5py.File
+        :arg name: Profile name.
+        :arg name: str
+
+        :return: A k-mer profile.
+        :rtype: Profile
         """
         name = name or sorted(handle['profiles'].keys())[0]
         counts = handle['profiles/%s' % name][:]
@@ -54,8 +57,13 @@ class kMer():
         """
         Load the k-mer profile from a file in the old plaintext format.
 
-        :arg handle: Open handle to a file.
-        :type handle: stream
+        :arg handle: Open readable k-mer profile file handle (old format).
+        :type handle: file-like object
+        :arg name: Profile name.
+        :arg name: str
+
+        :return: A k-mer profile.
+        :rtype: Profile
         """
         # Ignore lines with length, total, nonzero.
         for _ in range(3):
@@ -68,12 +76,18 @@ class kMer():
     @classmethod
     def from_fasta(cls, handle, length, name=None):
         """
-        Read a fasta file and count all k-mers in each line.
+        Create a k-mer profile from a FASTA file by counting all k-mers in
+        each line.
 
-        :arg handle: An open file handle to a fasta file.
-        :type handle: stream
+        :arg handle: Open readable FASTA file handle.
+        :type handle: file-like object
         :arg length: Length of the k-mers.
         :type length: int
+        :arg name: Profile name.
+        :arg name: str
+
+        :return: A k-mer profile.
+        :rtype: Profile
         """
         number = 4 ** length
         bitmask = number - 0x01
@@ -103,7 +117,18 @@ class kMer():
 
     def __init__(self, counts, name=None):
         """
-        Initialise the class instance.
+        Low-level constructor for k-mer profile objects. Users should
+        generally use one of the profile construction methods:
+
+        - `kMer.from_file`
+        - `kMer.from_file_old_format`
+        - `kMer.from_fasta`
+
+        :arg counts: NumPy array of integers where each element is the count
+          for a k-mer. Ordering is alphabetically by the k-mer.
+        :type counts: np.ndarray(int)
+        :arg name: Profile name.
+        :type name: str
         """
         self.length = int(math.log(len(counts), 4))
         self.counts = counts
@@ -112,34 +137,59 @@ class kMer():
 
     @property
     def number(self):
+        """
+        Number of possible k-mers with this length.
+        """
         return len(self.counts)
 
     @property
-    def total(self):
-        return self.counts.sum()
-
-    @property
     def non_zero(self):
+        """
+        Number k-mers with a non-zero count.
+        """
         return np.count_nonzero(self.counts)
 
     @property
+    def total(self):
+        """
+        Sum of k-mer counts.
+        """
+        return self.counts.sum()
+
+    @property
     def mean(self):
+        """
+        Mean of k-mer counts.
+        """
         return self.counts.mean()
 
     @property
     def median(self):
+        """
+        Median of k-mer counts.
+        """
         return np.median(self.counts)
 
     @property
     def std(self):
+        """
+        Standard deviation of k-mer counts.
+        """
         return self.counts.std()
 
     def save(self, handle, name=None):
         """
-        Save the k-mer table in a file.
+        Save the k-mer counts to a file.
 
-        :arg handle: Writable open handle to a file.
-        :type handle: stream
+        :arg handle: Open writeable k-mer profile file handle.
+        :type handle: h5py.File
+        :arg name: Profile name in the file. If not provided, the current
+          profile name is used, or the first available number from 1
+          consecutively if the profile has no name.
+        :type name: str
+
+        :return: Profile name in the file.
+        :rtype: str
         """
         name = name or self.name or next(str(n) for n in itertools.count(1)
                                          if str(n) not in handle['profiles'])
@@ -153,14 +203,16 @@ class kMer():
         profile.attrs['median'] = self.median
         profile.attrs['std'] = self.std
         handle.flush()
+
+        return name
     #save
 
     def merge(self, profile, merger=metrics.mergers["sum"]):
         """
         Merge two profiles.
 
-        :arg profile: An other k-mer profile.
-        :type profile: object(kMer)
+        :arg profile: Another k-mer profile.
+        :type profile: Profile
         :arg merger: Merge function.
         :type merger: function
         """
@@ -197,7 +249,7 @@ class kMer():
         between them.
 
         :return: The doubled forward and reverse complement counts.
-        :rtype: tuple(list[float], list[float])
+        :rtype: np.ndarray(int), np.ndarray(int)
         """
         forward = []
         reverse = []
@@ -242,8 +294,6 @@ class kMer():
                       for i in range(0, self.number, merge_size))
         self.counts = np.fromiter(new_counts, dtype='int64')
         self.length -= factor
-
-        # Todo: store dtype='int64' in a module variable or something.
     #shrink
 
     def shuffle(self):
@@ -257,10 +307,10 @@ class kMer():
         """
         Convert a string of DNA to an integer.
 
-        :arg sequence:
-        :type sequence: string
+        :arg sequence: DNA sequence.
+        :type sequence: str
 
-        :return: Binary representation of a DNA string.
+        :return: Binary representation of `sequence`.
         :rtype: int
         """
         result = 0x00
@@ -277,11 +327,11 @@ class kMer():
         """
         Convert an integer to a DNA string.
 
-        :arg number: Binary representation of a DNA string.
+        :arg number: Binary representation of a DNA sequence.
         :type number: int
 
-        :returns A DNA string.
-        :rtype: string
+        :returns DNA string corresponding to `number`.
+        :rtype: str
         """
         sequence = ""
 
@@ -295,12 +345,14 @@ class kMer():
 
     def reverse_complement(self, number):
         """
-        Calculate the reverse complement of an integer.
+        Calculate the reverse complement of a DNA sequence in a binary
+        representation.
 
-        :arg number: An integer.
+        :arg number: Binary representation of a DNA sequence.
         :type number: int
 
-        :return: The reverse complement of {number}.
+        :return: Binary representation of the reverse complement of the
+          sequence corresponding to `number`.
         :rtype: int
         """
         number = ~number
@@ -371,7 +423,7 @@ class kMer():
             print self.binary_to_dna(i), self.counts[i]
     #print_counts
 
-    def print_ratios(self, ratios):
+    def _print_ratios(self, ratios):
         """
         Print a ratios matrix.
 
@@ -392,4 +444,4 @@ class kMer():
             print
         #for
     #print_ratios
-#kMer
+#Profile

@@ -19,13 +19,13 @@ import utils
 class TestKlib(utils.TestEnvironment):
     def test_profile(self):
         counts = utils.counts(utils.SEQUENCES, 8)
-        profile = klib.kMer(utils.as_array(counts, 8))
+        profile = klib.Profile(utils.as_array(counts, 8))
         utils.test_profile(profile, counts, 8)
 
     def _test_from_fasta(self, sequences, k):
         counts = utils.counts(sequences, k)
         with open(self.fasta(sequences)) as fasta_handle:
-            profile = klib.kMer.from_fasta(fasta_handle, k)
+            profile = klib.Profile.from_fasta(fasta_handle, k)
         utils.test_profile(profile, counts, k)
 
     def test_from_fasta_single_k1(self):
@@ -66,7 +66,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_save(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
 
         filename = self.empty()
         with utils.open_profile(filename, 'w') as profile_handle:
@@ -77,21 +77,21 @@ class TestKlib(utils.TestEnvironment):
     def test_profile_from_file_old_format(self):
         counts = utils.counts(utils.SEQUENCES, 4)
         with open(self.profile_old_format(counts, 4)) as handle:
-            profile = klib.kMer.from_file_old_format(handle)
+            profile = klib.Profile.from_file_old_format(handle)
 
         utils.test_profile(profile, counts, 4)
 
     def test_profile_from_file(self):
         counts = utils.counts(utils.SEQUENCES, 4)
         with utils.open_profile(self.profile(counts, 4), 'r') as profile_handle:
-            profile = klib.kMer.from_file(profile_handle)
+            profile = klib.Profile.from_file(profile_handle)
 
         utils.test_profile(profile, counts, 4)
 
     def test_profile_from_file_save(self):
         counts = utils.counts(utils.SEQUENCES, 4)
         with utils.open_profile(self.profile(counts, 4), 'r') as profile_handle:
-            profile = klib.kMer.from_file(profile_handle)
+            profile = klib.Profile.from_file(profile_handle)
 
         filename = self.empty()
         with utils.open_profile(filename, 'w') as profile_handle:
@@ -101,14 +101,14 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_save_from_file(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
 
         filename = self.empty()
         with utils.open_profile(filename, 'w') as profile_handle:
             profile.save(profile_handle)
 
         with utils.open_profile(filename, 'r') as profile_handle:
-            profile = klib.kMer.from_file(profile_handle)
+            profile = klib.Profile.from_file(profile_handle)
 
         utils.test_profile(profile, counts, 4)
 
@@ -116,15 +116,15 @@ class TestKlib(utils.TestEnvironment):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
 
-        profile_left = klib.kMer(utils.as_array(counts_left, 8))
-        profile_right = klib.kMer(utils.as_array(counts_right, 8))
+        profile_left = klib.Profile(utils.as_array(counts_left, 8))
+        profile_right = klib.Profile(utils.as_array(counts_right, 8))
 
         profile_left.merge(profile_right)
         utils.test_profile(profile_left, counts_left + counts_right, 8)
 
     def test_profile_balance(self):
         counts = utils.counts(utils.SEQUENCES, 8)
-        profile = klib.kMer(utils.as_array(counts, 8))
+        profile = klib.Profile(utils.as_array(counts, 8))
         profile.balance()
 
         counts.update(dict((str(Seq.reverse_complement(s)), c)
@@ -133,7 +133,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_balance_palindrome(self):
         counts = utils.counts(['AATT'], 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
         profile.balance()
 
         counts.update(dict((str(Seq.reverse_complement(s)), c)
@@ -142,7 +142,7 @@ class TestKlib(utils.TestEnvironment):
 
     def _test_profile_split(self, sequences, length):
         counts = utils.counts(sequences, length)
-        profile = klib.kMer(utils.as_array(counts, length))
+        profile = klib.Profile(utils.as_array(counts, length))
         left, right = profile.split()
 
         assert len(left) == len(right)
@@ -179,7 +179,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_reverse_complement(self):
         counts = utils.counts(utils.SEQUENCES, 8)
-        profile = klib.kMer(utils.as_array(counts, 8))
+        profile = klib.Profile(utils.as_array(counts, 8))
 
         for i in range(profile.length):
             assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
@@ -187,7 +187,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_reverse_complement_palindrome(self):
         counts = utils.counts(['ACCTAGGT'], 8)
-        profile = klib.kMer(utils.as_array(counts, 8))
+        profile = klib.Profile(utils.as_array(counts, 8))
 
         for i in range(profile.length):
             assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
@@ -195,7 +195,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_shrink(self):
         counts = utils.counts(utils.SEQUENCES, 8)
-        profile = klib.kMer(utils.as_array(counts, 8))
+        profile = klib.Profile(utils.as_array(counts, 8))
         profile.shrink(1)
 
         counts = utils.Counter(dict((t, sum(counts[u] for u in counts
@@ -205,7 +205,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_shrink_two(self):
         counts = utils.counts(utils.SEQUENCES, 8)
-        profile = klib.kMer(utils.as_array(counts, 8))
+        profile = klib.Profile(utils.as_array(counts, 8))
         profile.shrink(2)
 
         counts = utils.Counter(dict((t, sum(counts[u] for u in counts
@@ -215,7 +215,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_shrink_three(self):
         counts = utils.counts(utils.SEQUENCES, 8)
-        profile = klib.kMer(utils.as_array(counts, 8))
+        profile = klib.Profile(utils.as_array(counts, 8))
         profile.shrink(3)
 
         counts = utils.Counter(dict((t, sum(counts[u] for u in counts
@@ -225,7 +225,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_shrink_max(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
         profile.shrink(3)
 
         counts = utils.Counter(dict((t, sum(counts[u] for u in counts
@@ -235,13 +235,13 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_shrink_invalid(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
         with pytest.raises(ValueError):
             profile.shrink(4)
 
     def test_profile_shuffle(self):
         counts = utils.counts(utils.SEQUENCES, 2)
-        profile = klib.kMer(utils.as_array(counts, 2))
+        profile = klib.Profile(utils.as_array(counts, 2))
 
         np.random.seed(100)
         profile.shuffle()
@@ -252,21 +252,21 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_dna_to_binary(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
 
         for i, s in enumerate(itertools.product('ACGT', repeat=4)):
             assert i == profile.dna_to_binary(''.join(s))
 
     def test_profile_binary_to_dna(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
 
         for i, s in enumerate(itertools.product('ACGT', repeat=4)):
             assert ''.join(s) == profile.binary_to_dna(i)
 
     def test_profile_ratios_matrix(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
 
         ratios = profile._ratios_matrix()
         total = sum(counts.values())
@@ -283,7 +283,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_freq_diff_matrix(self):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
         freq_diffs = profile._freq_diff_matrix()
 
         total = sum(counts.values())
@@ -300,7 +300,7 @@ class TestKlib(utils.TestEnvironment):
 
     def test_profile_print_counts(self, capsys):
         counts = utils.counts(utils.SEQUENCES, 4)
-        profile = klib.kMer(utils.as_array(counts, 4))
+        profile = klib.Profile(utils.as_array(counts, 4))
         profile.print_counts()
 
         out, err = capsys.readouterr()
