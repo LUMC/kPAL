@@ -3,14 +3,16 @@ Toolbox for k-mer profiles.
 """
 
 
-from __future__ import division
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future.builtins import str, zip
 
 import argparse
 import os
 import sys
 
-from . import (USAGE, ProtectedFileType, ProfileFileType, doc_split, version,
-               klib, kdifflib, metrics)
+from . import (USAGE, FileType, ProfileFileType, doc_split, version, klib,
+               kdifflib, metrics)
 
 # Todo: Probably only used in user-defined custom functions, we should only
 #   import it there.
@@ -31,7 +33,7 @@ def _name_from_handle(handle):
     """
     if not hasattr(handle, 'name') or handle.name.startswith('<'):
         return None
-    return os.path.splitext(os.path.basename(handle.name))[0]
+    return os.path.splitext(os.path.basename(str(handle.name)))[0]
 
 
 def convert(input_handles, output_handle, names=None):
@@ -653,15 +655,15 @@ def main():
     """
     multi_input_parser = argparse.ArgumentParser(add_help=False)
     multi_input_parser.add_argument(
-        'input_handles', metavar='INPUT', type=argparse.FileType('r'),
-        nargs='*', default=[sys.stdin], help='input file (default: stdin)')
+        'input_handles', metavar='INPUT', type=FileType('r'), nargs='*',
+        default=[sys.stdin], help='input file (default: stdin)')
 
     input_profile_parser = argparse.ArgumentParser(add_help=False)
     input_profile_parser.add_argument(
         'input_handle', metavar='INPUT', type=ProfileFileType('r'),
         help='input k-mer profile file',)
     input_profile_parser.add_argument(
-        '-p', '--profiles', dest='names', metavar='NAME', nargs='+',
+        '-p', '--profiles', dest='names', metavar='NAME', type=str, nargs='+',
         help='names of the k-mer profiles to consider (default: all profiles '
         'in INPUT, in alphabetical order)')
 
@@ -673,17 +675,18 @@ def main():
         'input_handle_right', metavar='INPUT_RIGHT',
         type=ProfileFileType('r'), help='input k-mer profile file (right)')
     paired_input_profile_parser.add_argument(
-        '-l', '--profiles-left', dest='names_left', metavar='NAME', nargs='+',
-        help='names of the k-mer profiles to consider (left) (default: all '
-        'profiles in INPUT_LEFT, in alphabetical order')
+        '-l', '--profiles-left', dest='names_left', metavar='NAME', type=str,
+        nargs='+', help='names of the k-mer profiles to consider (left) '
+        '(default: all profiles in INPUT_LEFT, in alphabetical order')
     paired_input_profile_parser.add_argument(
         '-r', '--profiles-right', dest='names_right', metavar='NAME',
-        nargs='+', help='names of the k-mer profiles to consider (right) '
-        '(default: all profiles in INPUT_RIGHT, in alphabetical order)')
+        type=str, nargs='+', help='names of the k-mer profiles to consider '
+        '(right) (default: all profiles in INPUT_RIGHT, in alphabetical '
+        'order)')
 
     output_parser = argparse.ArgumentParser(add_help=False)
     output_parser.add_argument(
-        'output_handle', metavar='OUTPUT', type=ProtectedFileType('w'),
+        'output_handle', metavar='OUTPUT', type=FileType('w'),
         help='output file')
 
     output_profile_parser = argparse.ArgumentParser(add_help=False)
@@ -705,10 +708,11 @@ def main():
 
     smooth_parser = argparse.ArgumentParser(add_help=False)
     smooth_parser.add_argument(
-        '-s', dest='summary', default='min', choices=metrics.summary,
-        help='summary function for dynamic smoothing (default: %(default)s)')
+        '-s', dest='summary', type=str, default='min',
+        choices=metrics.summary, help='summary function for dynamic '
+        'smoothing (default: %(default)s)')
     smooth_parser.add_argument(
-        '--summary-function', metavar='STRING', dest='summary_func',
+        '--summary-function', metavar='STRING', type=str, dest='summary_func',
         help='custom summary function')
     smooth_parser.add_argument(
         '-t', dest='threshold', metavar='INT', type=int, default=0,
@@ -735,16 +739,16 @@ def main():
         '-m', '--smooth', dest='do_smooth', action='store_true',
         help='smooth the profiles')
     diff_parser.add_argument(
-        '-D', dest='distance_function', default='default',
+        '-D', dest='distance_function', type=str, default='default',
         choices=metrics.vector_distance,
         help='choose distance function (default: %(default)s)')
     diff_parser.add_argument(
-        '-P', dest='pairwise', default='diff-prod', choices=metrics.pairwise,
-        help='paiwise distance function for the multiset distance (default: '
-        '%(default)s)')
+        '-P', dest='pairwise', type=str, default='diff-prod',
+        choices=metrics.pairwise, help='paiwise distance function for the '
+        'multiset distance (default: %(default)s)')
     diff_parser.add_argument(
-        '--pairwise-function', metavar='STRING', dest='pairwise_func',
-        help='custom pairwise function')
+        '--pairwise-function', metavar='STRING', type=str,
+        dest='pairwise_func', help='custom pairwise function')
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -756,7 +760,7 @@ def main():
         'convert', parents=[output_profile_parser, multi_input_parser],
         description=doc_split(convert))
     parser_convert.add_argument(
-        '-p', '--profiles', dest='names', metavar='NAME', nargs='+',
+        '-p', '--profiles', dest='names', metavar='NAME', type=str, nargs='+',
         help='names for the saved k-mer profiles, one per INPUT (default: '
         'profiles are named according to the input filenames, or numbered '
         'consecutively from 1 if no filenames are available)')
@@ -768,7 +772,7 @@ def main():
         'index', parents=[output_profile_parser, multi_input_parser],
         description=doc_split(index))
     parser_index.add_argument(
-        '-p', '--profiles', dest='names', metavar='NAME', nargs='+',
+        '-p', '--profiles', dest='names', metavar='NAME', type=str, nargs='+',
         help='names for the created k-mer profiles, one per INPUT (default: '
         'profiles are named according to the input filenames, or numbered '
         'consecutively from 1 if no filenames are available)')
@@ -784,7 +788,8 @@ def main():
         '-m', dest='merger', type=str, default='sum',
         choices=metrics.mergers, help='merge function (default: %(default)s)')
     parser_merge.add_argument(
-        '--merge-function', dest='merge_func', help='custom merge function')
+        '--merge-function', dest='merge_func', metavar='STRING', type=str,
+        help='custom merge function')
     parser_merge.set_defaults(func=merge)
 
     parser_balance = subparsers.add_parser(
@@ -862,11 +867,11 @@ def main():
 
     try:
         arguments = parser.parse_args()
-    except IOError, error:
+    except IOError as error:
         parser.error(error)
 
     try:
         arguments.func(**dict((k, v) for k, v in vars(arguments).items()
                               if k not in ('func', 'subcommand')))
-    except ValueError, error:
+    except ValueError as error:
         parser.error(error)

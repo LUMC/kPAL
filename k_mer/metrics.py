@@ -3,16 +3,14 @@ General library containing metrics and helper functions.
 """
 
 
-from __future__ import division
-
-import math
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future import standard_library
 
 import numpy as np
 
-try:
+with standard_library.hooks():
     from collections import Counter
-except ImportError:
-    from counter import Counter
 
 
 def distribution(vector):

@@ -3,7 +3,10 @@ Tests for the `k_mer.metrics` module.
 """
 
 
-from __future__ import division
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future import standard_library
+from future.builtins import zip
 
 import math
 
@@ -13,13 +16,11 @@ from k_mer import metrics
 
 import utils
 
-try:
+with standard_library.hooks():
     from collections import Counter
-except ImportError:
-    from counter import Counter
 
 
-class TestMetrics():
+class TestMetrics(object):
     def test_distribution(self):
         a = np.random.random_integers(0, 20, 100)
         counts = Counter(a)
@@ -105,8 +106,8 @@ class TestMetrics():
         a = np.random.random_integers(1, 100, 100)
         b = np.random.random_integers(1, 100, 100)
 
-        cs = sum(map(lambda x: x[0] * x[1], zip(a, b))) / (math.sqrt(sum(x * x for x in a)) *
-                                                           math.sqrt(sum(x * x for x in b)))
+        cs = sum([x[0] * x[1] for x in zip(a, b)]) / (math.sqrt(sum(x * x for x in a)) *
+                                                      math.sqrt(sum(x * x for x in b)))
         np.testing.assert_almost_equal(metrics.cosine_similarity(a, b),
                                        cs)
 
