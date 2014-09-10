@@ -11,6 +11,11 @@ from k_mer import kdifflib, klib, metrics
 
 import utils
 
+try:
+    from collections import Counter
+except ImportError:
+    from counter import Counter
+
 
 class TestKDiffLib():
     def test_distance_matrix_one(self):
@@ -64,8 +69,8 @@ class TestKDiffLib():
         #           | 0101111111111111 | 2000111111114000
         # profile B | ACGTACGTACGTACGT | ACGTACGTACGTACGT
         #           | AAAACCCCGGGGTTTT | AAAACCCCGGGGTTTT
-        counts_a = utils.Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
-        counts_b = utils.Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
+        counts_a = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
+        counts_b = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
 
         profile_a = klib.Profile(utils.as_array(counts_a, 2))
         profile_b = klib.Profile(utils.as_array(counts_b, 2))
@@ -73,15 +78,15 @@ class TestKDiffLib():
         k_diff = kdifflib.kMerDiff()
         k_diff.dynamic_smooth(profile_a, profile_b)
 
-        counts_a = utils.Counter(['AA', 'AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA'])
-        counts_b = utils.Counter(['AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA', 'TA'])
+        counts_a = Counter(['AA', 'AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA'])
+        counts_b = Counter(['AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA', 'TA'])
 
         np.testing.assert_array_equal(profile_a.counts, utils.as_array(counts_a, 2))
         np.testing.assert_array_equal(profile_b.counts, utils.as_array(counts_b, 2))
 
     def test_kmerdiff_distance(self):
-        counts_a = utils.Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
-        counts_b = utils.Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
+        counts_a = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
+        counts_b = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
 
         profile_a = klib.Profile(utils.as_array(counts_a, 2))
         profile_b = klib.Profile(utils.as_array(counts_b, 2))

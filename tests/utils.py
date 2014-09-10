@@ -3,7 +3,6 @@ Utilities for kMer unit tests.
 """
 
 
-import collections
 import itertools
 import os
 import shutil
@@ -12,7 +11,10 @@ import tempfile
 import h5py
 import numpy as np
 
-from k_mer.compat import Counter
+try:
+    from collections import Counter
+except ImportError:
+    from counter import Counter
 
 
 # Some 8-mers.

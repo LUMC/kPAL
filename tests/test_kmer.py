@@ -13,6 +13,11 @@ from k_mer import kmer
 
 import utils
 
+try:
+    from collections import Counter
+except ImportError:
+    from counter import Counter
+
 
 class TestKmer(utils.TestEnvironment):
     def test_convert(self):
@@ -80,7 +85,7 @@ class TestKmer(utils.TestEnvironment):
         with utils.open_profile(self.profile(counts, 8)) as input_handle:
             kmer.distribution(input_handle, out)
 
-        counter = utils.Counter(utils.as_array(counts, 8))
+        counter = Counter(utils.as_array(counts, 8))
         assert out.getvalue() == '\n'.join('1 %i %i' % x
                                            for x in sorted(counter.items())) + '\n'
 
@@ -126,9 +131,9 @@ class TestKmer(utils.TestEnvironment):
                     with utils.open_profile(filename_right, 'w') as out_right:
                         kmer.positive(handle_left, handle_right, out_left, out_right)
 
-        utils.test_profile_file(filename_left, utils.Counter(s for s in counts_left.elements()
+        utils.test_profile_file(filename_left, Counter(s for s in counts_left.elements()
                                                              if s in counts_right), 8)
-        utils.test_profile_file(filename_right, utils.Counter(s for s in counts_right.elements()
+        utils.test_profile_file(filename_right, Counter(s for s in counts_right.elements()
                                                               if s in counts_left), 8)
 
     def test_scale(self):
@@ -166,7 +171,7 @@ class TestKmer(utils.TestEnvironment):
             with utils.open_profile(filename, 'w') as output_handle:
                 kmer.shrink(input_handle, output_handle, 1)
 
-        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+        counts = Counter(dict((t, sum(counts[u] for u in counts
                                             if u.startswith(t)))
                                     for t in set(s[:-1] for s in counts)))
         utils.test_profile_file(filename, counts, 7)
@@ -187,8 +192,8 @@ class TestKmer(utils.TestEnvironment):
 
     def test_smooth(self):
         # See test_kdifflib.test_kmerdiff_dynamic_smooth
-        counts_left = utils.Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
-        counts_right = utils.Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
+        counts_left = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
+        counts_right = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
         filename_left = self.empty()
         filename_right = self.empty()
 
@@ -198,8 +203,8 @@ class TestKmer(utils.TestEnvironment):
                     with utils.open_profile(filename_right, 'w') as out_right:
                         kmer.smooth(handle_left, handle_right, out_left, out_right, summary='min')
 
-        counts_left = utils.Counter(['AA', 'AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA'])
-        counts_right = utils.Counter(['AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA', 'TA'])
+        counts_left = Counter(['AA', 'AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA'])
+        counts_right = Counter(['AA', 'AA', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TA', 'TA', 'TA'])
 
         utils.test_profile_file(filename_left, counts_left, 2)
         utils.test_profile_file(filename_right, counts_right, 2)

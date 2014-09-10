@@ -9,7 +9,10 @@ import math
 
 import numpy as np
 
-from . import compat
+try:
+    from collections import Counter
+except ImportError:
+    from counter import Counter
 
 
 def distribution(vector):
@@ -23,7 +26,7 @@ def distribution(vector):
     :rtype: list of (int, int)
     """
     # Todo: I'm not sure this should be in this module.
-    return sorted(compat.Counter(vector).items())
+    return sorted(Counter(vector).items())
 #distribution
 
 

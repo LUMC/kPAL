@@ -13,11 +13,16 @@ from k_mer import metrics
 
 import utils
 
+try:
+    from collections import Counter
+except ImportError:
+    from counter import Counter
+
 
 class TestMetrics():
     def test_distribution(self):
         a = np.random.random_integers(0, 20, 100)
-        counts = utils.Counter(a)
+        counts = Counter(a)
         assert metrics.distribution(a) == sorted(counts.items())
 
     def test_vector_length_float(self):

@@ -15,6 +15,11 @@ from k_mer import klib
 
 import utils
 
+try:
+    from collections import Counter
+except ImportError:
+    from counter import Counter
+
 
 class TestKlib(utils.TestEnvironment):
     def test_profile(self):
@@ -198,7 +203,7 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.Profile(utils.as_array(counts, 8))
         profile.shrink(1)
 
-        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+        counts = Counter(dict((t, sum(counts[u] for u in counts
                                             if u.startswith(t)))
                                     for t in set(s[:-1] for s in counts)))
         utils.test_profile(profile, counts, 7)
@@ -208,7 +213,7 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.Profile(utils.as_array(counts, 8))
         profile.shrink(2)
 
-        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+        counts = Counter(dict((t, sum(counts[u] for u in counts
                                             if u.startswith(t)))
                                     for t in set(s[:-2] for s in counts)))
         utils.test_profile(profile, counts, 6)
@@ -218,7 +223,7 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.Profile(utils.as_array(counts, 8))
         profile.shrink(3)
 
-        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+        counts = Counter(dict((t, sum(counts[u] for u in counts
                                             if u.startswith(t)))
                                     for t in set(s[:-3] for s in counts)))
         utils.test_profile(profile, counts, 5)
@@ -228,7 +233,7 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.Profile(utils.as_array(counts, 4))
         profile.shrink(3)
 
-        counts = utils.Counter(dict((t, sum(counts[u] for u in counts
+        counts = Counter(dict((t, sum(counts[u] for u in counts
                                             if u.startswith(t)))
                                     for t in set(s[:-3] for s in counts)))
         utils.test_profile(profile, counts, 1)
