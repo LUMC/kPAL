@@ -9,7 +9,7 @@ import argparse
 import os
 import sys
 
-from . import (ProtectedFileType, ProfileFileType, doc_split, usage, version,
+from . import (USAGE, ProtectedFileType, ProfileFileType, doc_split, version,
                klib, kdifflib, metrics)
 
 # Todo: Probably only used in user-defined custom functions, we should only
@@ -748,8 +748,8 @@ def main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=usage[0], epilog=usage[1])
-    parser.add_argument('-v', action="version", version=version(parser.prog))
+        description=USAGE[0], epilog=USAGE[1])
+    parser.add_argument('-v', action='version', version=version(parser.prog))
     subparsers = parser.add_subparsers()
 
     parser_convert = subparsers.add_parser(
