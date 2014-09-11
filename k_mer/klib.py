@@ -15,7 +15,7 @@ import numpy as np
 
 from . import metrics
 
-class Profile():
+class Profile(object):
     """
     Handle k-mer counts.
     """
@@ -206,6 +206,15 @@ class Profile():
 
         return name
     #save
+
+    def copy(self):
+        """
+        Create a copy of the k-mer profile. This returns a deep copy, so
+        modifying the copy's k-mer counts will not affect the original and
+        vice versa.
+        """
+        return type(self)(self.counts.copy(), name=self.name)
+    #copy
 
     def merge(self, profile, merger=metrics.mergers["sum"]):
         """

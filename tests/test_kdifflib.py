@@ -18,6 +18,21 @@ except ImportError:
 
 
 class TestKDiffLib():
+    def test_collapse(self):
+        a = np.random.random_integers(0, 20, 100)
+        start = 30
+        length = 40
+
+        step = length / 4
+        expected = [sum(a[start + x[0]:start + x[1]])
+                    for x in [(x * step, (x + 1) * step)
+                              for x in range(4)]]
+
+        k_diff = kdifflib.kMerDiff()
+
+        np.testing.assert_array_equal(k_diff._collapse(a, start, length),
+                                      expected)
+
     def test_distance_matrix_one(self):
         counts = utils.counts(utils.SEQUENCES, 8)
 
@@ -103,3 +118,16 @@ class TestKDiffLib():
 
         k_diff = kdifflib.kMerDiff()
         np.testing.assert_almost_equal(k_diff.distance(profile_a, profile_b), 0.4626209322)
+
+    def test_kmerdiff_distance_unmodified(self):
+        counts_a = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_b = utils.counts(utils.SEQUENCES_RIGHT, 8)
+
+        profile_a = klib.Profile(utils.as_array(counts_a, 8))
+        profile_b = klib.Profile(utils.as_array(counts_b, 8))
+
+        k_diff = kdifflib.kMerDiff(do_balance=True)
+        k_diff.distance(profile_a, profile_b)
+
+        utils.test_profile(profile_a, counts_a, 8)
+        utils.test_profile(profile_b, counts_b, 8)
