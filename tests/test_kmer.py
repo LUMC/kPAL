@@ -3,8 +3,14 @@ Tests for the `k_mer.kmer` module.
 """
 
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future import standard_library
+from future.builtins import str, zip
+
+
 import itertools
-from StringIO import StringIO
+from io import open, StringIO
 
 from Bio import Seq
 import numpy as np
@@ -13,10 +19,8 @@ from k_mer import kmer
 
 import utils
 
-try:
+with standard_library.hooks():
     from collections import Counter
-except ImportError:
-    from counter import Counter
 
 
 class TestKmer(utils.TestEnvironment):
@@ -54,7 +58,7 @@ class TestKmer(utils.TestEnvironment):
         with utils.open_profile(self.profile(counts, 8)) as input_handle:
             with utils.open_profile(filename, 'w') as output_handle:
                 kmer.balance(input_handle, output_handle)
-        counts.update(dict((str(Seq.reverse_complement(s)), c) for s, c in counts.items()))
+        counts.update(dict((utils.reverse_complement(s), c) for s, c in counts.items()))
         utils.test_profile_file(filename, counts, 8)
 
     def test_get_balance(self):
@@ -103,9 +107,9 @@ class TestKmer(utils.TestEnvironment):
         expected += '- Zero counts: %i\n' % (4**8 - len(counts))
         expected += '- Non-zero counts: %i\n' % len(counts)
         expected += '- Sum of counts: %i\n' % sum(counts.values())
-        expected += '- Mean of counts: %.3f\n' % np.mean([0] * (4**8 - len(counts)) + counts.values())
-        expected += '- Median of counts: %i\n' % np.median([0] * (4**8 - len(counts)) + counts.values())
-        expected += '- Standard deviation of counts: %.3f\n' % np.std([0] * (4**8 - len(counts)) + counts.values())
+        expected += '- Mean of counts: %.3f\n' % np.mean([0] * (4**8 - len(counts)) + list(counts.values()))
+        expected += '- Median of counts: %i\n' % np.median([0] * (4**8 - len(counts)) + list(counts.values()))
+        expected += '- Standard deviation of counts: %.3f\n' % np.std([0] * (4**8 - len(counts)) + list(counts.values()))
 
         assert out.getvalue() == expected
 

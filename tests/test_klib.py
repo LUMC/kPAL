@@ -3,8 +3,11 @@ Tests for the `k_mer.klib` module.
 """
 
 
-from __future__ import division
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future.builtins import range, str, zip
 
+from io import open
 import itertools
 
 from Bio import Seq
@@ -132,7 +135,7 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.Profile(utils.as_array(counts, 8))
         profile.balance()
 
-        counts.update(dict((str(Seq.reverse_complement(s)), c)
+        counts.update(dict((utils.reverse_complement(s), c)
                            for s, c in counts.items()))
         utils.test_profile(profile, counts, 8)
 
@@ -141,7 +144,7 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.Profile(utils.as_array(counts, 4))
         profile.balance()
 
-        counts.update(dict((str(Seq.reverse_complement(s)), c)
+        counts.update(dict((utils.reverse_complement(s), c)
                            for s, c in counts.items()))
         utils.test_profile(profile, counts, 4)
 
@@ -158,7 +161,7 @@ class TestKlib(utils.TestEnvironment):
         indices_palindrome = {}
 
         for s, c in counts.items():
-            r = str(Seq.reverse_complement(s))
+            r = utils.reverse_complement(s)
             if s < r:
                 indices_left[utils.count_index(s)] = c * 2
             elif s > r:
@@ -167,11 +170,11 @@ class TestKlib(utils.TestEnvironment):
                 indices_palindrome[utils.count_index(s)] = c
 
         assert ([c for c in left if c > 0] ==
-                [c for i, c in sorted(indices_left.items() +
-                                      indices_palindrome.items())])
+                [c for i, c in sorted(list(indices_left.items()) +
+                                      list(indices_palindrome.items()))])
         assert ([c for c in right if c > 0] ==
-                [c for i, c in sorted(indices_right.items() +
-                                      indices_palindrome.items())])
+                [c for i, c in sorted(list(indices_right.items()) +
+                                      list(indices_palindrome.items()))])
 
     def test_profile_split(self):
         self._test_profile_split(utils.SEQUENCES, 8)
@@ -188,7 +191,7 @@ class TestKlib(utils.TestEnvironment):
 
         for i in range(profile.length):
             assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
-                    str(Seq.reverse_complement(profile.binary_to_dna(i))))
+                    utils.reverse_complement(profile.binary_to_dna(i)))
 
     def test_profile_reverse_complement_palindrome(self):
         counts = utils.counts(['ACCTAGGT'], 8)
@@ -196,7 +199,7 @@ class TestKlib(utils.TestEnvironment):
 
         for i in range(profile.length):
             assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
-                    str(Seq.reverse_complement(profile.binary_to_dna(i))))
+                    utils.reverse_complement(profile.binary_to_dna(i)))
 
     def test_profile_shrink(self):
         counts = utils.counts(utils.SEQUENCES, 8)

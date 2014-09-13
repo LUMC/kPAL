@@ -5,9 +5,9 @@ import sys
 if sys.version_info < (2, 6):
     raise Exception('kMer requires Python 2.6 or higher.')
 
-dependencies = ['biopython', 'numpy', 'h5py', 'semantic-version']
+dependencies = ['biopython', 'numpy', 'h5py', 'semantic-version', 'future']
 if sys.version_info[:2] == (2, 6):
-    dependencies.extend(['argparse', 'counter'])
+    dependencies.append('argparse')
 
 try:
     with open('README.md') as readme:
@@ -56,6 +56,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6'
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         ],
     keywords='bioinformatics'

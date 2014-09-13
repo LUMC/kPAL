@@ -3,7 +3,11 @@ Tests for the `k_mer.metrics` module.
 """
 
 
-from StringIO import StringIO
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future import standard_library
+
+from io import StringIO
 
 import numpy as np
 
@@ -11,13 +15,11 @@ from k_mer import kdifflib, klib, metrics
 
 import utils
 
-try:
+with standard_library.hooks():
     from collections import Counter
-except ImportError:
-    from counter import Counter
 
 
-class TestKDiffLib():
+class TestKDiffLib(object):
     def test_collapse(self):
         a = np.random.random_integers(0, 20, 100)
         start = 30

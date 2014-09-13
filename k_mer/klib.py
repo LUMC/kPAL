@@ -2,15 +2,15 @@
 k-mer base library.
 """
 
-import argparse
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future.builtins import next, range, str
+
 import itertools
 import math
-import os
-import random
 import re
-import sys
 
-from Bio import Seq, SeqIO
+from Bio import SeqIO
 import numpy as np
 
 from . import metrics
@@ -19,14 +19,14 @@ class Profile(object):
     """
     Handle k-mer counts.
     """
-    __nucleotide_to_binary = {
+    _nucleotide_to_binary = {
         'A': 0x00, 'a': 0x00,
         'C': 0x01, 'c': 0x01,
         'G': 0x02, 'g': 0x02,
         'T': 0x03, 't': 0x03
     }
     """ Conversion table form nucleotide to binary. """
-    __binary_to_nucleotide = {
+    _binary_to_nucleotide = {
         0x00: 'A',
         0x01: 'C',
         0x02: 'G',
@@ -92,8 +92,7 @@ class Profile(object):
         number = 4 ** length
         bitmask = number - 0x01
         counts = [0] * number
-        alphabet = re.compile("[^%s]" %
-            ''.join(cls.__nucleotide_to_binary.keys()))
+        alphabet = re.compile("[^%s]" % ''.join(cls._nucleotide_to_binary))
 
         for record in SeqIO.parse(handle, "fasta"):
             for sequence in alphabet.split(str(record.seq)):
@@ -103,13 +102,13 @@ class Profile(object):
                     # Calculate the binary representation of a k-mer.
                     for i in sequence[:length]:
                         binary = ((binary << 2) |
-                            cls.__nucleotide_to_binary[i])
+                            cls._nucleotide_to_binary[i])
                     counts[binary] += 1
 
                     # Calculate the binary representation of the next k-mer.
                     for i in sequence[length:]:
                         binary = ((binary << 2) |
-                            cls.__nucleotide_to_binary[i]) & bitmask
+                            cls._nucleotide_to_binary[i]) & bitmask
                         counts[binary] += 1
 
         return cls(np.array(counts, dtype='int64'), name=name)
@@ -333,7 +332,7 @@ class Profile(object):
 
         for i in sequence:
             result <<= 2
-            result |= self.__nucleotide_to_binary[i]
+            result |= self._nucleotide_to_binary[i]
         #for
 
         return result
@@ -352,7 +351,7 @@ class Profile(object):
         sequence = ""
 
         for i in range(self.length):
-            sequence += self.__binary_to_nucleotide[number & 0x03]
+            sequence += self._binary_to_nucleotide[number & 0x03]
             number >>= 2
         #while
 
@@ -401,8 +400,7 @@ class Profile(object):
         for i in range(self.number):
             for j in range(self.number):
                 if self.counts[j]:
-                    ratios[i][j] = (float(self.counts[i]) /
-                        self.counts[j]) / self.total
+                    ratios[i][j] = (self.counts[i] / self.counts[j]) / self.total
                 else:
                     ratios[i][j] = -1.0
             #for
@@ -425,8 +423,7 @@ class Profile(object):
         for i in range(self.number):
             for j in range(self.number):
                 if self.counts[j]:
-                    ratios[i][j] = float(abs(self.counts[i] -
-                        self.counts[j])) / self.total
+                    ratios[i][j] = abs(self.counts[i] - self.counts[j]) / self.total
 
         return ratios
     #freq_diff_matrix
@@ -436,7 +433,7 @@ class Profile(object):
         Print the k-mer counts.
         """
         for i in range(self.number):
-            print self.binary_to_dna(i), self.counts[i]
+            print(self.binary_to_dna(i), self.counts[i])
     #print_counts
 
     def _print_ratios(self, ratios):
@@ -447,17 +444,17 @@ class Profile(object):
         :type ratios: float[][]
         """
         # The header.
-        print (self.length + 1) * ' ',
+        print((self.length + 1) * ' ', end=' ')
         for i in range(self.number):
-            print "%s%s" % (self.binary_to_dna(i), 2 * ' '),
-        print
+            print("%s%s" % (self.binary_to_dna(i), 2 * ' '), end=' ')
+        print()
 
         # The matrix.
         for i in range(self.number):
-            print "%s" % self.binary_to_dna(i),
+            print("%s" % self.binary_to_dna(i), end=' ')
             for j in range(self.number):
-                print ("%%.%if" % self.length) % ratios[i][j],
-            print
+                print(("%%.%if" % self.length) % ratios[i][j], end=' ')
+            print()
         #for
     #print_ratios
 #Profile
