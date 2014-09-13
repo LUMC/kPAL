@@ -3,243 +3,311 @@ Tests for the `k_mer.klib` module.
 """
 
 
-import collections
+from __future__ import division
+
 import itertools
-import os
-import shutil
-import tempfile
+
+from Bio import Seq
+import numpy as np
+import pytest
 
 from k_mer import klib
 
+import utils
+
 try:
-    # Python 2.7 and up.
     from collections import Counter
 except ImportError:
-    from _counter import Counter
+    from counter import Counter
 
 
-# Some 8-mers.
-LENGTH_8 = ['GTACATGA',
-            'TAAACTAA',
-            'TATCTTTA',
-            'TACTATGT']
+class TestKlib(utils.TestEnvironment):
+    def test_profile(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.Profile(utils.as_array(counts, 8))
+        utils.test_profile(profile, counts, 8)
 
-# Some 8-mers with N bases.
-LENGTH_8_N = ['GNACATGA',
-              'TAAACTNA',
-              'TATNTTTA',
-              'TACTATGN']
+    def _test_from_fasta(self, sequences, k):
+        counts = utils.counts(sequences, k)
+        with open(self.fasta(sequences)) as fasta_handle:
+            profile = klib.Profile.from_fasta(fasta_handle, k)
+        utils.test_profile(profile, counts, k)
 
-# Some 60-mers.
-LENGTH_60 = ['GTACATGATAGGTCCACAGCTCTGAGCAAGGCAGACGTCCATACTTAAAACCCAGACTGC',
-             'TAAACTAAAAGAAAGAATTTTTTTAATGGTAGACTACCTAAAATTATGTCTCTTAGTCCT',
-             'TATCTTTACCTATATATTTGACTAAGATTTAGTATTACTACTACCTAAAATTATGTCTCT',
-             'TACTATGTCTTGAAGGACAGCACCTGACCTCCCCCTGCAAGGTGTCATCCCCAAGCTGGT']
+    def test_from_fasta_single_k1(self):
+        self._test_from_fasta(utils.SEQUENCES[:1], 1)
 
-# Some 60-mers with N bases.
-LENGTH_60_N = ['GTANATGATAGGTCCACAGCTCTGAGCAAGGCAGACGTCCATACTTAAAACCCAGACTGC',
-               'TAAACTAAAAGAAAGAATTTTTTTAATGGTAGACTACCTAAAATTATGTCTCTTAGNCCT',
-               'TATCTTTACCTATATATTTGACTAAGATTTAGTNTTACTACTACCTAAAATTATGTCTCT',
-               'TACTATGTCTTGAAGGACAGCCCTGACCTCCCCCTGCAAGGTGTCATCCCCAAGCTGGTN']
+    def test_from_fasta_single_k4(self):
+        self._test_from_fasta(utils.SEQUENCES[:1], 4)
 
+    def test_from_fasta_single_strlen(self):
+        self._test_from_fasta(utils.LENGTH_8[:1], 8)
 
-def _fasta(sequences):
-    """
-    A serialization of `sequences` in FASTA format.
-    """
-    names = ('>sequence_%d' % i for i in itertools.count(1))
-    return '\n'.join('\n'.join(entry) for entry in
-                     itertools.izip(names, sequences)) + '\n'
+    def test_from_fasta_single_almost_strlen(self):
+        self._test_from_fasta(utils.LENGTH_8[:1], 7)
 
+    def test_from_fasta_multi_k1(self):
+        self._test_from_fasta(utils.SEQUENCES, 1)
 
-def _count_index(sequence):
-    """
-    The index of `sequence` in a kMer profile.
-    """
-    nucleotide_to_binary = {
-        'A': 0x00, 'a': 0x00,
-        'C': 0x01, 'c': 0x01,
-        'G': 0x02, 'g': 0x02,
-        'T': 0x03, 't': 0x03
-    }
-    binary = 0x00
-    for b in sequence:
-        binary = ((binary << 2) | nucleotide_to_binary[b])
-    return binary
+    def test_from_fasta_multi_k4(self):
+        self._test_from_fasta(utils.SEQUENCES, 4)
 
+    def test_from_fasta_multi_strlen(self):
+        self._test_from_fasta(utils.LENGTH_8, 8)
 
-def _count(profile, sequence):
-    """
-    The count of `sequence` in a kMer profile.
-    """
-    return profile.count[_count_index(sequence)]
+    def test_from_fasta_multi_almost_strlen(self):
+        self._test_from_fasta(utils.LENGTH_8, 7)
 
+    def test_from_fasta_multi_n_k1(self):
+        self._test_from_fasta(utils.SEQUENCES_WITH_N, 1)
 
-def _counts(sequence, k):
-    """
-    Simple and naive k-mer counting. Returns a dictionary of `k`-mers with
-    their counts in `sequence` (implemented as `collections.Counter`).
+    def test_from_fasta_multi_n_k4(self):
+        self._test_from_fasta(utils.SEQUENCES_WITH_N, 4)
 
-    To be used as a reference.
-    """
-    if isinstance(sequence, str):
-        if sequence.startswith('>'):
-            sequences = [s.split('\n')[1] for s in sequence.split('>')[1:]]
-        else:
-            sequences = [sequence]
-    else:
-        sequences = sequence
+    def test_from_fasta_multi_n_strlen(self):
+        self._test_from_fasta(utils.LENGTH_8_WITH_N, 8)
 
-    counts = Counter()
-    for sequence in sequences:
-        for i in range(0, len(sequence) - k + 1):
-            kmer = sequence[i:i + k]
-            if 'N' not in kmer and 'n' not in kmer:
-                counts[kmer] += 1
-    return counts
-
-
-class TestKlib():
-    def setup(self):
-        self.temp_dir = tempfile.mkdtemp(prefix='kmer-tests-')
-
-    def teardown(self):
-        shutil.rmtree(self.temp_dir)
-
-    def _touch(self, content=None):
-        """
-        Create a file and optionally write `contents` to it. Filename is
-        returned.
-        """
-        os_handle, filename = tempfile.mkstemp(dir=self.temp_dir)
-        os.close(os_handle)
-        if content is not None:
-            with open(filename, 'w') as f:
-                f.write(content)
-        return filename
-
-    def _test_profile(self, profile, counts, k):
-        """
-        Validate the given kMer profile, using `counts` as a reference.
-        """
-        assert profile.length == k
-        assert profile.total == sum(counts.values())
-        assert profile.non_zero == len(counts)
-        for s in counts:
-            assert _count(profile, s) == counts[s]
-
-    def _test_analyse(self, sequences, k):
-        """
-        Test `k_mer.klib.analyse` with `sequences` and `k=k`.
-        """
-        counts = _counts(sequences, k)
-        profile = klib.kMer()
-        with open(self._touch(_fasta(sequences))) as fasta_handle:
-            profile.analyse(fasta_handle, k)
-        self._test_profile(profile, counts, k)
-
-    def test_analyse_single_k1(self):
-        self._test_analyse(LENGTH_60[:1], 1)
-
-    def test_analyse_single_k4(self):
-        self._test_analyse(LENGTH_60[:1], 4)
-
-    def test_analyse_single_strlen(self):
-        self._test_analyse(LENGTH_8[:1], 8)
-
-    def test_analyse_single_almost_strlen(self):
-        self._test_analyse(LENGTH_8[:1], 7)
-
-    def test_analyse_multi_k1(self):
-        self._test_analyse(LENGTH_60, 1)
-
-    def test_analyse_multi_k4(self):
-        self._test_analyse(LENGTH_60, 4)
-
-    def test_analyse_multi_strlen(self):
-        self._test_analyse(LENGTH_8, 8)
-
-    def test_analyse_multi_almost_strlen(self):
-        self._test_analyse(LENGTH_8, 7)
-
-    def test_analyse_multi_n_k1(self):
-        self._test_analyse(LENGTH_60_N, 1)
-
-    def test_analyse_multi_n_k4(self):
-        self._test_analyse(LENGTH_60_N, 4)
-
-    def test_analyse_multi_n_strlen(self):
-        self._test_analyse(LENGTH_8_N, 8)
-
-    def test_analyse_multi_n_almost_strlen(self):
-        self._test_analyse(LENGTH_8_N, 7)
+    def test_from_fasta_multi_n_almost_strlen(self):
+        self._test_from_fasta(utils.LENGTH_8_WITH_N, 7)
 
     def test_profile_save(self):
-        profile = klib.kMer()
-        with open(self._touch(_fasta(LENGTH_60))) as fasta_handle:
-            profile.analyse(fasta_handle, 4)
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
 
-        filename = self._touch()
-        with open(filename, 'w') as profile_handle:
+        filename = self.empty()
+        with utils.open_profile(filename, 'w') as profile_handle:
             profile.save(profile_handle)
 
-        counts = _counts(LENGTH_60, 4)
-        with open(filename) as profile_handle:
-            assert int(next(profile_handle)) == 4
-            assert int(next(profile_handle)) == sum(counts.values())
-            assert int(next(profile_handle)) == len(counts)
-            profile_counts = [int(l) for l in profile_handle]
-            for s in counts:
-                assert profile_counts[_count_index(s)] == counts[s]
+        utils.test_profile_file(filename, counts, 4)
 
-    def test_profile_load(self):
-        counts = _counts(LENGTH_60, 4)
-        content = '4\n%d\n%d\n' % (sum(counts.values()), len(counts))
-        content += '\n'.join(str(counts[''.join(s)]) for s in
-                             itertools.product('ACGT', repeat=4)) + '\n'
-        filename = self._touch(content)
+    def test_profile_from_file_old_format(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        with open(self.profile_old_format(counts, 4)) as handle:
+            profile = klib.Profile.from_file_old_format(handle)
 
-        profile = klib.kMer()
-        with open(filename) as profile_handle:
-            profile.load(profile_handle)
-        assert profile.length == 4
-        assert profile.total == sum(counts.values())
-        assert profile.non_zero == len(counts)
-        for s in counts:
-            assert _count(profile, s) == counts[s]
+        utils.test_profile(profile, counts, 4)
 
-    def test_profile_load_save(self):
-        counts = _counts(LENGTH_60, 4)
-        content = '4\n%d\n%d\n' % (sum(counts.values()), len(counts))
-        content += '\n'.join(str(counts[''.join(s)]) for s in
-                             itertools.product('ACGT', repeat=4)) + '\n'
-        filename_load = self._touch(content)
-        filename_save = self._touch()
+    def test_profile_from_file(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        with utils.open_profile(self.profile(counts, 4), 'r') as profile_handle:
+            profile = klib.Profile.from_file(profile_handle)
 
-        profile = klib.kMer()
-        with open(filename_load) as profile_handle:
-            profile.load(profile_handle)
+        utils.test_profile(profile, counts, 4)
 
-        with open(filename_save, 'w') as profile_handle:
+    def test_profile_from_file_save(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        with utils.open_profile(self.profile(counts, 4), 'r') as profile_handle:
+            profile = klib.Profile.from_file(profile_handle)
+
+        filename = self.empty()
+        with utils.open_profile(filename, 'w') as profile_handle:
             profile.save(profile_handle)
 
-        with open(filename_save) as f:
-            assert f.read() == content
+        utils.test_profile_file(filename, counts, 4)
 
-    def test_profile_save_load(self):
-        profile_save = klib.kMer()
-        with open(self._touch(_fasta(LENGTH_60))) as fasta_handle:
-            profile_save.analyse(fasta_handle, 4)
+    def test_profile_save_from_file(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
 
-        filename = self._touch()
-        with open(filename, 'w') as profile_handle:
-            profile_save.save(profile_handle)
+        filename = self.empty()
+        with utils.open_profile(filename, 'w') as profile_handle:
+            profile.save(profile_handle)
 
-        profile_load = klib.kMer()
-        with open(filename) as profile_handle:
-            profile_load.load(profile_handle)
+        with utils.open_profile(filename, 'r') as profile_handle:
+            profile = klib.Profile.from_file(profile_handle)
 
-        assert profile_save.length == profile_load.length
-        assert profile_save.total == profile_load.total
-        assert profile_save.non_zero == profile_load.non_zero
-        assert profile_save.count == profile_load.count
+        utils.test_profile(profile, counts, 4)
+
+    def test_profile_merge(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+
+        profile_left = klib.Profile(utils.as_array(counts_left, 8))
+        profile_right = klib.Profile(utils.as_array(counts_right, 8))
+
+        profile_left.merge(profile_right)
+        utils.test_profile(profile_left, counts_left + counts_right, 8)
+
+    def test_profile_balance(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.Profile(utils.as_array(counts, 8))
+        profile.balance()
+
+        counts.update(dict((str(Seq.reverse_complement(s)), c)
+                           for s, c in counts.items()))
+        utils.test_profile(profile, counts, 8)
+
+    def test_profile_balance_palindrome(self):
+        counts = utils.counts(['AATT'], 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+        profile.balance()
+
+        counts.update(dict((str(Seq.reverse_complement(s)), c)
+                           for s, c in counts.items()))
+        utils.test_profile(profile, counts, 4)
+
+    def _test_profile_split(self, sequences, length):
+        counts = utils.counts(sequences, length)
+        profile = klib.Profile(utils.as_array(counts, length))
+        left, right = profile.split()
+
+        assert len(left) == len(right)
+        assert sum(left) + sum(right) == sum(counts.values()) * 2
+
+        indices_left = {}
+        indices_right = {}
+        indices_palindrome = {}
+
+        for s, c in counts.items():
+            r = str(Seq.reverse_complement(s))
+            if s < r:
+                indices_left[utils.count_index(s)] = c * 2
+            elif s > r:
+                indices_right[utils.count_index(r)] = counts[s] * 2
+            else:
+                indices_palindrome[utils.count_index(s)] = c
+
+        assert ([c for c in left if c > 0] ==
+                [c for i, c in sorted(indices_left.items() +
+                                      indices_palindrome.items())])
+        assert ([c for c in right if c > 0] ==
+                [c for i, c in sorted(indices_right.items() +
+                                      indices_palindrome.items())])
+
+    def test_profile_split(self):
+        self._test_profile_split(utils.SEQUENCES, 8)
+
+    def test_profile_split_short(self):
+        self._test_profile_split(utils.SEQUENCES, 2)
+
+    def test_profile_split_palindrome(self):
+        self._test_profile_split(utils.SEQUENCES + ['ACCTAGGT'], 8)
+
+    def test_profile_reverse_complement(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.Profile(utils.as_array(counts, 8))
+
+        for i in range(profile.length):
+            assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
+                    str(Seq.reverse_complement(profile.binary_to_dna(i))))
+
+    def test_profile_reverse_complement_palindrome(self):
+        counts = utils.counts(['ACCTAGGT'], 8)
+        profile = klib.Profile(utils.as_array(counts, 8))
+
+        for i in range(profile.length):
+            assert (profile.binary_to_dna(profile.reverse_complement(i)) ==
+                    str(Seq.reverse_complement(profile.binary_to_dna(i))))
+
+    def test_profile_shrink(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.Profile(utils.as_array(counts, 8))
+        profile.shrink(1)
+
+        counts = Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-1] for s in counts)))
+        utils.test_profile(profile, counts, 7)
+
+    def test_profile_shrink_two(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.Profile(utils.as_array(counts, 8))
+        profile.shrink(2)
+
+        counts = Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-2] for s in counts)))
+        utils.test_profile(profile, counts, 6)
+
+    def test_profile_shrink_three(self):
+        counts = utils.counts(utils.SEQUENCES, 8)
+        profile = klib.Profile(utils.as_array(counts, 8))
+        profile.shrink(3)
+
+        counts = Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-3] for s in counts)))
+        utils.test_profile(profile, counts, 5)
+
+    def test_profile_shrink_max(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+        profile.shrink(3)
+
+        counts = Counter(dict((t, sum(counts[u] for u in counts
+                                            if u.startswith(t)))
+                                    for t in set(s[:-3] for s in counts)))
+        utils.test_profile(profile, counts, 1)
+
+    def test_profile_shrink_invalid(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+        with pytest.raises(ValueError):
+            profile.shrink(4)
+
+    def test_profile_shuffle(self):
+        counts = utils.counts(utils.SEQUENCES, 2)
+        profile = klib.Profile(utils.as_array(counts, 2))
+
+        np.random.seed(100)
+        profile.shuffle()
+
+        counts = dict(zip([''.join(s) for s in itertools.product('ACGT', repeat=2)],
+                          [13,  7,  6, 18, 12,  1, 13, 17, 16, 12, 23, 27, 24, 17, 18, 12]))
+        utils.test_profile(profile, counts, 2)
+
+    def test_profile_dna_to_binary(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+
+        for i, s in enumerate(itertools.product('ACGT', repeat=4)):
+            assert i == profile.dna_to_binary(''.join(s))
+
+    def test_profile_binary_to_dna(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+
+        for i, s in enumerate(itertools.product('ACGT', repeat=4)):
+            assert ''.join(s) == profile.binary_to_dna(i)
+
+    def test_profile_ratios_matrix(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+
+        ratios = profile._ratios_matrix()
+        total = sum(counts.values())
+
+        for left in itertools.product('ACGT', repeat=4):
+            for right in itertools.product('ACGT', repeat=4):
+                left = ''.join(left)
+                right = ''.join(right)
+                ratio = ratios[utils.count_index(left)][utils.count_index(right)]
+                try:
+                    assert ratio == counts[left] / counts[right] / total
+                except ZeroDivisionError:
+                    assert ratio == -1.0
+
+    def test_profile_freq_diff_matrix(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+        freq_diffs = profile._freq_diff_matrix()
+
+        total = sum(counts.values())
+
+        for left in itertools.product('ACGT', repeat=4):
+            for right in itertools.product('ACGT', repeat=4):
+                left = ''.join(left)
+                right = ''.join(right)
+                freq_diff = freq_diffs[utils.count_index(left)][utils.count_index(right)]
+                if counts[right] > 0:
+                    assert freq_diff == abs(counts[left] - counts[right]) / total
+                else:
+                    assert freq_diff == 0
+
+    def test_profile_print_counts(self, capsys):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        profile = klib.Profile(utils.as_array(counts, 4))
+        profile.print_counts()
+
+        out, err = capsys.readouterr()
+        assert out == ''.join('%s %d\n' % (''.join(s), counts[''.join(s)])
+                              for s in itertools.product('ACGT', repeat=4))

@@ -1,32 +1,48 @@
-import sys
+import os
 from setuptools import setup
+import sys
 
 if sys.version_info < (2, 6):
     raise Exception('kMer requires Python 2.6 or higher.')
 
-# Todo: How does this play with pip freeze requirement files?
-requires = ['biopython']
+dependencies = ['biopython', 'numpy', 'h5py', 'semantic-version']
+if sys.version_info[:2] == (2, 6):
+    dependencies.extend(['argparse', 'counter'])
 
-# Python 2.6 does not include the argparse module.
 try:
-    import argparse
-except ImportError:
-    requires.append('argparse')
+    with open('README.md') as readme:
+        long_description = readme.read()
+except IOError:
+    long_description = 'See https://pypi.python.org/pypi/kmer'
 
-import k_mer as distmeta
+# This is quite the hack, but we don't want to import our package from here
+# since that's recipe for disaster (it might have some uninstalled
+# dependencies, or we might import another already installed version).
+distmeta = {}
+for line in open(os.path.join('k_mer', '__init__.py')):
+    try:
+        field, value = (x.strip() for x in line.split('='))
+    except ValueError:
+        continue
+    if field == '__version_info__':
+        value = value.strip('[]()')
+        value = '.'.join(x.strip(' \'"') for x in value.split(','))
+    else:
+        value = value.strip('\'"')
+    distmeta[field] = value
 
 setup(
     name='kMer',
-    version=distmeta.__version__,
+    version=distmeta['__version_info__'],
     description='k-mer analysis toolkit and programming library.',
-    long_description=distmeta.__doc__,
-    author=distmeta.__author__,
-    author_email=distmeta.__contact__,
-    url=distmeta.__homepage__,
+    long_description=long_description,
+    author=distmeta['__author__'],
+    author_email=distmeta['__contact__'],
+    url=distmeta['__homepage__'],
     license='MIT License',
     platforms=['any'],
     packages=['k_mer'],
-    install_requires=requires,
+    install_requires=dependencies,
     entry_points = {
         'console_scripts': ['kMer = k_mer.kmer:main']
         },
@@ -34,9 +50,13 @@ setup(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Topic :: Scientific/Engineering',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6'
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
         ],
     keywords='bioinformatics'
 )
