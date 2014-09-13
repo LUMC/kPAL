@@ -2,6 +2,7 @@
 k-mer base library.
 """
 
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from future.builtins import next, range, str
@@ -15,24 +16,26 @@ import numpy as np
 
 from . import metrics
 
+
 class Profile(object):
     """
     Handle k-mer counts.
     """
+    #: Conversion table form nucleotide to binary.
     _nucleotide_to_binary = {
         'A': 0x00, 'a': 0x00,
         'C': 0x01, 'c': 0x01,
         'G': 0x02, 'g': 0x02,
         'T': 0x03, 't': 0x03
     }
-    """ Conversion table form nucleotide to binary. """
+
+    #: Conversion table form binary to nucleotide.
     _binary_to_nucleotide = {
         0x00: 'A',
         0x01: 'C',
         0x02: 'G',
         0x03: 'T'
     }
-    """ Conversion table form binary to nucleotide. """
 
     @classmethod
     def from_file(cls, handle, name=None):
@@ -48,9 +51,8 @@ class Profile(object):
         :rtype: Profile
         """
         name = name or sorted(handle['profiles'].keys())[0]
-        counts = handle['profiles/%s' % name][:]
+        counts = handle['profiles/' + name][:]
         return cls(counts, name=name)
-    #from_file
 
     @classmethod
     def from_file_old_format(cls, handle, name=None):
@@ -71,7 +73,6 @@ class Profile(object):
 
         counts = np.loadtxt(handle, dtype='int64')
         return cls(counts, name=name)
-    #from_file_old_format
 
     @classmethod
     def from_fasta(cls, handle, length, name=None):
@@ -92,27 +93,25 @@ class Profile(object):
         number = 4 ** length
         bitmask = number - 0x01
         counts = [0] * number
-        alphabet = re.compile("[^%s]" % ''.join(cls._nucleotide_to_binary))
+        alphabet = re.compile('[^' + ''.join(cls._nucleotide_to_binary) + ']')
 
-        for record in SeqIO.parse(handle, "fasta"):
+        for record in SeqIO.parse(handle, 'fasta'):
             for sequence in alphabet.split(str(record.seq)):
                 if len(sequence) >= length:
                     binary = 0x00
 
                     # Calculate the binary representation of a k-mer.
                     for i in sequence[:length]:
-                        binary = ((binary << 2) |
-                            cls._nucleotide_to_binary[i])
+                        binary = (binary << 2) | cls._nucleotide_to_binary[i]
                     counts[binary] += 1
 
                     # Calculate the binary representation of the next k-mer.
                     for i in sequence[length:]:
                         binary = ((binary << 2) |
-                            cls._nucleotide_to_binary[i]) & bitmask
+                                  cls._nucleotide_to_binary[i]) & bitmask
                         counts[binary] += 1
 
         return cls(np.array(counts, dtype='int64'), name=name)
-    #from_fasta
 
     def __init__(self, counts, name=None):
         """
@@ -132,7 +131,6 @@ class Profile(object):
         self.length = int(math.log(len(counts), 4))
         self.counts = counts
         self.name = name
-    #__init__
 
     @property
     def number(self):
@@ -193,7 +191,7 @@ class Profile(object):
         name = name or self.name or next(str(n) for n in itertools.count(1)
                                          if str(n) not in handle['profiles'])
 
-        profile = handle.create_dataset('profiles/%s' % name, data=self.counts,
+        profile = handle.create_dataset('profiles/' + name, data=self.counts,
                                         dtype='int64', compression='gzip')
         profile.attrs['length'] = self.length
         profile.attrs['total'] = self.total
@@ -204,7 +202,6 @@ class Profile(object):
         handle.flush()
 
         return name
-    #save
 
     def copy(self):
         """
@@ -213,7 +210,6 @@ class Profile(object):
         vice versa.
         """
         return type(self)(self.counts.copy(), name=self.name)
-    #copy
 
     def merge(self, profile, merger=metrics.mergers["sum"]):
         """
@@ -232,7 +228,6 @@ class Profile(object):
             f = np.vectorize(f, otypes=['int64'])
         """
         self.counts = merger(self.counts, profile.counts)
-    #merge
 
     def balance(self):
         """
@@ -248,9 +243,6 @@ class Profile(object):
                 self.counts[i_rc] += temp
             elif i == i_rc:
                 self.counts[i] += self.counts[i]
-            #if
-        #for
-    #balance
 
     def split(self):
         """
@@ -278,11 +270,8 @@ class Profile(object):
             elif i == i_rc:
                 forward.append(self.counts[i])
                 reverse.append(self.counts[i])
-            #if
-        #for
 
         return np.array(forward), np.array(reverse)
-    #split
 
     def shrink(self, factor=1):
         """
@@ -309,14 +298,12 @@ class Profile(object):
                       for i in range(0, self.number, merge_size))
         self.counts = np.fromiter(new_counts, dtype='int64')
         self.length -= factor
-    #shrink
 
     def shuffle(self):
         """
         Randomise the profile.
         """
         np.random.shuffle(self.counts)
-    #shuffle
 
     def dna_to_binary(self, sequence):
         """
@@ -333,10 +320,8 @@ class Profile(object):
         for i in sequence:
             result <<= 2
             result |= self._nucleotide_to_binary[i]
-        #for
 
         return result
-    #dna_to_binary
 
     def binary_to_dna(self, number):
         """
@@ -353,10 +338,8 @@ class Profile(object):
         for i in range(self.length):
             sequence += self._binary_to_nucleotide[number & 0x03]
             number >>= 2
-        #while
 
         return sequence[::-1]
-    #binary_to_dna
 
     def reverse_complement(self, number):
         """
@@ -376,10 +359,8 @@ class Profile(object):
         for i in range(self.length):
             result = (result << 2) | (number & 0x03)
             number >>= 2
-        #for
 
         return result
-    #reverse_complement
 
     def _ratios_matrix(self):
         """
@@ -400,13 +381,12 @@ class Profile(object):
         for i in range(self.number):
             for j in range(self.number):
                 if self.counts[j]:
-                    ratios[i][j] = (self.counts[i] / self.counts[j]) / self.total
+                    ratios[i][j] = (self.counts[i] /
+                                    self.counts[j]) / self.total
                 else:
                     ratios[i][j] = -1.0
-            #for
 
         return ratios
-    #ratios_matrix
 
     def _freq_diff_matrix(self):
         """
@@ -423,10 +403,10 @@ class Profile(object):
         for i in range(self.number):
             for j in range(self.number):
                 if self.counts[j]:
-                    ratios[i][j] = abs(self.counts[i] - self.counts[j]) / self.total
+                    ratios[i][j] = abs(self.counts[i] -
+                                       self.counts[j]) / self.total
 
         return ratios
-    #freq_diff_matrix
 
     def print_counts(self):
         """
@@ -434,7 +414,6 @@ class Profile(object):
         """
         for i in range(self.number):
             print(self.binary_to_dna(i), self.counts[i])
-    #print_counts
 
     def _print_ratios(self, ratios):
         """
@@ -446,15 +425,14 @@ class Profile(object):
         # The header.
         print((self.length + 1) * ' ', end=' ')
         for i in range(self.number):
-            print("%s%s" % (self.binary_to_dna(i), 2 * ' '), end=' ')
+            print(self.binary_to_dna(i), end='   ')
         print()
 
         # The matrix.
         for i in range(self.number):
-            print("%s" % self.binary_to_dna(i), end=' ')
+            print(self.binary_to_dna(i), end=' ')
             for j in range(self.number):
-                print(("%%.%if" % self.length) % ratios[i][j], end=' ')
+
+                print('{{0:.{0}f}}'.format(self.length).format(ratios[i][j]),
+                      end=' ')
             print()
-        #for
-    #print_ratios
-#Profile

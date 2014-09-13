@@ -108,7 +108,7 @@ class TestKmer(utils.TestEnvironment):
         expected += '- Non-zero counts: %i\n' % len(counts)
         expected += '- Sum of counts: %i\n' % sum(counts.values())
         expected += '- Mean of counts: %.3f\n' % np.mean([0] * (4**8 - len(counts)) + list(counts.values()))
-        expected += '- Median of counts: %i\n' % np.median([0] * (4**8 - len(counts)) + list(counts.values()))
+        expected += '- Median of counts: %.3f\n' % np.median([0] * (4**8 - len(counts)) + list(counts.values()))
         expected += '- Standard deviation of counts: %.3f\n' % np.std([0] * (4**8 - len(counts)) + list(counts.values()))
 
         assert out.getvalue() == expected

@@ -184,10 +184,10 @@ def get_balance(input_handle, output_handle, precision=3, names=None):
         profile = klib.Profile.from_file(input_handle, name=name)
 
         forward, reverse = profile.split()
-        output_handle.write(
-            ('%%s %%.%if\n' % precision) %
-            (name, metrics.multiset(forward, reverse,
-                                    metrics.pairwise['diff-prod'])))
+        balance = metrics.multiset(forward, reverse,
+                                   metrics.pairwise['diff-prod'])
+        print(name, '{{0:.{0}f}}'.format(precision).format(balance),
+              file=output_handle)
 
 
 def get_stats(input_handle, output_handle, precision=3, names=None):
@@ -210,9 +210,10 @@ def get_stats(input_handle, output_handle, precision=3, names=None):
     for name in names:
         profile = klib.Profile.from_file(input_handle, name=name)
 
-        output_handle.write(
-            ('%%s %%.%if %%.%if\n' % (precision, precision)) %
-            (name, profile.mean, profile.std))
+        print(name,
+              '{{0:.{0}f}}'.format(precision).format(profile.mean),
+              '{{0:.{0}f}}'.format(precision).format(profile.std),
+              file=output_handle)
 
 
 def distribution(input_handle, output_handle, names=None):
@@ -235,8 +236,9 @@ def distribution(input_handle, output_handle, names=None):
     for name in names:
         profile = klib.Profile.from_file(input_handle)
 
-        output_handle.write(''.join('%s %i %i\n' % (name, v, c) for v, c in
-                                    metrics.distribution(profile.counts)))
+        print('\n'.join('{0} {1} {2}'.format(name, v, c)
+                        for v, c in metrics.distribution(profile.counts)),
+              file=output_handle)
 
 
 def info(input_handle, output_handle, names=None):
@@ -254,9 +256,9 @@ def info(input_handle, output_handle, names=None):
     """
     names = names or sorted(input_handle['profiles'])
 
-    output_handle.write('File format version: %s\n' %
-                        input_handle.attrs['version'])
-    output_handle.write('Produced by: %s\n' % input_handle.attrs['producer'])
+    print('File format version:', input_handle.attrs['version'],
+          file=output_handle)
+    print('Produced by:', input_handle.attrs['producer'], file=output_handle)
 
     for name in names:
         # Todo: This loads the entire profile, which we actually do not need.
@@ -264,16 +266,20 @@ def info(input_handle, output_handle, names=None):
         #   get the statistics without loading the profile.
         profile = klib.Profile.from_file(input_handle, name=name)
 
-        output_handle.write('\n' + '\n'.join([
-            'Profile: %s' % profile.name,
-            '- k-mer length: %i (%i k-mers)' % (profile.length,
-                                                profile.number),
-            '- Zero counts: %i' % (profile.number - profile.non_zero),
-            '- Non-zero counts: %i' % profile.non_zero,
-            '- Sum of counts: %i' % profile.total,
-            '- Mean of counts: %.3f' % profile.mean,
-            '- Median of counts: %i' % profile.median,
-            '- Standard deviation of counts: %.3f' % profile.std]) + '\n')
+        print('', file=output_handle)
+        print('Profile:', profile.name, file=output_handle)
+        print('- k-mer length:', str(profile.length),
+              '({0} k-mers)'.format(profile.number), file=output_handle)
+        print('- Zero counts:', str(profile.number - profile.non_zero),
+              file=output_handle)
+        print('- Non-zero counts:', str(profile.non_zero), file=output_handle)
+        print('- Sum of counts:', str(profile.total), file=output_handle)
+        print('- Mean of counts:', '{0:.3f}'.format(profile.mean),
+              file=output_handle)
+        print('- Median of counts:', '{0:.3f}'.format(profile.median),
+              file=output_handle)
+        print('- Standard deviation of counts:',
+              '{0:.3f}'.format(profile.std), file=output_handle)
 
 
 def get_count(input_handle, output_handle, word, names=None):
@@ -302,7 +308,7 @@ def get_count(input_handle, output_handle, word, names=None):
             offset = profile.dna_to_binary(word)
         except KeyError:
             raise ValueError('the input is not a valid DNA sequence')
-        output_handle.write('%s %i\n' % (name, profile.counts[offset]))
+        print(name, str(profile.counts[offset]), file=output_handle)
 
 
 def positive(input_handle_left, input_handle_right, output_handle_left,
@@ -564,10 +570,10 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
         if profile_left.length != profile_right.length:
             raise ValueError(LENGTH_ERROR)
 
-        output_handle.write(
-            ('%%s %%s %%.%if\n' % precision) %
-            (name_left, name_right,
-             diff.distance(profile_left, profile_right)))
+        print(name_left, name_right,
+              '{{0:.{0}f}}'.format(precision).format(diff.distance(
+                  profile_left, profile_right)),
+              file=output_handle)
 
 
 def matrix_diff(input_handle, output_handle, names=None,

@@ -2,21 +2,24 @@
 k-mer profile difference library.
 """
 
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from future.builtins import str
 
 import numpy as np
 
-from . import klib, metrics
+from . import metrics
+
 
 class kMerDiff(object):
     """
     Class of distance functions.
     """
     def __init__(self, do_balance=False, do_positive=False, do_smooth=False,
-            summary=metrics.summary["min"], threshold=0, do_scale=False,
-            down=False, distance_function=None,
-            pairwise=metrics.pairwise["diff-prod"]):
+                 summary=metrics.summary['min'], threshold=0, do_scale=False,
+                 down=False, distance_function=None,
+                 pairwise=metrics.pairwise['diff-prod']):
         """
         Initialise the class.
 
@@ -39,7 +42,6 @@ class kMerDiff(object):
         :arg pairwise: Pairwise distance function for the multiset distance.
         :type pairwise: int
         """
-
         self._do_balance = do_balance
         self._do_positive = do_positive
         self._do_smooth = do_smooth
@@ -49,7 +51,6 @@ class kMerDiff(object):
         self._distance_function = distance_function
         self._pairwise = pairwise
         self._function = summary
-    #__init__
 
     def _collapse(self, vector, start, length):
         """
@@ -68,7 +69,6 @@ class kMerDiff(object):
         """
         area = vector[start:start + length]
         return np.reshape(area, (4, length // 4)).sum(axis=1)
-    #_collapse
 
     def _dynamic_smooth(self, profile_left, profile_right, start, length):
         """
@@ -95,7 +95,6 @@ class kMerDiff(object):
         #           | 0101111111111111 | 2000111111114000
         # profile B | ACGTACGTACGTACGT | ACGTACGTACGTACGT
         #           | AAAACCCCGGGGTTTT | AAAACCCCGGGGTTTT
-
         if length == 1:
             return
 
@@ -113,12 +112,11 @@ class kMerDiff(object):
             profile_right.counts[start + 1:start + length] = 0
 
             return
-        #if
+
         new_length = length // 4
         for i in range(4):
             self._dynamic_smooth(profile_left, profile_right,
                                  start + i * new_length, new_length)
-    #_dynamic_smooth
 
     def dynamic_smooth(self, profile_left, profile_right):
         """
@@ -131,7 +129,6 @@ class kMerDiff(object):
         """
         self._dynamic_smooth(profile_left, profile_right, 0,
                              profile_left.number)
-    #dynamic_smooth
 
     def distance(self, profile_left, profile_right):
         """
@@ -150,11 +147,13 @@ class kMerDiff(object):
         if self._do_balance:
             copy_left.balance()
             copy_right.balance()
-        #if
+
         if self._do_positive:
-            copy_left.counts = metrics.positive(copy_left.counts, copy_right.counts)
-            copy_right.counts = metrics.positive(copy_right.counts, copy_left.counts)
-        #if
+            copy_left.counts = metrics.positive(copy_left.counts,
+                                                copy_right.counts)
+            copy_right.counts = metrics.positive(copy_right.counts,
+                                                 copy_left.counts)
+
         if self._do_smooth:
             self.dynamic_smooth(copy_left, copy_right)
         if self._do_scale:
@@ -166,13 +165,12 @@ class kMerDiff(object):
                                                              scale_right)
             copy_left.counts = copy_left.counts * scale_left
             copy_right.counts = copy_right.counts * scale_right
-        #if
+
         if not self._distance_function:
             return metrics.multiset(copy_left.counts, copy_right.counts,
                                     self._pairwise)
         return self._distance_function(copy_left.counts, copy_right.counts)
-    #distance
-#kMerDiff
+
 
 def distance_matrix(profiles, output, precision, k_diff):
     """
@@ -189,16 +187,14 @@ def distance_matrix(profiles, output, precision, k_diff):
     """
     input_count = len(profiles)
 
-    output.write("%i\n" % input_count)
+    print(str(input_count), file=output)
     for i in profiles:
-        output.write("%s\n" % i.name)
+        print(i.name, file=output)
     for i in range(1, input_count):
         for j in range(i):
             if (j):
                 output.write(' ')
-            output.write(("%%.%if" % precision) %
-                         k_diff.distance(profiles[i], profiles[j]))
-        #for
+            output.write('{{0:.{0}f}}'.format(precision).format(
+                         k_diff.distance(profiles[i], profiles[j])))
+
         output.write('\n')
-    #for
-#distance_matrix

@@ -25,7 +25,6 @@ def distribution(vector):
     """
     # Todo: I'm not sure this should be in this module.
     return sorted(Counter(vector).items())
-#distribution
 
 
 def vector_length(vector):
@@ -40,7 +39,6 @@ def vector_length(vector):
     """
     # Note: This seems faster than `numpy.linalg.norm`.
     return np.sqrt(np.dot(vector, vector))
-#vector_length
 
 
 def get_scale(vector1, vector2):
@@ -68,7 +66,6 @@ def get_scale(vector1, vector2):
         scale2 = vector1_total / vector2_total
 
     return scale1, scale2
-#get_scale
 
 
 def scale_down(scale1, scale2):
@@ -84,7 +81,6 @@ def scale_down(scale1, scale2):
     factor = max(scale1, scale2)
 
     return scale1 / factor, scale2 / factor
-#scale_down
 
 
 def positive(vector1, vector2):
@@ -98,7 +94,6 @@ def positive(vector1, vector2):
     :rtype: ndarray
     """
     return np.multiply(vector1, np.asanyarray(vector2, dtype=bool))
-#positive
 
 
 def multiset(vector1, vector2, pairwise):
@@ -126,7 +121,6 @@ def multiset(vector1, vector2, pairwise):
     nonzero = np.where(np.logical_or(vector1, vector2))
     distances = pairwise(vector1[nonzero], vector2[nonzero])
     return distances.sum() / (len(distances) + 1)
-#multiset
 
 
 def euclidean(vector1, vector2):
@@ -140,7 +134,6 @@ def euclidean(vector1, vector2):
     :rtype: float
     """
     return vector_length(np.subtract(vector2, vector1))
-#euclidean
 
 
 def cosine_similarity(vector1, vector2):
@@ -155,38 +148,35 @@ def cosine_similarity(vector1, vector2):
     """
     return np.dot(vector1, vector2) / (vector_length(vector1) *
                                        vector_length(vector2))
-#cosine_similarity
 
 
+#: Vector distance functions.
 vector_distance = {
     "default": None,
     "euclidean": euclidean,
     "cosine": cosine_similarity
 }
-""" Dictionary of vector distance functions. """
 
 
-# Note: These definitions are safe to call on arrays.
+#: Pairwise distance functions. Arguments should be of type `ndarray`.
 pairwise = {
     "diff-prod": lambda x, y: abs(x - y) / ((x + 1) * (y + 1)),
     "diff-sum": lambda x, y: abs(x - y) / (x + y + 1)
 }
-""" Dictionary of pairwise distance functions. """
 
 
+#: Summary functions.
 summary = {
     "min": np.min,
     "average": np.mean,
     "median": np.median
 }
-""" Dictionary of summary functions. """
 
 
-# Note: These definitions are safe to call on arrays.
+#: Merge functions. Arguments should be of type `ndarray`.
 mergers = {
     "sum": lambda x, y: x + y,
     "xor": lambda x, y: (x + y) * np.logical_xor(x, y),
     "int": lambda x, y: x * np.asanyarray(y, dtype=bool),
     "nint": lambda x, y: x * np.logical_not(y)
 }
-""" Merge functions. """

@@ -1,12 +1,14 @@
 """
-k_mer: Analysis toolkit and programming library for k-mer profiles.
+kMer: Analysis toolkit and programming library for k-mer profiles.
 
 
-Copyright (c) 2013 Leiden University Medical Center <humgen@lumc.nl>
-Copyright (c) 2013 Jeroen F.J. Laros <j.f.j.laros@lumc.nl>
+Copyright (c) 2013-2014 Leiden University Medical Center <humgen@lumc.nl>
+Copyright (c) 2013-2014 Jeroen F.J. Laros <j.f.j.laros@lumc.nl>
+Copyright (c) 2014 Martijn Vermaat <m.vermaat.hg@lumc.nl>
 
 Licensed under the MIT license, see the LICENSE file.
 """
+
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -21,16 +23,19 @@ import sys
 import h5py
 import semantic_version
 
+
 __version_info__ = ('0', '3', '0')
 
 __version__ = '.'.join(__version_info__)
-__author__ = 'LUMC, Jeroen F.J. Laros'
+__author__ = 'LUMC, Jeroen F.J. Laros, Martijn Vermaat'
 __contact__ = 'J.F.J.Laros@lumc.nl'
 __homepage__ = 'https://git.lumc.nl/j.f.j.laros/k-mer'
+
 
 USAGE = __doc__.split("\n\n\n")
 FORMAT_VERSION = semantic_version.Version('1.0.0')
 FORMAT_ACCEPT = semantic_version.Spec('>=1.0.0,<2.0.0')
+
 
 # Same as argparse.FileType in Python 3, but using io.open to get the same
 # behaviour on Python 2, and adding protection against overwriting existing
@@ -71,6 +76,7 @@ class FileType(object):
                               if arg is not None])
         return '%s(%s)' % (type(self).__name__, args_str)
 
+
 class ProfileFileType(object):
     def __init__(self, mode='r'):
         self._mode = mode
@@ -100,9 +106,11 @@ class ProfileFileType(object):
     def __repr__(self):
         return '%s(%s)' % (type(self).__name__, self._mode)
 
+
 def doc_split(func):
     return func.__doc__.split("\n\n")[0]
 
+
 def version(name):
-    return "%s version %s\n\nAuthor   : %s <%s>\nHomepage : %s" % (name,
-        __version__, __author__, __contact__, __homepage__)
+    return '{0} version {1}\n\nAuthor   : {2} <{3}>\nHomepage : {4}'.format(
+        name, __version__, __author__, __contact__, __homepage__)
