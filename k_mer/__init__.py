@@ -16,6 +16,7 @@ from future.utils import native
 import argparse
 from io import open
 import os
+import sys
 
 import h5py
 import semantic_version
@@ -45,9 +46,9 @@ class FileType(object):
         # the special argument "-" means sys.std{in,out}
         if string == '-':
             if 'r' in self._mode:
-                return _sys.stdin
+                return sys.stdin
             elif 'w' in self._mode:
-                return _sys.stdout
+                return sys.stdout
             else:
                 msg = 'argument "-" with mode %r' % self._mode
                 raise ValueError(msg)
