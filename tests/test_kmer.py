@@ -51,6 +51,53 @@ class TestKmer(utils.TestEnvironment):
                     kmer.merge(handle_left, handle_right, profile_handle)
         utils.test_profile_file(filename, counts_left + counts_right, 8)
 
+    def test_merge_xor(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        filename = self.empty()
+
+        with utils.open_profile(self.profile(counts_left, 8)) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8)) as handle_right:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.merge(handle_left, handle_right, profile_handle, merger='xor')
+
+        counts_xor = counts_left + counts_right
+        for s in set(counts_left) & set(counts_right):
+            del counts_xor[s]
+
+        utils.test_profile_file(filename, counts_xor, 8)
+
+    def test_merge_custom_expr(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        filename = self.empty()
+
+        with utils.open_profile(self.profile(counts_left, 8)) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8)) as handle_right:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.merge(handle_left, handle_right, profile_handle, custom_merger='(left + right) * np.logical_xor(left, right)')
+
+        counts_xor = counts_left + counts_right
+        for s in set(counts_left) & set(counts_right):
+            del counts_xor[s]
+
+        utils.test_profile_file(filename, counts_xor, 8)
+
+    def test_merge_custom_name(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        filename = self.empty()
+
+        with utils.open_profile(self.profile(counts_left, 8)) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8)) as handle_right:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.merge(handle_left, handle_right, profile_handle, custom_merger='numpy.multiply')
+
+        counts_mult = Counter(dict((s, counts_left[s] * counts_right[s])
+                                   for s in set(counts_left) & set(counts_right)))
+
+        utils.test_profile_file(filename, counts_mult, 8)
+
     def test_balance(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         filename = self.empty()
@@ -213,6 +260,32 @@ class TestKmer(utils.TestEnvironment):
         utils.test_profile_file(filename_left, counts_left, 2)
         utils.test_profile_file(filename_right, counts_right, 2)
 
+    def test_smooth_custom_expr(self):
+        # See test_kdifflib.test_kmerdiff_dynamic_smooth
+        counts_left = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
+        counts_right = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
+        filename_left = self.empty()
+        filename_right = self.empty()
+
+        with utils.open_profile(self.profile(counts_left, 2)) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 2)) as handle_right:
+                with utils.open_profile(filename_left, 'w') as out_left:
+                    with utils.open_profile(filename_right, 'w') as out_right:
+                        kmer.smooth(handle_left, handle_right, out_left, out_right, custom_summary='np.max(values)')
+
+    def test_smooth_custom_name(self):
+        # See test_kdifflib.test_kmerdiff_dynamic_smooth
+        counts_left = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
+        counts_right = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
+        filename_left = self.empty()
+        filename_right = self.empty()
+
+        with utils.open_profile(self.profile(counts_left, 2)) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 2)) as handle_right:
+                with utils.open_profile(filename_left, 'w') as out_left:
+                    with utils.open_profile(filename_right, 'w') as out_right:
+                        kmer.smooth(handle_left, handle_right, out_left, out_right, custom_summary='numpy.max')
+
     def test_pair_diff(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
@@ -223,6 +296,72 @@ class TestKmer(utils.TestEnvironment):
                 kmer.pair_diff(handle_left, handle_right, out)
 
         assert out.getvalue() == 'left right %.3f\n' % 0.4626209322
+
+    def test_pair_diff_smooth(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
+                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True)
+
+        assert out.getvalue() == 'left right 0.077\n'
+
+    def test_pair_diff_smooth_average(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
+                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True, summary='average')
+
+        assert out.getvalue() == 'left right 0.474\n'
+
+    def test_pair_diff_smooth_expr(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
+                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True, custom_summary='np.max(values)')
+
+        assert out.getvalue() == 'left right 0.474\n'
+
+    def test_pair_diff_smooth_name(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
+                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True, custom_summary='numpy.max')
+
+        assert out.getvalue() == 'left right 0.474\n'
+
+    def test_pair_diff_pairwise_expr(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
+                kmer.pair_diff(handle_left, handle_right, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
+
+        assert out.getvalue() == 'left right 0.001\n'
+
+    def test_pair_diff_pairwise_name(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
+            with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
+                kmer.pair_diff(handle_left, handle_right, out, custom_pairwise='numpy.multiply')
+
+        assert out.getvalue() == 'left right 0.084\n'
 
     def test_matrix_diff(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
@@ -237,3 +376,87 @@ class TestKmer(utils.TestEnvironment):
                     kmer.matrix_diff(handle, out)
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.463', '0.000 0.463']
+
+    def test_matrix_diff_smooth(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.multi_profile(8,
+                                                   [counts_left,
+                                                    counts_right,
+                                                    counts_left],
+                                                   ['a', 'b', 'c'])) as handle:
+                    kmer.matrix_diff(handle, out, do_smooth=True)
+
+        assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.077', '0.000 0.077']
+
+    def test_matrix_diff_smooth_average(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.multi_profile(8,
+                                                   [counts_left,
+                                                    counts_right,
+                                                    counts_left],
+                                                   ['a', 'b', 'c'])) as handle:
+                    kmer.matrix_diff(handle, out, do_smooth=True, summary='average')
+
+        assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
+
+    def test_matrix_diff_smooth_expr(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.multi_profile(8,
+                                                   [counts_left,
+                                                    counts_right,
+                                                    counts_left],
+                                                   ['a', 'b', 'c'])) as handle:
+                    kmer.matrix_diff(handle, out, do_smooth=True, custom_summary='np.max(values)')
+
+        assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
+
+    def test_matrix_diff_smooth_name(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.multi_profile(8,
+                                                   [counts_left,
+                                                    counts_right,
+                                                    counts_left],
+                                                   ['a', 'b', 'c'])) as handle:
+                    kmer.matrix_diff(handle, out, do_smooth=True, custom_summary='numpy.max')
+
+        assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
+
+    def test_matrix_diff_pairwise_expr(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.multi_profile(8,
+                                                   [counts_left,
+                                                    counts_right,
+                                                    counts_left],
+                                                   ['a', 'b', 'c'])) as handle:
+                    kmer.matrix_diff(handle, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
+
+        assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.001', '0.000 0.001']
+
+    def test_matrix_diff_pairwise_name(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        out = StringIO()
+
+        with utils.open_profile(self.multi_profile(8,
+                                                   [counts_left,
+                                                    counts_right,
+                                                    counts_left],
+                                                   ['a', 'b', 'c'])) as handle:
+                    kmer.matrix_diff(handle, out, custom_pairwise='numpy.multiply')
+
+        assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.084', '1.206 0.084']

@@ -7,7 +7,7 @@ if sys.version_info < (2, 6):
 
 dependencies = ['biopython', 'numpy', 'h5py', 'semantic-version', 'future']
 if sys.version_info[:2] == (2, 6):
-    dependencies.append('argparse')
+    dependencies.extend(['argparse', 'importlib'])
 
 try:
     with open('README.md') as readme:

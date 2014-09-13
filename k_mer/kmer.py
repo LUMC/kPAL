@@ -8,15 +8,15 @@ from __future__ import (absolute_import, division, print_function,
 from future.builtins import str, zip
 
 import argparse
+import importlib
 import os
+import re
 import sys
+
+import numpy as np
 
 from . import (USAGE, FileType, ProfileFileType, doc_split, version, klib,
                kdifflib, metrics)
-
-# Todo: Probably only used in user-defined custom functions, we should only
-#   import it there.
-from math import *
 
 
 LENGTH_ERROR = 'k-mer lengths of the files differ'
@@ -24,6 +24,11 @@ NAMES_COUNT_ERROR = ('number of profile names does not match number of '
                      'profiles')
 PAIRED_NAMES_COUNT_ERROR = ('number of left and right profile names do not '
                             'match')
+
+
+# Importable definition, e.g. `package.module.merge_function`.
+# http://docs.python.org/2/reference/lexical_analysis.html#identifiers
+_PYTHON_IMPORTABLE = '{0}(\.{0})+$'.format('[_a-zA-Z][_a-zA-Z0-9]*')
 
 
 def _name_from_handle(handle):
@@ -88,7 +93,7 @@ def index(input_handles, output_handle, size, names=None):
 
 
 def merge(input_handle_left, input_handle_right, output_handle,
-          names_left=None, names_right=None, merger='sum', merge_func=None):
+          names_left=None, names_right=None, merger='sum', custom_merger=None):
     """
     Merge k-mer profiles. If the files contain more than one profile, they are
     linked by name and merged pairwise. The resulting profile name is set to
@@ -105,8 +110,8 @@ def merge(input_handle_left, input_handle_right, output_handle,
     :type names_left, names_right: list(str)
     :arg merger: Merge function.
     :type merger: function
-    :arg merge_func: Custom merge function.
-    :type merge_func: str
+    :arg custom_merger: Custom merge function.
+    :type custom_merger: str
     """
     names_left = names_left or sorted(input_handle_left['profiles'])
     names_right = names_right or sorted(input_handle_right['profiles'])
@@ -114,10 +119,16 @@ def merge(input_handle_left, input_handle_right, output_handle,
     if len(names_left) != len(names_right):
         raise ValueError(PAIRED_NAMES_COUNT_ERROR)
 
-    if merge_func:
-        # Todo: Use the more general approach from Wiggelen.
-        merge_function = np.vectorize(eval('lambda ' + merge_func),
-                                      otypes=['int64'])
+    if custom_merger:
+        if re.match(_PYTHON_IMPORTABLE, custom_merger):
+            # Importable definition, e.g. `package.module.merge_function`.
+            module, name = custom_merger.rsplit('.', 1)
+            merge_function = getattr(importlib.import_module(module), name)
+        else:
+            # Expression over `left` and `right`, e.g. `np.add(left, right)`.
+            # The `numpy` package is available as `np`.
+            merge_function = eval('lambda left, right: ' + custom_merger,
+                                  {'np': np})
     else:
         merge_function = metrics.mergers[merger]
 
@@ -444,7 +455,7 @@ def shuffle(input_handle, output_handle, names=None):
 
 def smooth(input_handle_left, input_handle_right, output_handle_left,
            output_handle_right, names_left=None, names_right=None,
-           summary='min', summary_func=None, threshold=0):
+           summary='min', custom_summary=None, threshold=0):
     """
     Smooth two profiles by collapsing sub-profiles. If the files contain more
     than one profile, they are linked by name and processed pairwise.
@@ -460,8 +471,8 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
     :type names_left, names_right: list(str)
     :arg summary: Name of the summary function.
     :type summary: str
-    :arg summary_func: Custom summary function.
-    :type summary_func: str
+    :arg custom_summary: Custom summary function.
+    :type custom_summary: str
     :arg threshold: Threshold for the summary function.
     :type threshold: int
     """
@@ -471,13 +482,20 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
     if len(names_left) != len(names_right):
         raise ValueError(PAIRED_NAMES_COUNT_ERROR)
 
-    if summary_func:
-        # Todo: Use the more general approach from Wiggelen.
-        smooth_function = eval('lambda ' + summary_func)
+    if custom_summary:
+        if re.match(_PYTHON_IMPORTABLE, custom_summary):
+            # Importable definition, e.g. `package.module.summary_function`.
+            module, name = custom_summary.rsplit('.', 1)
+            summary_function = getattr(importlib.import_module(module), name)
+        else:
+            # Expression over `values`, e.g. `np.max(values)`. The `numpy`
+            # package is available as `np`.
+            summary_function = eval('lambda values: ' + custom_summary,
+                                    {'np': np})
     else:
-        smooth_function = metrics.summary[summary]
+        summary_function = metrics.summary[summary]
 
-    diff = kdifflib.kMerDiff(summary=smooth_function, threshold=threshold)
+    diff = kdifflib.kMerDiff(summary=summary_function, threshold=threshold)
 
     for name_left, name_right in zip(names_left, names_right):
         profile_left = klib.Profile.from_file(input_handle_left,
@@ -496,8 +514,8 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
 
 def pair_diff(input_handle_left, input_handle_right, output_handle,
               names_left=None, names_right=None, distance_function='default',
-              pairwise='diff-prod', pairwise_func='', do_smooth=False,
-              summary='min', summary_func='', threshold=0, do_scale=False,
+              pairwise='diff-prod', custom_pairwise=None, do_smooth=False,
+              summary='min', custom_summary=None, threshold=0, do_scale=False,
               down=False, do_positive=False, do_balance=False, precision=3):
     """
     Calculate the difference between two k-mer profiles. If the files contain
@@ -515,14 +533,14 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
     :type distance_function: str
     :arg pairwise: Name of the pairwise distance function.
     :type pairwise: str
-    :arg pairwise_func: Custom pairwise distance function.
-    :type pairwise_func: str
+    :arg custom_pairwise: Custom pairwise distance function.
+    :type custom_pairwise: str
     :arg do_smooth: Enable smoothing.
     :type do_smooth: bool
     :arg summary: Name of the summary function.
     :type summary: str
-    :arg summary_func: Custom summary function.
-    :type summary_func: str
+    :arg custom_summary: Custom summary function.
+    :type custom_summary: str
     :arg threshold: Threshold for the summary function.
     :type threshold: int
     :arg do_scale: Scale the profiles.
@@ -542,16 +560,29 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
     if len(names_left) != len(names_right):
         raise ValueError(PAIRED_NAMES_COUNT_ERROR)
 
-    if summary_func:
-        # Todo: Use the more general approach from Wiggelen.
-        summary_function = eval('lambda ' + summary_func)
+    if custom_summary:
+        if re.match(_PYTHON_IMPORTABLE, custom_summary):
+            # Importable definition, e.g. `package.module.summary_function`.
+            module, name = custom_summary.rsplit('.', 1)
+            summary_function = getattr(importlib.import_module(module), name)
+        else:
+            # Expression over `values`, e.g. `np.max(values)`. The `numpy`
+            # package is available as `np`.
+            summary_function = eval('lambda values: ' + custom_summary,
+                                    {'np': np})
     else:
         summary_function = metrics.summary[summary]
 
-    if pairwise_func:
-        # Todo: Use the more general approach from Wiggelen.
-        pairwise_function = np.vectorize(eval('lambda ' + pairwise_func),
-                                         otypes=['float'])
+    if custom_pairwise:
+        if re.match(_PYTHON_IMPORTABLE, custom_pairwise):
+            # Importable definition, e.g. `package.module.pairwise_function`.
+            module, name = custom_pairwise.rsplit('.', 1)
+            pairwise_function = getattr(importlib.import_module(module), name)
+        else:
+            # Expression over `left` and `right`, e.g. `np.add(left, right)`.
+            # The `numpy` package is available as `np`.
+            pairwise_function = eval('lambda left, right: ' + custom_pairwise,
+                                     {'np': np})
     else:
         pairwise_function = metrics.pairwise[pairwise]
 
@@ -578,8 +609,8 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
 
 def matrix_diff(input_handle, output_handle, names=None,
                 distance_function='default', pairwise='diff-prod',
-                pairwise_func=None, do_smooth=False, summary='min',
-                summary_func=None, threshold=0, do_scale=False, down=False,
+                custom_pairwise=None, do_smooth=False, summary='min',
+                custom_summary=None, threshold=0, do_scale=False, down=False,
                 do_positive=False, do_balance=False, precision=3):
     """
     Make a distance matrix between any number of k-mer profiles.
@@ -596,14 +627,14 @@ def matrix_diff(input_handle, output_handle, names=None,
     :type euclidean: bool
     :arg pairwise: Name of the pairwise distance function.
     :type pairwise: str
-    :arg pairwise_func: Custom pairwise distance function.
-    :type pairwise_func: str
+    :arg custom_pairwise: Custom pairwise distance function.
+    :type custom_pairwise: str
     :arg do_smooth: Enable smoothing.
     :type do_smooth: bool
     :arg summary: Name of the summary function.
     :type summary: str
-    :arg summary_func: Custom summary function.
-    :type summary_func: str
+    :arg custom_summary: Custom summary function.
+    :type custom_summary: str
     :arg threshold: Threshold for the summary function.
     :type threshold: int
     :arg do_scale: Scale the profiles.
@@ -622,16 +653,29 @@ def matrix_diff(input_handle, output_handle, names=None,
     if len(names) < 2:
         raise ValueError('you must give at least two k-mer profiles')
 
-    if summary_func:
-        # Todo: Use the more general approach from Wiggelen.
-        summary_function = eval('lambda ' + summary_func)
+    if custom_summary:
+        if re.match(_PYTHON_IMPORTABLE, custom_summary):
+            # Importable definition, e.g. `package.module.summary_function`.
+            module, name = custom_summary.rsplit('.', 1)
+            summary_function = getattr(importlib.import_module(module), name)
+        else:
+            # Expression over `values`, e.g. `np.max(values)`. The `numpy`
+            # package is available as `np`.
+            summary_function = eval('lambda values: ' + custom_summary,
+                                    {'np': np})
     else:
         summary_function = metrics.summary[summary]
 
-    if pairwise_func:
-        # Todo: Use the more general approach from Wiggelen.
-        pairwise_function = np.vectorize(eval('lambda ' + pairwise_func),
-                                         otypes=['float'])
+    if custom_pairwise:
+        if re.match(_PYTHON_IMPORTABLE, custom_pairwise):
+            # Importable definition, e.g. `package.module.pairwise_function`.
+            module, name = custom_pairwise.rsplit('.', 1)
+            pairwise_function = getattr(importlib.import_module(module), name)
+        else:
+            # Expression over `left` and `right`, e.g. `np.add(left, right)`.
+            # The `numpy` package is available as `np`.
+            pairwise_function = eval('lambda left, right: ' + custom_pairwise,
+                                     {'np': np})
     else:
         pairwise_function = metrics.pairwise[pairwise]
 
@@ -718,8 +762,13 @@ def main():
         choices=metrics.summary, help='summary function for dynamic '
         'smoothing (default: %(default)s)')
     smooth_parser.add_argument(
-        '--summary-function', metavar='STRING', type=str, dest='summary_func',
-        help='custom summary function')
+        '-M', '--custom-summary', metavar='STRING', type=str,
+        dest='custom_summary',
+        help='custom Python summary function, specified either by an '
+        'expression over the NumPy ndarray "values" (e.g., '
+        '"np.max(values)"), or an importable name (e.g., '
+        '"package.module.summary") that can be called with an ndarray as '
+        'argument')
     smooth_parser.add_argument(
         '-t', dest='threshold', metavar='INT', type=int, default=0,
         help='threshold for the summary function (default: %(default)s)')
@@ -752,9 +801,16 @@ def main():
         '-P', dest='pairwise', type=str, default='diff-prod',
         choices=metrics.pairwise, help='paiwise distance function for the '
         'multiset distance (default: %(default)s)')
+    # Todo: Note in the documentation that the custom pairwise must be
+    #   vectorized with a tip for using np.vectorize if it is not.
     diff_parser.add_argument(
-        '--pairwise-function', metavar='STRING', type=str,
-        dest='pairwise_func', help='custom pairwise function')
+        '-f', '--pairwise-function', metavar='STRING', dest='custom_pairwise',
+        type=str,
+        help='custom Python pairwise function, specified either by an '
+        'expression over the two NumPy ndarrays "left" and "right" (e.g., '
+        '"abs(left - right) / (left + right + 1)"), or an importable name '
+        '(e.g., "package.module.pairwise") that can be called with two '
+        'ndarrays as arguments')
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -793,9 +849,16 @@ def main():
     parser_merge.add_argument(
         '-m', dest='merger', type=str, default='sum',
         choices=metrics.mergers, help='merge function (default: %(default)s)')
+    # Todo: Note in the documentation that the custom merger must be
+    #   vectorized with a tip for using np.vectorize if it is not.
     parser_merge.add_argument(
-        '--merge-function', dest='merge_func', metavar='STRING', type=str,
-        help='custom merge function')
+        '-c', '--custom-merger', dest='custom_merger', metavar='STRING',
+        type=str,
+        help='custom Python merge function, specified either by an '
+        'expression over the two NumPy ndarrays "left" and "right" (e.g., '
+        '"np.add(left, right)"), or an importable name (e.g., '
+        '"package.module.merge") that can be called with two ndarrays as '
+        'arguments')
     parser_merge.set_defaults(func=merge)
 
     parser_balance = subparsers.add_parser(
