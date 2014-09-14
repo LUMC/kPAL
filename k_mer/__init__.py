@@ -24,7 +24,9 @@ import h5py
 import semantic_version
 
 
-__version_info__ = ('0', '3', '0')
+__version_info__ = ('1', '0', '0', 'dev')
+__date__ = '16 Sep 2014'
+
 
 __version__ = '.'.join(__version_info__)
 __author__ = 'LUMC, Jeroen F.J. Laros, Martijn Vermaat'
