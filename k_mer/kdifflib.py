@@ -30,7 +30,7 @@ class kMerDiff(object):
         :arg do_smooth: Use dynamic smoothing.
         :type do_smooth: bool
         :arg summary: Summary function for dynamic smoothing.
-        :type summary: int
+        :type summary: function
         :arg threshold: Threshold for the summary function.
         :type threshold: int
         :arg do_scale: Scale the profiles.
