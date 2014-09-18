@@ -929,6 +929,7 @@ def main():
         description=doc_split(pair_diff))
     parser_diff.set_defaults(func=pair_diff, output_handle=sys.stdout)
 
+    # Todo: I think we should just write to stdout.
     parser_matrix = subparsers.add_parser(
         'matrix', parents=[input_profile_parser, output_parser, diff_parser],
         description=doc_split(matrix_diff))

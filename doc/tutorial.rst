@@ -7,7 +7,7 @@ Tutorial
 
 Before following this tutorial, make sure kMer is installed  properly::
 
-    $ k-mer -h
+    $ kMer -h
 
 This should print a help message. If it does not, follow :ref:`install`.
 
