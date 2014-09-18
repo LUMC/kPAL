@@ -11,8 +11,8 @@ User's guide
 .. toctree::
    :maxdepth: 2
 
-   install
    intro
+   install
    method
    tutorial
    library
