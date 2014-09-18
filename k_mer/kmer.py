@@ -245,7 +245,7 @@ def distribution(input_handle, output_handle, names=None):
     names = names or sorted(input_handle['profiles'])
 
     for name in names:
-        profile = klib.Profile.from_file(input_handle)
+        profile = klib.Profile.from_file(input_handle, name=name)
 
         print('\n'.join('{0} {1} {2}'.format(name, v, c)
                         for v, c in metrics.distribution(profile.counts)),
