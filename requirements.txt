@@ -1,0 +1,9 @@
+biopython
+future
+h5py
+numpy
+pytest
+semantic-version
+Sphinx
+sphinx-rtd-theme
+tox

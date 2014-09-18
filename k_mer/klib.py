@@ -1,5 +1,5 @@
 """
-k-mer base library.
+*k*-mer base library.
 """
 
 
@@ -19,7 +19,18 @@ from . import metrics
 
 class Profile(object):
     """
-    Handle k-mer counts.
+    A *k*-mer profile provides *k*-mer counts and operations on them.
+
+    Instead of using the :class:`Profile` constructor directly, you should
+    generally use one of the profile construction methods:
+
+    - :meth:`~Profile.from_file`
+    - :meth:`~Profile.from_file_old_format`
+    - :meth:`~Profile.from_fasta`
+
+    :arg ndarray counts: NumPy array of integers where each element is the
+      count for a *k*-mer. Ordering is alphabetically by the *k*-mer.
+    :arg str name: Profile name.
     """
     #: Conversion table form nucleotide to binary.
     _nucleotide_to_binary = {
@@ -37,17 +48,22 @@ class Profile(object):
         0x03: 'T'
     }
 
+    def __init__(self, counts, name=None):
+        self.length = int(math.log(len(counts), 4))
+        self.counts = counts
+        self.name = name
+
     @classmethod
     def from_file(cls, handle, name=None):
         """
-        Load the k-mer profile from a file.
+        Load the *k*-mer profile from a file.
 
-        :arg handle: Open readable k-mer profile file handle.
+        :arg handle: Open readable *k*-mer profile file handle.
         :type handle: h5py.File
         :arg name: Profile name.
         :arg name: str
 
-        :return: A k-mer profile.
+        :return: A *k*-mer profile.
         :rtype: Profile
         """
         name = name or sorted(handle['profiles'].keys())[0]
@@ -57,14 +73,14 @@ class Profile(object):
     @classmethod
     def from_file_old_format(cls, handle, name=None):
         """
-        Load the k-mer profile from a file in the old plaintext format.
+        Load the *k*-mer profile from a file in the old plaintext format.
 
-        :arg handle: Open readable k-mer profile file handle (old format).
+        :arg handle: Open readable *k*-mer profile file handle (old format).
         :type handle: file-like object
         :arg name: Profile name.
         :arg name: str
 
-        :return: A k-mer profile.
+        :return: A *k*-mer profile.
         :rtype: Profile
         """
         # Ignore lines with length, total, nonzero.
@@ -77,17 +93,17 @@ class Profile(object):
     @classmethod
     def from_fasta(cls, handle, length, name=None):
         """
-        Create a k-mer profile from a FASTA file by counting all k-mers in
+        Create a *k*-mer profile from a FASTA file by counting all *k*-mers in
         each line.
 
         :arg handle: Open readable FASTA file handle.
         :type handle: file-like object
-        :arg length: Length of the k-mers.
+        :arg length: Length of the *k*-mers.
         :type length: int
         :arg name: Profile name.
         :arg name: str
 
-        :return: A k-mer profile.
+        :return: A *k*-mer profile.
         :rtype: Profile
         """
         number = 4 ** length
@@ -113,72 +129,53 @@ class Profile(object):
 
         return cls(np.array(counts, dtype='int64'), name=name)
 
-    def __init__(self, counts, name=None):
-        """
-        Low-level constructor for k-mer profile objects. Users should
-        generally use one of the profile construction methods:
-
-        - `kMer.from_file`
-        - `kMer.from_file_old_format`
-        - `kMer.from_fasta`
-
-        :arg counts: NumPy array of integers where each element is the count
-          for a k-mer. Ordering is alphabetically by the k-mer.
-        :type counts: np.ndarray(int)
-        :arg name: Profile name.
-        :type name: str
-        """
-        self.length = int(math.log(len(counts), 4))
-        self.counts = counts
-        self.name = name
-
     @property
     def number(self):
         """
-        Number of possible k-mers with this length.
+        Number of possible *k*-mers with this length.
         """
         return len(self.counts)
 
     @property
     def non_zero(self):
         """
-        Number k-mers with a non-zero count.
+        Number *k*-mers with a non-zero count.
         """
         return np.count_nonzero(self.counts)
 
     @property
     def total(self):
         """
-        Sum of k-mer counts.
+        Sum of *k*-mer counts.
         """
         return self.counts.sum()
 
     @property
     def mean(self):
         """
-        Mean of k-mer counts.
+        Mean of *k*-mer counts.
         """
         return self.counts.mean()
 
     @property
     def median(self):
         """
-        Median of k-mer counts.
+        Median of *k*-mer counts.
         """
         return np.median(self.counts)
 
     @property
     def std(self):
         """
-        Standard deviation of k-mer counts.
+        Standard deviation of *k*-mer counts.
         """
         return self.counts.std()
 
     def save(self, handle, name=None):
         """
-        Save the k-mer counts to a file.
+        Save the *k*-mer counts to a file.
 
-        :arg handle: Open writeable k-mer profile file handle.
+        :arg handle: Open writeable *k*-mer profile file handle.
         :type handle: h5py.File
         :arg name: Profile name in the file. If not provided, the current
           profile name is used, or the first available number from 1
@@ -205,8 +202,8 @@ class Profile(object):
 
     def copy(self):
         """
-        Create a copy of the k-mer profile. This returns a deep copy, so
-        modifying the copy's k-mer counts will not affect the original and
+        Create a copy of the *k*-mer profile. This returns a deep copy, so
+        modifying the copy's *k*-mer counts will not affect the original and
         vice versa.
         """
         return type(self)(self.counts.copy(), name=self.name)
@@ -215,7 +212,7 @@ class Profile(object):
         """
         Merge two profiles.
 
-        :arg profile: Another k-mer profile.
+        :arg profile: Another *k*-mer profile.
         :type profile: Profile
         :arg merger: A pairwise merge function.
         :type merger: function
@@ -231,8 +228,8 @@ class Profile(object):
 
     def balance(self):
         """
-        Add the counts of the reverse complement of a k-mer to the k-mer and
-        vice versa.
+        Add the counts of the reverse complement of a *k*-mer to the *k*-mer
+        and vice versa.
         """
         for i in range(self.number):
             i_rc = self.reverse_complement(i)
@@ -247,13 +244,13 @@ class Profile(object):
     def split(self):
         """
         Split the profile into two lists, every position in the first list has
-        its reverse complement in the same position in the second list and vice
-        versa. All counts are doubled, so we can equaly distribute palindrome
-        counts over both lists.
+        its reverse complement in the same position in the second list and
+        vice versa. All counts are doubled, so we can equaly distribute
+        palindrome counts over both lists.
 
-        Note that the returned counts are not k-mer profiles. They can be used
-        to show the balance of the original profile by calculating the distance
-        between them.
+        Note that the returned counts are not *k*-mer profiles. They can be
+        used to show the balance of the original profile by calculating the
+        distance between them.
 
         :return: The doubled forward and reverse complement counts.
         :rtype: np.ndarray(int), np.ndarray(int)
@@ -330,7 +327,7 @@ class Profile(object):
         :arg number: Binary representation of a DNA sequence.
         :type number: int
 
-        :returns DNA string corresponding to `number`.
+        :returns: DNA string corresponding to `number`.
         :rtype: str
         """
         sequence = ""
@@ -364,7 +361,7 @@ class Profile(object):
 
     def _ratios_matrix(self):
         """
-        Calculate all relative frequencies of k-mers. If a division by 0
+        Calculate all relative frequencies of *k*-mers. If a division by 0
         occurs, the frequency will be set to -1.0.
 
         :return: A matrix with relative frequencies.
@@ -390,7 +387,7 @@ class Profile(object):
 
     def _freq_diff_matrix(self):
         """
-        Calculate all frequency differences of k-mers.
+        Calculate all frequency differences of *k*-mers.
 
         :return: A matrix with frequency differences.
         :rtype: float[][]
@@ -410,7 +407,7 @@ class Profile(object):
 
     def print_counts(self):
         """
-        Print the k-mer counts.
+        Print the *k*-mer counts.
         """
         for i in range(self.number):
             print(self.binary_to_dna(i), self.counts[i])

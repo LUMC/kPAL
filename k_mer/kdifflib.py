@@ -1,5 +1,5 @@
 """
-k-mer profile difference library.
+*k*-mer profile difference library.
 """
 
 
@@ -54,10 +54,10 @@ class kMerDiff(object):
 
     def _collapse(self, vector, start, length):
         """
-        Collapse a part of k-mer counts into a list of four numbers,
-        representing the k-mers that start with a particular letter.
+        Collapse a part of *k*-mer counts into a list of four numbers,
+        representing the *k*-mers that start with a particular letter.
 
-        :arg vector: Counts of a k-mer profile.
+        :arg vector: Counts of a *k*-mer profile.
         :type vector: array_like, 1 dimension
         :arg start: Start of the area to collapse.
         :type start: int
@@ -76,7 +76,7 @@ class kMerDiff(object):
         requirements governed by the selected summary function and the
         threshold.
 
-        :arg profile_left, profile_right: A k-mer profile.
+        :arg profile_left, profile_right: A *k*-mer profile.
         :type profile_left, profile_right: klib.Profile
         :arg start: Start of the sub-profile to smooth.
         :type start: int
@@ -124,7 +124,7 @@ class kMerDiff(object):
         requirements governed by the selected summary function and the
         threshold.
 
-        :arg profile_left, profile_right: A k-mer profile.
+        :arg profile_left, profile_right: A *k*-mer profile.
         :type profile_left, profile_right: klib.Profile
         """
         self._dynamic_smooth(profile_left, profile_right, 0,
@@ -132,9 +132,9 @@ class kMerDiff(object):
 
     def distance(self, profile_left, profile_right):
         """
-        Calculate the distance between two k-mer profiles.
+        Calculate the distance between two *k*-mer profiles.
 
-        :arg profile_left, profile_right: A k-mer profile.
+        :arg profile_left, profile_right: A *k*-mer profile.
         :type profile_left, profile_right: klib.Profile
 
         :return: The distance between `profile_left` and `profile_right`.
@@ -174,9 +174,9 @@ class kMerDiff(object):
 
 def distance_matrix(profiles, output, precision, k_diff):
     """
-    Make a distance matrix any number of k-mer profiles.
+    Make a distance matrix any number of *k*-mer profiles.
 
-    :arg profiles: List of k-mer profiles.
+    :arg profiles: List of *k*-mer profiles.
     :type profiles: list(klib.Profile)
     :arg output: Open writable file handle.
     :type output: file-like object
