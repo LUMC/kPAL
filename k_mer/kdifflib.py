@@ -23,24 +23,16 @@ class kMerDiff(object):
         """
         Initialise the class.
 
-        :arg do_balance: Balance the profiles.
-        :type do_balance: bool
-        :arg do_positive: Only use positive values.
-        :type do_positive: bool
-        :arg do_smooth: Use dynamic smoothing.
-        :type do_smooth: bool
-        :arg summary: Summary function for dynamic smoothing.
-        :type summary: function
-        :arg threshold: Threshold for the summary function.
-        :type threshold: int
-        :arg do_scale: Scale the profiles.
-        :type do_scale: bool
-        :arg down: Normalise the scaling factors between 0 and 1.
-        :type down: bool
-        :arg distance_function: Use a specific distance function.
-        :type distance_function: function
-        :arg pairwise: Pairwise distance function for the multiset distance.
-        :type pairwise: int
+        :arg bool do_balance: Balance the profiles.
+        :arg bool do_positive: Only use positive values.
+        :arg bool do_smooth: Use dynamic smoothing.
+        :arg function summary: Summary function for dynamic smoothing.
+        :arg int threshold: Threshold for the summary function.
+        :arg bool do_scale: Scale the profiles.
+        :arg bool down: Normalise the scaling factors between 0 and 1.
+        :arg function distance_function: Use a specific distance function.
+        :arg function pairwise: Pairwise distance function for the multiset
+          distance.
         """
         self._do_balance = do_balance
         self._do_positive = do_positive
@@ -70,18 +62,15 @@ class kMerDiff(object):
         area = vector[start:start + length]
         return np.reshape(area, (4, length // 4)).sum(axis=1)
 
-    def _dynamic_smooth(self, profile_left, profile_right, start, length):
+    def _dynamic_smooth(self, left, right, start, length):
         """
         Smooth two profiles by collapsing sub-profiles that do not meet the
         requirements governed by the selected summary function and the
         threshold.
 
-        :arg profile_left, profile_right: A *k*-mer profile.
-        :type profile_left, profile_right: klib.Profile
-        :arg start: Start of the sub-profile to smooth.
-        :type start: int
-        :arg length: Length of the sub-profile to smooth.
-        :type length: int
+        :arg k_mer.klib.Profile left, right: Profile to smooth.
+        :arg int start: Start of the sub-profile to smooth.
+        :arg int length: Length of the sub-profile to smooth.
         """
         # If we use function=min and threshold=0, we should get the following
         # transformation:
@@ -98,92 +87,83 @@ class kMerDiff(object):
         if length == 1:
             return
 
-        c_left = self._collapse(profile_left.counts, start, length)
-        c_right = self._collapse(profile_right.counts, start, length)
+        left_c = self._collapse(left.counts, start, length)
+        right_c = self._collapse(right.counts, start, length)
 
-        if min(self._function(c_left),
-               self._function(c_right)) <= self._threshold:
+        if min(self._function(left_c),
+               self._function(right_c)) <= self._threshold:
             # Collapse the sub-profile.
-            profile_left.counts[start] = c_left.sum()
-            profile_right.counts[start] = c_right.sum()
+            left.counts[start] = left_c.sum()
+            right.counts[start] = right_c.sum()
 
             # Remove the k-mer counts used to collapse.
-            profile_left.counts[start + 1:start + length] = 0
-            profile_right.counts[start + 1:start + length] = 0
+            left.counts[start + 1:start + length] = 0
+            right.counts[start + 1:start + length] = 0
 
             return
 
         new_length = length // 4
         for i in range(4):
-            self._dynamic_smooth(profile_left, profile_right,
-                                 start + i * new_length, new_length)
+            self._dynamic_smooth(left, right, start + i * new_length,
+                                 new_length)
 
-    def dynamic_smooth(self, profile_left, profile_right):
+    def dynamic_smooth(self, left, right):
         """
         Smooth two profiles by collapsing sub-profiles that do not meet the
         requirements governed by the selected summary function and the
         threshold.
 
-        :arg profile_left, profile_right: A *k*-mer profile.
-        :type profile_left, profile_right: klib.Profile
+        :arg k_mer.klib.Profile left, right: Profiles to smooth.
         """
-        self._dynamic_smooth(profile_left, profile_right, 0,
-                             profile_left.number)
+        self._dynamic_smooth(left, right, 0, left.number)
 
-    def distance(self, profile_left, profile_right):
+    def distance(self, left, right):
         """
         Calculate the distance between two *k*-mer profiles.
 
-        :arg profile_left, profile_right: A *k*-mer profile.
-        :type profile_left, profile_right: klib.Profile
+        :arg k_mer.klib.Profile left, right: Profiles to calculate distance
+          between.
 
-        :return: The distance between `profile_left` and `profile_right`.
+        :return: The distance between `left` and `right`.
         :rtype: float
         """
-        # No pun intended.
-        copy_left = profile_left.copy()
-        copy_right = profile_right.copy()
+        left = left.copy()
+        right = right.copy()
 
         if self._do_balance:
-            copy_left.balance()
-            copy_right.balance()
+            left.balance()
+            right.balance()
 
         if self._do_positive:
-            copy_left.counts = metrics.positive(copy_left.counts,
-                                                copy_right.counts)
-            copy_right.counts = metrics.positive(copy_right.counts,
-                                                 copy_left.counts)
+            left.counts = metrics.positive(left.counts, right.counts)
+            right.counts = metrics.positive(right.counts, left.counts)
 
         if self._do_smooth:
-            self.dynamic_smooth(copy_left, copy_right)
+            self.dynamic_smooth(left, right)
         if self._do_scale:
-            scale_left, scale_right = metrics.get_scale(copy_left.counts,
-                                                        copy_right.counts)
+            left_scale, right_scale = metrics.get_scale(left.counts,
+                                                        right.counts)
 
             if self._down:
-                scale_left, scale_right = metrics.scale_down(scale_left,
-                                                             scale_right)
-            copy_left.counts = copy_left.counts * scale_left
-            copy_right.counts = copy_right.counts * scale_right
+                left_scale, right_scale = metrics.scale_down(left_scale,
+                                                             right_scale)
+            left.counts = left.counts * left_scale
+            right.counts = right.counts * right_scale
 
         if not self._distance_function:
-            return metrics.multiset(copy_left.counts, copy_right.counts,
-                                    self._pairwise)
-        return self._distance_function(copy_left.counts, copy_right.counts)
+            return metrics.multiset(left.counts, right.counts, self._pairwise)
+        return self._distance_function(left.counts, right.counts)
 
 
 def distance_matrix(profiles, output, precision, k_diff):
     """
-    Make a distance matrix any number of *k*-mer profiles.
+    Make a distance matrix for any number of *k*-mer profiles.
 
-    :arg profiles: List of *k*-mer profiles.
-    :type profiles: list(klib.Profile)
+    :arg list(Profile) profiles: List of profiles.
     :arg output: Open writable file handle.
     :type output: file-like object
-    :arg precision: Number of digits in the output.
-    :type precision: int
-    :arg k_diff: A kMerDiff object.
-    :type k_diff: kMerDiff
+    :arg int precision: Number of digits in the output.
+    :arg k_mer.kdifflib.kMerDiff k_diff: A distance functions object.
     """
     input_count = len(profiles)
 

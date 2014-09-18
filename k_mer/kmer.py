@@ -100,18 +100,14 @@ def merge(input_handle_left, input_handle_right, output_handle,
     that of the original profiles if they match, or to their concatenation
     otherwise.
 
-    :arg input_handle_left, input_handle_right: Open readable k-mer profile
-      file handle.
-    :type input_handle_left, input_handle_right: h5py.File
-    :arg output_handle: Open writeable k-mer profile file handle.
-    :type output_handle: h5py.File
-    :arg names_left, names_right: Optional list of names of the k-mer profiles
-      to consider. If not provided, all profiles in the file are considered.
-    :type names_left, names_right: list(str)
-    :arg merger: Merge function.
-    :type merger: function
-    :arg custom_merger: Custom merge function.
-    :type custom_merger: str
+    :arg h5py.File input_handle_left, input_handle_right: Open readable k-mer
+      profile file handle.
+    :arg h5py.File output_handle: Open writeable k-mer profile file handle.
+    :arg list(str) names_left, names_right: Optional list of names of the
+      k-mer profiles to consider. If not provided, all profiles in the file
+      are considered.
+    :arg function merger: Merge function.
+    :arg str custom_merger: Custom merge function.
     """
     names_left = names_left or sorted(input_handle_left['profiles'])
     names_right = names_right or sorted(input_handle_right['profiles'])
@@ -154,10 +150,8 @@ def balance(input_handle, output_handle, names=None):
     """
     Balance k-mer profiles.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
-    :arg output_handle: Open writeable k-mer profile file handle.
-    :type output_handle: h5py.File
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
+    :arg h5py.File output_handle: Open writeable k-mer profile file handle.
     :arg names: Optional list of names of the k-mer profiles to consider. If
       not provided, all profiles in the file are considered in alphabetical
       order.
@@ -175,12 +169,10 @@ def get_balance(input_handle, output_handle, precision=3, names=None):
     """
     Show the balance of k-mer profiles.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
     :arg output_handle: Open writeable k-mer profile file handle.
     :type output_handle: file-like object
-    :arg precision: Number of digits in the output.
-    :type precision: int
+    :arg int precision: Number of digits in the output.
     :arg names: Optional list of names of the k-mer profiles to consider. If
       not provided, all profiles in the file are considered in alphabetical
       order.
@@ -205,12 +197,10 @@ def get_stats(input_handle, output_handle, precision=3, names=None):
     """
     Show the mean and standard deviation of k-mer profiles.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
     :arg output_handle: Open writeable file handle.
     :type output_handle: file-like object
-    :arg precision: Number of digits in the output.
-    :type precision: int
+    :arg int precision: Number of digits in the output.
     :arg names: Optional list of names of the k-mer profiles to consider. If
       not provided, all profiles in the file are considered in alphabetical
       order.
@@ -233,8 +223,7 @@ def distribution(input_handle, output_handle, names=None):
     line has the name of the profile, the count and the number of k-mers with
     this count.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
     :arg output_handle: Open writeable file handle.
     :type output_handle: file-like object
     :arg names: Optional list of names of the k-mer profiles to consider. If
@@ -256,8 +245,7 @@ def info(input_handle, output_handle, names=None):
     """
     Print some information about k-mer profiles.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
     :arg output_handle: Open writeable file handle.
     :type output_handle: file-like object
     :arg names: Optional list of names of the k-mer profiles to consider. If
@@ -297,12 +285,10 @@ def get_count(input_handle, output_handle, word, names=None):
     """
     Retrieve the counts in k-mer profiles for a particular word.
 
-    :arg input_handle: Open readable handle to a k-mer profile file.
-    :type input_handle: h5py.File
+    :arg h5py.File input_handle: Open readable handle to a k-mer profile file.
     :arg output_handle: Open writeable file handle.
     :type output_handle: file-like object
-    :arg word: The query word.
-    :type word: str
+    :arg str word: The query word.
     :arg names: Optional list of names of the k-mer profiles to consider. If
       not provided, all profiles in the file are considered in alphabetical
       order.
@@ -329,15 +315,13 @@ def positive(input_handle_left, input_handle_right, output_handle_left,
     contain more than one profile, they are linked by name and processed
     pairwise.
 
-    :arg input_handle_left, input_handle_right: Open readable k-mer profile
-      file handle.
-    :type input_handle_left, input_handle_right: h5py.File
-    :arg output_handle_left, output_handle_right: Open writeable k-mer profile
-      file handle.
-    :type output_handle_left, output_handle_right: h5py.File
-    :arg names_left, names_right: Optional list of names of the k-mer profiles
-      to consider. If not provided, all profiles in the file are considered.
-    :type names_left, names_right: list(str)
+    :arg h5py.File input_handle_left, input_handle_right: Open readable k-mer
+      profile file handle.
+    :arg h5py.File output_handle_left, output_handle_right: Open writeable
+      k-mer profile file handle.
+    :arg list(str) names_left, names_right: Optional list of names of the
+      k-mer profiles consider. If not provided, all profiles in the file are
+      considered.
     """
     names_left = names_left or sorted(input_handle_left['profiles'])
     names_right = names_right or sorted(input_handle_right['profiles'])
@@ -370,17 +354,14 @@ def scale(input_handle_left, input_handle_right, output_handle_left,
     files contain more than one profile, they are linked by name and processed
     pairwise.
 
-    :arg input_handle_left, input_handle_right: Open readable k-mer profile
-      file handle.
-    :type input_handle_left, input_handle_right: h5py.File
-    :arg output_handle_left, output_handle_right: Open writeable k-mer profile
-      file handle.
-    :type output_handle_left, output_handle_right: h5py.File
-    :arg names_left, names_right: Optional list of names of the k-mer profiles
-      to consider. If not provided, all profiles in the file are considered.
-    :type names_left, names_right: list(str)
-    :arg down: Scale down.
-    :type down: bool
+    :arg h5py.File input_handle_left, input_handle_right: Open readable k-mer
+      profile handle.
+    :arg h5py.File output_handle_left, output_handle_right: Open writeable
+      k-mer profile handle.
+    :arg list(str) names_left, names_right: Optional list of names of the
+      k-mer profiles to consider. If not provided, all profiles in the file
+      are considered.
+    :arg bool down: Scale down.
     """
     names_left = names_left or sorted(input_handle_left['profiles'])
     names_right = names_right or sorted(input_handle_right['profiles'])
@@ -413,12 +394,9 @@ def shrink(input_handle, output_handle, factor, names=None):
     """
     Shrink k-mer profiles, effectively reducing k.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
-    :arg output_handle: Open writeable k-mer profile file handle.
-    :type output_handle: h5py.File
-    :arg factor: Scaling factor.
-    :type factor: int
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
+    :arg h5py.File output_handle: Open writeable k-mer profile file handle.
+    :arg int factor: Scaling factor.
     :arg names: Optional list of names of the k-mer profiles to consider. If
       not provided, all profiles in the file are considered in alphabetical
       order.
@@ -436,10 +414,8 @@ def shuffle(input_handle, output_handle, names=None):
     """
     Randomise k-mer profiles.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
-    :arg output_handle: Open writeable k-mer profile file handle.
-    :type output_handle: h5py.File
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
+    :arg h5py.File output_handle: Open writeable k-mer profile file handle.
     :arg names: Optional list of names of the k-mer profiles to consider. If
       not provided, all profiles in the file are considered in alphabetical
       order.
@@ -460,21 +436,16 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
     Smooth two profiles by collapsing sub-profiles. If the files contain more
     than one profile, they are linked by name and processed pairwise.
 
-    :arg input_handle_left, input_handle_right: Open readable k-mer profile
-      file handle.
-    :type input_handle_left, input_handle_right: h5py.File
-    :arg output_handle_left, output_handle_right: Open writeable k-mer profile
-      file handle.
-    :type output_handle_left, output_handle_right: h5py.File
-    :arg names_left, names_right: Optional list of names of the k-mer profiles
-      to consider. If not provided, all profiles in the file are considered.
-    :type names_left, names_right: list(str)
-    :arg summary: Name of the summary function.
-    :type summary: str
-    :arg custom_summary: Custom summary function.
-    :type custom_summary: str
-    :arg threshold: Threshold for the summary function.
-    :type threshold: int
+    :arg h5py.File input_handle_left, input_handle_right: Open readable k-mer
+      profile handle.
+    :arg h5py.File output_handle_left, output_handle_right: Open writeable
+      k-mer profile file handle.
+    :arg list(str) names_left, names_right: Optional list of names of the
+      k-mer profiles to consider. If not provided, all profiles in the file
+      are considered.
+    :arg str summary: Name of the summary function.
+    :arg str custom_summary: Custom summary function.
+    :arg int threshold: Threshold for the summary function.
     """
     names_left = names_left or sorted(input_handle_left['profiles'])
     names_right = names_right or sorted(input_handle_right['profiles'])
@@ -521,38 +492,25 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
     Calculate the difference between two k-mer profiles. If the files contain
     more than one profile, they are linked by name and processed pairwise.
 
-    :arg input_handle_left, input_handle_right: Open readable k-mer profile
-      file handle.
-    :type input_handle_left, input_handle_right: h5py.File
+    :arg h5py.File input_handle_left, input_handle_right: Open readable k-mer
+      profile handle.
     :arg output_handle: Open writeable file handle.
     :type output_handle: file-like object
-    :arg names_left, names_right: Optional list of names of the k-mer profiles
-      to consider. If not provided, all profiles in the file are considered.
-    :type names_left, names_right: list(str)
-    :arg distance_function: Use a specific distance function.
-    :type distance_function: str
-    :arg pairwise: Name of the pairwise distance function.
-    :type pairwise: str
-    :arg custom_pairwise: Custom pairwise distance function.
-    :type custom_pairwise: str
-    :arg do_smooth: Enable smoothing.
-    :type do_smooth: bool
-    :arg summary: Name of the summary function.
-    :type summary: str
-    :arg custom_summary: Custom summary function.
-    :type custom_summary: str
-    :arg threshold: Threshold for the summary function.
-    :type threshold: int
-    :arg do_scale: Scale the profiles.
-    :type do_scale: bool
-    :arg down: Scale down.
-    :type down: bool
-    :arg do_positive: Only use positive values.
-    :type do_positive: bool
-    :arg do_balance: Balance the profiles.
-    :type do_balance: bool
-    :arg precision: Number of digits in the output.
-    :type precision: int
+    :arg list(str) names_left, names_right: Optional list of names of the
+      k-mer profiles to consider. If not provided, all profiles in the file
+      are considered.
+    :arg str distance_function: Use a specific distance function.
+    :arg str pairwise: Name of the pairwise distance function.
+    :arg str custom_pairwise: Custom pairwise distance function.
+    :arg bool do_smooth: Enable smoothing.
+    :arg str summary: Name of the summary function.
+    :arg str custom_summary: Custom summary function.
+    :arg int threshold: Threshold for the summary function.
+    :arg bool do_scale: Scale the profiles.
+    :arg bool down: Scale down.
+    :arg bool do_positive: Only use positive values.
+    :arg bool do_balance: Balance the profiles.
+    :arg int precision: Number of digits in the output.
     """
     names_left = names_left or sorted(input_handle_left['profiles'])
     names_right = names_right or sorted(input_handle_right['profiles'])
@@ -615,38 +573,25 @@ def matrix_diff(input_handle, output_handle, names=None,
     """
     Make a distance matrix between any number of k-mer profiles.
 
-    :arg input_handle: Open readable k-mer profile file handle.
-    :type input_handle: h5py.File
+    :arg h5py.File input_handle: Open readable k-mer profile file handle.
     :arg output_handle: Open writeable file handle.
     :type output_handle: file-like object
     :arg names: Optional list of names of the k-mer profiles to consider. If
       not provided, all profiles in the file are considered in alphabetical
       order.
     :type names: list(str)
-    :arg euclidean: Use the Euclidean distance.
-    :type euclidean: bool
-    :arg pairwise: Name of the pairwise distance function.
-    :type pairwise: str
-    :arg custom_pairwise: Custom pairwise distance function.
-    :type custom_pairwise: str
-    :arg do_smooth: Enable smoothing.
-    :type do_smooth: bool
-    :arg summary: Name of the summary function.
-    :type summary: str
-    :arg custom_summary: Custom summary function.
-    :type custom_summary: str
-    :arg threshold: Threshold for the summary function.
-    :type threshold: int
-    :arg do_scale: Scale the profiles.
-    :type do_scale: bool
-    :arg down: Scale down.
-    :type down: bool
-    :arg do_positive: Only use positive values.
-    :type do_positive: bool
-    :arg do_balance: Balance the profiles.
-    :type do_balance: bool
-    :arg precision: Number of digits in the output.
-    :type precision: int
+    :arg bool euclidean: Use the Euclidean distance.
+    :arg str pairwise: Name of the pairwise distance function.
+    :arg str custom_pairwise: Custom pairwise distance function.
+    :arg bool do_smooth: Enable smoothing.
+    :arg str summary: Name of the summary function.
+    :arg str custom_summary: Custom summary function.
+    :arg int threshold: Threshold for the summary function.
+    :arg bool do_scale: Scale the profiles.
+    :arg bool down: Scale down.
+    :arg bool do_positive: Only use positive values.
+    :arg bool do_balance: Balance the profiles.
+    :arg int precision: Number of digits in the output.
     """
     names = names or sorted(input_handle['profiles'])
 

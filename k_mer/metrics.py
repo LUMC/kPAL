@@ -18,10 +18,10 @@ def distribution(vector):
     Calculate the distribution of the values in a vector.
 
     :arg vector: A vector.
-    :type vector: iterable of int
+    :type vector: iterable(int)
 
-    :return: A list of (value, count) pairs.
-    :rtype: list of (int, int)
+    :return: A list of `(value, count)` pairs.
+    :rtype: list(int, int)
     """
     # Todo: I'm not sure this should be in this module.
     return sorted(Counter(vector).items())
@@ -31,119 +31,111 @@ def vector_length(vector):
     """
     Calculate the Euclidean length of a vector.
 
-    :arg vector: A vector.
-    :type vector: array_like, 1 dimension
+    :arg array_like vector: A vector.
 
-    :return: The length of {vector}.
+    :return: The length of `vector`.
     :rtype: float
     """
     # Note: This seems faster than `numpy.linalg.norm`.
     return np.sqrt(np.dot(vector, vector))
 
 
-def get_scale(vector1, vector2):
+def get_scale(left, right):
     """
     Calculate scaling factors based upon total counts. One of the factors
     is always one (the other is either one or larger than one).
 
-    :arg vector1, vector2: Vectors.
-    :type vector1, vector2: array_like, 1 dimension
+    :arg array_like left, right: A vector.
 
     :return: A tuple of scaling factors.
-    :rtype: (float, float)
+    :rtype: float, float
     """
-    scale1 = 1.0
-    scale2 = 1.0
+    left_scale = 1.0
+    right_scale = 1.0
 
     # Calculate the scaling factors in such a way that no element is
     # between 0 and 1.
-    vector1_total = np.sum(vector1)
-    vector2_total = np.sum(vector2)
+    left_sum = np.sum(left)
+    right_sum = np.sum(right)
 
-    if vector1_total < vector2_total:
-        scale1 = vector2_total / vector1_total
+    if left_sum < right_sum:
+        left_scale = right_sum / left_sum
     else:
-        scale2 = vector1_total / vector2_total
+        right_scale = left_sum / right_sum
 
-    return scale1, scale2
+    return left_scale, right_scale
 
 
-def scale_down(scale1, scale2):
+def scale_down(left, right):
     """
     Normalise scaling factor between 0 and 1.
 
-    :arg scale1, scale2: Scaling factors.
-    :type scale1, scale2: float
+    :arg float left, right: Scaling factors.
 
     :return: Tuple of normalised scaling factors.
-    :rtype: (float, float)
+    :rtype: float, float
     """
-    factor = max(scale1, scale2)
+    factor = max(left, right)
 
-    return scale1 / factor, scale2 / factor
+    return left / factor, right / factor
 
 
-def positive(vector1, vector2):
+def positive(vector, mask):
     """
-    Set all zero positions in {vector2} to zero in {vector1}.
+    Set all zero positions in `mask` to zero in `vector`.
 
-    :arg vector1, vector2: Vectors.
-    :type vector1, vector2: array_like, 1 dimension
+    :arg array_like vector, mask: Vector.
 
-    :return: {vector1} with all zero positions in {vector2} set to zero.
-    :rtype: ndarray
+    :return: `vector` with all zero positions in `mask` set to zero.
+    :rtype: numpy.ndarray
     """
-    return np.multiply(vector1, np.asanyarray(vector2, dtype=bool))
+    return np.multiply(vector, np.asanyarray(mask, dtype=bool))
 
 
-def multiset(vector1, vector2, pairwise):
+def multiset(left, right, pairwise):
     """
     Calculate the multiset distance between two vectors.
 
-    :arg vector1, vector2: Vectors.
-    :type vector1, vector2: array_like, 1 dimension
-    :arg pairwise: A pairwise distance function.
-    :type pairwise: function
+    :arg array_like left, right: Vector.
+    :arg function pairwise: A pairwise distance function.
 
-    :return: The multiset distance between {vector1} and {vector2}.
+    :return: The multiset distance between `left` and `right`.
     :rtype: float
 
     Note that `function` must be vectorized, i.e., it is called directly on
     NumPy arrays, instead of on their pairwise elements. If your function only
     works on individual elements, convert it to a NumPy ufunc first. For
-    example:
+    example::
 
-        f = np.vectorize(f, otypes=['float'])
+        >>> f = np.vectorize(f, otypes=['float'])
     """
-    vector1 = np.asanyarray(vector1)
-    vector2 = np.asanyarray(vector2)
+    left = np.asanyarray(left)
+    right = np.asanyarray(right)
 
-    nonzero = np.where(np.logical_or(vector1, vector2))
-    distances = pairwise(vector1[nonzero], vector2[nonzero])
+    nonzero = np.where(np.logical_or(left, right))
+    distances = pairwise(left[nonzero], right[nonzero])
     return distances.sum() / (len(distances) + 1)
 
 
-def euclidean(vector1, vector2):
+def euclidean(left, right):
     """
     Calculate the Euclidean distance between two vectors.
 
-    :arg vector1, vector2: Vectors.
-    :type vector1, vector2: array_like, 1 dimension
+    :arg array_like left, right: Vector.
 
-    :return: The Euclidean distance between {vector1} and {vector2}.
+    :return: The Euclidean distance between `left` and `right`.
     :rtype: float
     """
     return vector_length(np.subtract(vector2, vector1))
 
 
-def cosine_similarity(vector1, vector2):
+def cosine_similarity(left, right):
     """
     Calculate the Cosine similarity between two vectors.
 
-    :arg vector1, vector2: Vectors.
-    :type vector1, vector2: array_like, 1 dimension
+    :arg array_like left, right: Vector.
 
-    :return: The Cosine similarity between {vector1} and {vector2}.
+    :return: The Cosine similarity between `left` and `right`.
     :rtype: float
     """
     return np.dot(vector1, vector2) / (vector_length(vector1) *
@@ -158,7 +150,7 @@ vector_distance = {
 }
 
 
-#: Pairwise distance functions. Arguments should be of type `ndarray`.
+#: Pairwise distance functions. Arguments should be of type `numpy.ndarray`.
 pairwise = {
     "diff-prod": lambda x, y: abs(x - y) / ((x + 1) * (y + 1)),
     "diff-sum": lambda x, y: abs(x - y) / (x + y + 1)
@@ -173,7 +165,7 @@ summary = {
 }
 
 
-#: Merge functions. Arguments should be of type `ndarray`.
+#: Merge functions. Arguments should be of type `numpy.ndarray`.
 mergers = {
     "sum": lambda x, y: x + y,
     "xor": lambda x, y: (x + y) * np.logical_xor(x, y),

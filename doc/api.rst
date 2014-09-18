@@ -3,7 +3,8 @@
 API reference
 =============
 
-This part of the documentation covers all the interfaces of kMer.
+This part of the documentation covers the interfaces of kMer's Python
+library.
 
 
 *k*-mer profiles

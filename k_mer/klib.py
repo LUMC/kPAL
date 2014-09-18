@@ -28,8 +28,9 @@ class Profile(object):
     - :meth:`~Profile.from_file_old_format`
     - :meth:`~Profile.from_fasta`
 
-    :arg ndarray counts: NumPy array of integers where each element is the
-      count for a *k*-mer. Ordering is alphabetically by the *k*-mer.
+    :arg counts: Array of integers where each element is the count for a
+      *k*-mer. Ordering is alphabetically by the *k*-mer.
+    :type counts: numpy.ndarray
     :arg str name: Profile name.
     """
     #: Conversion table form nucleotide to binary.
@@ -58,10 +59,8 @@ class Profile(object):
         """
         Load the *k*-mer profile from a file.
 
-        :arg handle: Open readable *k*-mer profile file handle.
-        :type handle: h5py.File
-        :arg name: Profile name.
-        :arg name: str
+        :arg h5py.File handle: Open readable *k*-mer profile file handle.
+        :arg str name: Profile name.
 
         :return: A *k*-mer profile.
         :rtype: Profile
@@ -77,8 +76,7 @@ class Profile(object):
 
         :arg handle: Open readable *k*-mer profile file handle (old format).
         :type handle: file-like object
-        :arg name: Profile name.
-        :arg name: str
+        :arg str name: Profile name.
 
         :return: A *k*-mer profile.
         :rtype: Profile
@@ -98,10 +96,8 @@ class Profile(object):
 
         :arg handle: Open readable FASTA file handle.
         :type handle: file-like object
-        :arg length: Length of the *k*-mers.
-        :type length: int
-        :arg name: Profile name.
-        :arg name: str
+        :arg int length: Length of the *k*-mers.
+        :arg str name: Profile name.
 
         :return: A *k*-mer profile.
         :rtype: Profile
@@ -175,8 +171,7 @@ class Profile(object):
         """
         Save the *k*-mer counts to a file.
 
-        :arg handle: Open writeable *k*-mer profile file handle.
-        :type handle: h5py.File
+        :arg h5py.File handle: Open writeable *k*-mer profile file handle.
         :arg name: Profile name in the file. If not provided, the current
           profile name is used, or the first available number from 1
           consecutively if the profile has no name.
@@ -205,6 +200,9 @@ class Profile(object):
         Create a copy of the *k*-mer profile. This returns a deep copy, so
         modifying the copy's *k*-mer counts will not affect the original and
         vice versa.
+
+        :return: Deep copy of profile.
+        :rtype: Profile
         """
         return type(self)(self.counts.copy(), name=self.name)
 
@@ -212,17 +210,15 @@ class Profile(object):
         """
         Merge two profiles.
 
-        :arg profile: Another *k*-mer profile.
-        :type profile: Profile
-        :arg merger: A pairwise merge function.
-        :type merger: function
+        :arg Profile profile: Another *k*-mer profile.
+        :arg function merger: A pairwise merge function.
 
         Note that `function` must be vectorized, i.e., it is called directly
         on NumPy arrays, instead of on their pairwise elements. If your
         function only works on individual elements, convert it to a NumPy
-        ufunc first. For example:
+        ufunc first. For example::
 
-            f = np.vectorize(f, otypes=['int64'])
+            >>> f = np.vectorize(f, otypes=['int64'])
         """
         self.counts = merger(self.counts, profile.counts)
 
@@ -253,7 +249,7 @@ class Profile(object):
         distance between them.
 
         :return: The doubled forward and reverse complement counts.
-        :rtype: np.ndarray(int), np.ndarray(int)
+        :rtype: numpy.ndarray, numpy.ndarray
         """
         forward = []
         reverse = []
@@ -277,8 +273,7 @@ class Profile(object):
         Note that this operation may give slightly different values than
         indexing on a lower k directly.
 
-        :arg factor: Shrinking factor.
-        :type factor: int
+        :arg int factor: Shrinking factor.
         """
         if self.length <= factor:
             raise ValueError(
@@ -306,8 +301,7 @@ class Profile(object):
         """
         Convert a string of DNA to an integer.
 
-        :arg sequence: DNA sequence.
-        :type sequence: str
+        :arg str sequence: DNA sequence.
 
         :return: Binary representation of `sequence`.
         :rtype: int
@@ -324,8 +318,7 @@ class Profile(object):
         """
         Convert an integer to a DNA string.
 
-        :arg number: Binary representation of a DNA sequence.
-        :type number: int
+        :arg int number: Binary representation of a DNA sequence.
 
         :returns: DNA string corresponding to `number`.
         :rtype: str
@@ -343,8 +336,7 @@ class Profile(object):
         Calculate the reverse complement of a DNA sequence in a binary
         representation.
 
-        :arg number: Binary representation of a DNA sequence.
-        :type number: int
+        :arg int number: Binary representation of a DNA sequence.
 
         :return: Binary representation of the reverse complement of the
           sequence corresponding to `number`.
