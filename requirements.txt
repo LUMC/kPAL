@@ -1,6 +1,7 @@
 biopython
 future
 h5py
+mock
 numpy
 pytest
 semantic-version
