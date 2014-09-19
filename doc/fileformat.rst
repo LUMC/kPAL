@@ -1,3 +1,5 @@
+.. _fileformat:
+
 *k*-mer profile file format
 ===========================
 
