@@ -1,5 +1,11 @@
 """
 Toolbox for k-mer profiles.
+
+.. moduleauthor:: Leiden University Medical Center <humgen@lumc.nl>
+.. moduleauthor:: Jeroen F.J. Laros <j.f.j.laros@lumc.nl>
+.. moduleauthor:: Martijn Vermaat <m.vermaat.hg@lumc.nl>
+
+.. Licensed under the MIT license, see the LICENSE file.
 """
 
 
