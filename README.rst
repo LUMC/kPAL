@@ -12,19 +12,15 @@ To install the latest release via PyPI using pip::
 
     pip install kMer
 
-See the documentation linked below for more detailed installation
-instructions.
+See the documentation for more detailed `installation instructions
+<http://kmer.readthedocs.org/en/latest/install.html>`_.
 
 
 Documentation
 -------------
 
-The `latest documentation <http://kmer.readthedocs.org/>`_ with user guide
-and API reference is hosted at Read The Docs.
-
-You can also compile the documentation directly from the source code by
-running ``make html`` from the ``doc/`` subdirectory. This requires `Sphinx`_
-to be installed.
+The `kMer documentation <http://kmer.readthedocs.org/>`_ with user guide and
+API reference is hosted at Read The Docs.
 
 
 Copyright
