@@ -126,7 +126,7 @@ def euclidean(left, right):
     :return: The Euclidean distance between `left` and `right`.
     :rtype: float
     """
-    return vector_length(np.subtract(vector2, vector1))
+    return vector_length(np.subtract(left, right))
 
 
 def cosine_similarity(left, right):
@@ -138,8 +138,7 @@ def cosine_similarity(left, right):
     :return: The Cosine similarity between `left` and `right`.
     :rtype: float
     """
-    return np.dot(vector1, vector2) / (vector_length(vector1) *
-                                       vector_length(vector2))
+    return np.dot(left, right) / (vector_length(left) * vector_length(right))
 
 
 #: Vector distance functions.
