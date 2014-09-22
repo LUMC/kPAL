@@ -1,5 +1,5 @@
 """
-*k*-mer profile difference library.
+*k*-mer profile distance library.
 
 .. moduleauthor:: Leiden University Medical Center <humgen@lumc.nl>
 .. moduleauthor:: Jeroen F.J. Laros <j.f.j.laros@lumc.nl>
@@ -18,14 +18,14 @@ import numpy as np
 from . import metrics
 
 
-class kMerDiff(object):
+class ProfileDistance(object):
     """
     Class of distance functions.
     """
     def __init__(self, do_balance=False, do_positive=False, do_smooth=False,
                  summary=metrics.summary['min'], threshold=0, do_scale=False,
                  down=False, distance_function=None,
-                 pairwise=metrics.pairwise['diff-prod']):
+                 pairwise=metrics.pairwise['prod']):
         """
         Initialise the class.
 
@@ -161,7 +161,7 @@ class kMerDiff(object):
         return self._distance_function(left.counts, right.counts)
 
 
-def distance_matrix(profiles, output, precision, k_diff):
+def distance_matrix(profiles, output, precision, dist):
     """
     Make a distance matrix for any number of *k*-mer profiles.
 
@@ -169,7 +169,7 @@ def distance_matrix(profiles, output, precision, k_diff):
     :arg output: Open writable file handle.
     :type output: file-like object
     :arg int precision: Number of digits in the output.
-    :arg k_mer.kdifflib.kMerDiff k_diff: A distance functions object.
+    :arg k_mer.kdistlib.ProfileDistance dist: A distance functions object.
     """
     input_count = len(profiles)
 
@@ -181,6 +181,6 @@ def distance_matrix(profiles, output, precision, k_diff):
             if (j):
                 output.write(' ')
             output.write('{{0:.{0}f}}'.format(precision).format(
-                         k_diff.distance(profiles[i], profiles[j])))
+                         dist.distance(profiles[i], profiles[j])))
 
         output.write('\n')

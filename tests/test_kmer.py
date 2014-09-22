@@ -242,7 +242,7 @@ class TestKmer(utils.TestEnvironment):
         utils.test_profile_file(filename, counts, 2)
 
     def test_smooth(self):
-        # See test_kdifflib.test_kmerdiff_dynamic_smooth
+        # See test_kdistlib.test_ProfileDistance_dynamic_smooth
         counts_left = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
         counts_right = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
         filename_left = self.empty()
@@ -261,7 +261,7 @@ class TestKmer(utils.TestEnvironment):
         utils.test_profile_file(filename_right, counts_right, 2)
 
     def test_smooth_custom_expr(self):
-        # See test_kdifflib.test_kmerdiff_dynamic_smooth
+        # See test_kdistlib.test_ProfileDistance_dynamic_smooth
         counts_left = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
         counts_right = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
         filename_left = self.empty()
@@ -274,7 +274,7 @@ class TestKmer(utils.TestEnvironment):
                         kmer.smooth(handle_left, handle_right, out_left, out_right, custom_summary='np.max(values)')
 
     def test_smooth_custom_name(self):
-        # See test_kdifflib.test_kmerdiff_dynamic_smooth
+        # See test_kdistlib.test_ProfileDistance_dynamic_smooth
         counts_left = Counter(['AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TG', 'TT'])
         counts_right = Counter(['AC', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT'])
         filename_left = self.empty()
@@ -286,84 +286,84 @@ class TestKmer(utils.TestEnvironment):
                     with utils.open_profile(filename_right, 'w') as out_right:
                         kmer.smooth(handle_left, handle_right, out_left, out_right, custom_summary='numpy.max')
 
-    def test_pair_diff(self):
+    def test_distance(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right, out)
+                kmer.distance(handle_left, handle_right, out)
 
         assert out.getvalue() == 'left right %.3f\n' % 0.4626209322
 
-    def test_pair_diff_smooth(self):
+    def test_distance_smooth(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True)
+                kmer.distance(handle_left, handle_right, out, do_smooth=True)
 
         assert out.getvalue() == 'left right 0.077\n'
 
-    def test_pair_diff_smooth_average(self):
+    def test_distance_smooth_average(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True, summary='average')
+                kmer.distance(handle_left, handle_right, out, do_smooth=True, summary='average')
 
         assert out.getvalue() == 'left right 0.474\n'
 
-    def test_pair_diff_smooth_expr(self):
+    def test_distance_smooth_expr(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True, custom_summary='np.max(values)')
+                kmer.distance(handle_left, handle_right, out, do_smooth=True, custom_summary='np.max(values)')
 
         assert out.getvalue() == 'left right 0.474\n'
 
-    def test_pair_diff_smooth_name(self):
+    def test_distance_smooth_name(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right, out, do_smooth=True, custom_summary='numpy.max')
+                kmer.distance(handle_left, handle_right, out, do_smooth=True, custom_summary='numpy.max')
 
         assert out.getvalue() == 'left right 0.474\n'
 
-    def test_pair_diff_pairwise_expr(self):
+    def test_distance_pairwise_expr(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
+                kmer.distance(handle_left, handle_right, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
 
         assert out.getvalue() == 'left right 0.001\n'
 
-    def test_pair_diff_pairwise_name(self):
+    def test_distance_pairwise_name(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.pair_diff(handle_left, handle_right, out, custom_pairwise='numpy.multiply')
+                kmer.distance(handle_left, handle_right, out, custom_pairwise='numpy.multiply')
 
         assert out.getvalue() == 'left right 0.084\n'
 
-    def test_matrix_diff(self):
+    def test_distance_matrix(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
@@ -373,11 +373,11 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.matrix_diff(handle, out)
+                    kmer.distance_matrix(handle, out)
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.463', '0.000 0.463']
 
-    def test_matrix_diff_smooth(self):
+    def test_distance_matrix_smooth(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
@@ -387,11 +387,11 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.matrix_diff(handle, out, do_smooth=True)
+                    kmer.distance_matrix(handle, out, do_smooth=True)
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.077', '0.000 0.077']
 
-    def test_matrix_diff_smooth_average(self):
+    def test_distance_matrix_smooth_average(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
@@ -401,11 +401,11 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.matrix_diff(handle, out, do_smooth=True, summary='average')
+                    kmer.distance_matrix(handle, out, do_smooth=True, summary='average')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
 
-    def test_matrix_diff_smooth_expr(self):
+    def test_distance_matrix_smooth_expr(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
@@ -415,11 +415,11 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.matrix_diff(handle, out, do_smooth=True, custom_summary='np.max(values)')
+                    kmer.distance_matrix(handle, out, do_smooth=True, custom_summary='np.max(values)')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
 
-    def test_matrix_diff_smooth_name(self):
+    def test_distance_matrix_smooth_name(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
@@ -429,11 +429,11 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.matrix_diff(handle, out, do_smooth=True, custom_summary='numpy.max')
+                    kmer.distance_matrix(handle, out, do_smooth=True, custom_summary='numpy.max')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
 
-    def test_matrix_diff_pairwise_expr(self):
+    def test_distance_matrix_pairwise_expr(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
@@ -443,11 +443,11 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.matrix_diff(handle, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
+                    kmer.distance_matrix(handle, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.001', '0.000 0.001']
 
-    def test_matrix_diff_pairwise_name(self):
+    def test_distance_matrix_pairwise_name(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
         out = StringIO()
@@ -457,6 +457,6 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.matrix_diff(handle, out, custom_pairwise='numpy.multiply')
+                    kmer.distance_matrix(handle, out, custom_pairwise='numpy.multiply')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.084', '1.206 0.084']

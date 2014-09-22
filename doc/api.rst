@@ -16,12 +16,12 @@ library.
    :members:
 
 
-*k*-mer profile differences
----------------------------
+*k*-mer profile distances
+-------------------------
 
-.. module:: k_mer.kdifflib
+.. module:: k_mer.kdistlib
 
-.. autoclass:: kMerDiff
+.. autoclass:: ProfileDistance
    :members:
 
 .. autofunction:: distance_matrix

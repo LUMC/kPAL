@@ -70,7 +70,7 @@ class TestMetrics(object):
     def test_multiset(self):
         a = np.random.random_integers(1, 100, 100)
         b = np.random.random_integers(1, 100, 100)
-        pairwise = metrics.pairwise['diff-prod']
+        pairwise = metrics.pairwise['prod']
 
         values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
         np.testing.assert_almost_equal(metrics.multiset(a, b, pairwise),
@@ -79,7 +79,7 @@ class TestMetrics(object):
     def test_multiset_zeros(self):
         a = np.random.random_integers(0, 20, 100)
         b = np.random.random_integers(0, 20, 100)
-        pairwise = metrics.pairwise['diff-prod']
+        pairwise = metrics.pairwise['prod']
 
         values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
         np.testing.assert_almost_equal(metrics.multiset(a, b, pairwise),
@@ -88,7 +88,7 @@ class TestMetrics(object):
     def test_multiset_many_zeros(self):
         a = np.random.random_integers(0, 2, 100)
         b = np.random.random_integers(0, 2, 100)
-        pairwise = metrics.pairwise['diff-prod']
+        pairwise = metrics.pairwise['prod']
 
         values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
         np.testing.assert_almost_equal(metrics.multiset(a, b, pairwise),
@@ -111,21 +111,19 @@ class TestMetrics(object):
         np.testing.assert_almost_equal(metrics.cosine_similarity(a, b),
                                        cs)
 
-    def test_pairwise_diff_prod(self):
+    def test_pairwise_prod(self):
         i = np.random.randint(100)
         j = np.random.randint(100)
 
-        diff_prod = abs(i - j) / float((i + 1) * (j + 1))
-        np.testing.assert_almost_equal(metrics.pairwise['diff-prod'](i, j),
-                                       diff_prod)
+        prod = abs(i - j) / float((i + 1) * (j + 1))
+        np.testing.assert_almost_equal(metrics.pairwise['prod'](i, j), prod)
 
-    def test_pairwise_diff_sum(self):
+    def test_pairwise_sum(self):
         i = np.random.randint(100)
         j = np.random.randint(100)
 
-        diff_sum = abs(i - j) / float(i + j + 1)
-        np.testing.assert_almost_equal(metrics.pairwise['diff-sum'](i, j),
-                                       diff_sum)
+        sum = abs(i - j) / float(i + j + 1)
+        np.testing.assert_almost_equal(metrics.pairwise['sum'](i, j), sum)
 
     def test_summary_average(self):
         a = np.random.rand(100)

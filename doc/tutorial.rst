@@ -121,11 +121,11 @@ previous numbers::
 Distance between profiles
 -------------------------
 
-We can compare two profiles by using a distance function. By default, `diff`
-uses the multiset distance parameterised by the `diff-prod` pairwise distance
-function (:math:`f_2` in :ref:`method-distance`)::
+We can compare two profiles by using a distance function. By default,
+`distance` uses the multiset distance parameterised by the `prod` pairwise
+distance function (:math:`f_2` in :ref:`method-distance`)::
 
-    $ kMer diff reads_1.k8 reads_2.k8 -l c_1 -r c_2
+    $ kMer distance reads_1.k8 reads_2.k8 -l c_1 -r c_2
     c_1 c_2 0.456
 
 All profiles in a file can be compared pairwise to produce a distance matrix

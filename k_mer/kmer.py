@@ -22,7 +22,7 @@ import sys
 import numpy as np
 
 from . import (USAGE, FileType, ProfileFileType, doc_split, version, klib,
-               kdifflib, metrics)
+               kdistlib, metrics)
 
 
 LENGTH_ERROR = 'k-mer lengths of the files differ'
@@ -194,7 +194,7 @@ def get_balance(input_handle, output_handle, precision=3, names=None):
 
         forward, reverse = profile.split()
         balance = metrics.multiset(forward, reverse,
-                                   metrics.pairwise['diff-prod'])
+                                   metrics.pairwise['prod'])
         print(name, '{{0:.{0}f}}'.format(precision).format(balance),
               file=output_handle)
 
@@ -472,7 +472,8 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
     else:
         summary_function = metrics.summary[summary]
 
-    diff = kdifflib.kMerDiff(summary=summary_function, threshold=threshold)
+    dist = kdistlib.ProfileDistance(summary=summary_function,
+                                    threshold=threshold)
 
     for name_left, name_right in zip(names_left, names_right):
         profile_left = klib.Profile.from_file(input_handle_left,
@@ -483,19 +484,19 @@ def smooth(input_handle_left, input_handle_right, output_handle_left,
         if profile_left.length != profile_right.length:
             raise ValueError(LENGTH_ERROR)
 
-        diff.dynamic_smooth(profile_left, profile_right)
+        dist.dynamic_smooth(profile_left, profile_right)
 
         profile_left.save(output_handle_left)
         profile_right.save(output_handle_right)
 
 
-def pair_diff(input_handle_left, input_handle_right, output_handle,
-              names_left=None, names_right=None, distance_function='default',
-              pairwise='diff-prod', custom_pairwise=None, do_smooth=False,
-              summary='min', custom_summary=None, threshold=0, do_scale=False,
-              down=False, do_positive=False, do_balance=False, precision=3):
+def distance(input_handle_left, input_handle_right, output_handle,
+             names_left=None, names_right=None, distance_function='default',
+             pairwise='prod', custom_pairwise=None, do_smooth=False,
+             summary='min', custom_summary=None, threshold=0, do_scale=False,
+             down=False, do_positive=False, do_balance=False, precision=3):
     """
-    Calculate the difference between two k-mer profiles. If the files contain
+    Calculate the distance between two k-mer profiles. If the files contain
     more than one profile, they are linked by name and processed pairwise.
 
     :arg h5py.File input_handle_left, input_handle_right: Open readable k-mer
@@ -550,7 +551,7 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
     else:
         pairwise_function = metrics.pairwise[pairwise]
 
-    diff = kdifflib.kMerDiff(
+    dist = kdistlib.ProfileDistance(
         do_balance=do_balance, do_positive=do_positive, do_smooth=do_smooth,
         summary=summary_function, threshold=threshold, do_scale=do_scale,
         down=down, pairwise=pairwise_function,
@@ -566,16 +567,17 @@ def pair_diff(input_handle_left, input_handle_right, output_handle,
             raise ValueError(LENGTH_ERROR)
 
         print(name_left, name_right,
-              '{{0:.{0}f}}'.format(precision).format(diff.distance(
+              '{{0:.{0}f}}'.format(precision).format(dist.distance(
                   profile_left, profile_right)),
               file=output_handle)
 
 
-def matrix_diff(input_handle, output_handle, names=None,
-                distance_function='default', pairwise='diff-prod',
-                custom_pairwise=None, do_smooth=False, summary='min',
-                custom_summary=None, threshold=0, do_scale=False, down=False,
-                do_positive=False, do_balance=False, precision=3):
+def distance_matrix(input_handle, output_handle, names=None,
+                    distance_function='default', pairwise='prod',
+                    custom_pairwise=None, do_smooth=False, summary='min',
+                    custom_summary=None, threshold=0, do_scale=False,
+                    down=False, do_positive=False, do_balance=False,
+                    precision=3):
     """
     Make a distance matrix between any number of k-mer profiles.
 
@@ -630,7 +632,7 @@ def matrix_diff(input_handle, output_handle, names=None,
     else:
         pairwise_function = metrics.pairwise[pairwise]
 
-    diff = kdifflib.kMerDiff(
+    dist = kdistlib.ProfileDistance(
         do_balance=do_balance, do_positive=do_positive, do_smooth=do_smooth,
         summary=summary_function, threshold=threshold, do_scale=do_scale,
         down=down, pairwise=pairwise_function,
@@ -647,7 +649,7 @@ def matrix_diff(input_handle, output_handle, names=None,
         if counts[0].length != counts[-1].length:
             raise ValueError(LENGTH_ERROR)
 
-    kdifflib.distance_matrix(counts, output_handle, precision, diff)
+    kdistlib.distance_matrix(counts, output_handle, precision, dist)
 
 
 def main():
@@ -729,32 +731,32 @@ def main():
         '-n', metavar='INT', dest='precision', type=int, default=3,
         help='precision in number of decimals (default: %(default)s)')
 
-    diff_parser = argparse.ArgumentParser(
+    dist_parser = argparse.ArgumentParser(
         add_help=False,
         parents=[scale_parser, smooth_parser, precision_parser])
-    diff_parser.add_argument(
+    dist_parser.add_argument(
         '-b', '--balance', dest='do_balance', action='store_true',
         help='balance the profiles')
-    diff_parser.add_argument(
+    dist_parser.add_argument(
         '--positive', dest='do_positive', action='store_true',
         help='use only positive values')
-    diff_parser.add_argument(
+    dist_parser.add_argument(
         '-S', '--scale', dest='do_scale', action='store_true',
         help='scale the profiles')
-    diff_parser.add_argument(
+    dist_parser.add_argument(
         '-m', '--smooth', dest='do_smooth', action='store_true',
         help='smooth the profiles')
-    diff_parser.add_argument(
+    dist_parser.add_argument(
         '-D', dest='distance_function', type=str, default='default',
         choices=metrics.vector_distance,
         help='choose distance function (default: %(default)s)')
-    diff_parser.add_argument(
-        '-P', dest='pairwise', type=str, default='diff-prod',
+    dist_parser.add_argument(
+        '-P', dest='pairwise', type=str, default='prod',
         choices=metrics.pairwise, help='paiwise distance function for the '
         'multiset distance (default: %(default)s)')
     # Todo: Note in the documentation that the custom pairwise must be
     #   vectorized with a tip for using np.vectorize if it is not.
-    diff_parser.add_argument(
+    dist_parser.add_argument(
         '-f', '--pairwise-function', metavar='STRING', dest='custom_pairwise',
         type=str,
         help='custom Python pairwise function, specified either by an '
@@ -875,16 +877,16 @@ def main():
         description=doc_split(smooth))
     parser_smooth.set_defaults(func=smooth)
 
-    parser_diff = subparsers.add_parser(
-        'diff', parents=[paired_input_profile_parser, diff_parser],
-        description=doc_split(pair_diff))
-    parser_diff.set_defaults(func=pair_diff, output_handle=sys.stdout)
+    parser_distance = subparsers.add_parser(
+        'distance', parents=[paired_input_profile_parser, dist_parser],
+        description=doc_split(distance))
+    parser_distance.set_defaults(func=distance, output_handle=sys.stdout)
 
     # Todo: I think we should just write to stdout.
     parser_matrix = subparsers.add_parser(
-        'matrix', parents=[input_profile_parser, output_parser, diff_parser],
-        description=doc_split(matrix_diff))
-    parser_matrix.set_defaults(func=matrix_diff)
+        'matrix', parents=[input_profile_parser, output_parser, dist_parser],
+        description=doc_split(distance_matrix))
+    parser_matrix.set_defaults(func=distance_matrix)
 
     try:
         arguments = parser.parse_args()

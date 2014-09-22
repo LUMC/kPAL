@@ -157,8 +157,8 @@ vector_distance = {
 
 #: Pairwise distance functions. Arguments should be of type `numpy.ndarray`.
 pairwise = {
-    "diff-prod": lambda x, y: abs(x - y) / ((x + 1) * (y + 1)),
-    "diff-sum": lambda x, y: abs(x - y) / (x + y + 1)
+    "prod": lambda x, y: abs(x - y) / ((x + 1) * (y + 1)),
+    "sum": lambda x, y: abs(x - y) / (x + y + 1)
 }
 
 

@@ -52,9 +52,9 @@ Since the *k*-mer profile is in essence a vector of almost independent values,
 we can use any metric defined for vectors to calculate the *distance* between
 two profiles. We have implemented two metrics which are the standard Euclidian
 distance measure and the *multiset* distance measure :eq:`multiset`. The last
-metric is parameterised by a function that reflects the difference between a
-pair. We have implemented two pairwise distance functions :eq:`diffprod` and
-:eq:`diffsum`.
+metric is parameterised by a function that reflects the distance between a
+pair. We have implemented two pairwise distance functions :eq:`pairwise-prod`
+and :eq:`pairwise-sum`.
 
 For a multiset :math:`X`, let :math:`S(X)` denote its underlying set. For
 multisets :math:`X, Y` with :math:`S(X), S(Y) \subseteq \{1, 2, \ldots, n\}`
@@ -66,12 +66,12 @@ we define:
    d_f = \frac{\sum^n_{i=1} f(x_i, y_i)}{|S(X) \cup S(Y)| + 1}
 
 .. math::
-   :label: diffprod
+   :label: pairwise-prod
 
    f_1(x, y) = \frac{|x - y|}{(x + 1)(y + 1)}
 
 .. math::
-   :label: diffsum
+   :label: pairwise-sum
 
    f_2(x, y) = \frac{|x - y|}{x + y + 1}
 

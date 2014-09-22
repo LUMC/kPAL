@@ -38,7 +38,7 @@ scale        Scale profiles such that the total number of *k*-mer frequencies
 shrink       Shrink a profile, effectively reducing *k*-mer length.
 shuffle      Randomise a profile.
 smooth       Smooth two profiles by collapsing sub-profiles.
-diff         Calculate the distance between two profiles.
+distance     Calculate the distance between two profiles.
 matrix       Make a pairwise distance matrix for a series of *k*-mer profiles.
 ===========  =================================================================
 
