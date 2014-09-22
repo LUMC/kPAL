@@ -28,6 +28,9 @@ Release date to be decided.
 - `Travis CI <https://travis-ci.org/LUMC/kMer>`_ configuration.
 - `Sphinx documentation <http://kmer.readthedocs.org/>`_ including a user
   guide and API reference.
+- Renamed the `index` command to `count`.
+- Renamed the `diff` command to `distance` and the builtin pairwise distance
+  functions from `diff-prod` and `diff-sum` to just `prod` and `sum`.
 
 
 .. _v1.0.0-py3:
