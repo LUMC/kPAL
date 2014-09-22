@@ -5,15 +5,23 @@ Methodology
 
 Below we describe the methods implemented by kMer.
 
+.. _fig-methods-overview:
 
-.. _method-index:
+  Figure 1
 
-*k*-mer indexing
+  .. image:: images/methods-overview.png
+     :target: _images/methods-overview.png
+
+
+.. _method-count:
+
+*k*-mer counting
 ----------------
 
-The first step in any *k*-mer analysis is the generation of a profile, which
-is constructed by the *indexing* algorithm. The efficiency of the algorithm is
-improved by encoding the DNA string in binary following this map:
+The first step in any *k*-mer analysis is the generation of a profile
+(:ref:`Figure 1 <fig-methods-overview>`), which is constructed by the *counting*
+algorithm. The efficiency of the algorithm is improved by encoding the DNA
+string in binary following this map:
 
 ====  ======
 Base  Binary
@@ -30,7 +38,7 @@ nucleotide in a given DNA string. This procedure eliminates the need to store
 the actual *k*-mer sequences since they can be retrieved from decoding the
 offset in the count table. The binary code for each nucleotide is chosen in
 such a way that the complement of the nucleotide can be calculated using the
-binary *NOT* operator. The indexing algorithm returns a profile that holds
+binary *NOT* operator. The counting algorithm returns a profile that holds
 observed counts for all possible substrings of length *k* that can be stored
 for other analyses.
 
@@ -86,13 +94,22 @@ complement). Thus, *k*-mer balance can indicate the quality of NGS data in
 respect to over-amplification, insufficient number of reads, or poor capture
 performance in the case of whole exome sequencing.
 
+.. _fig-methods-balance:
+
+  Figure 2
+
+  .. image:: images/methods-balance.png
+     :target: _images/methods-balance.png
+     :width: 300px
+
 To calculate the balance, first we observe that every *k*-mer has a reverse
 complement. One of these is lexicographically smaller (or equal in the case of
 a palindrome) than the other. We first split a profile into two vectors,
 :math:`A = (a_0, a_1, \ldots)` and :math:`B = (b_0, b_1, \ldots)` and where
 :math:`b_i` represents the reverse complement of :math:`a_i` and vice
 versa. The distance between these vectors can be calculated in the same way as
-described for pairwise comparison of two full *k*-mer profiles.
+described for pairwise comparison of two full *k*-mer profiles (:ref:`Figure 2
+<fig-methods-balance>`).
 
 Additionally, kMer can forcefully balance the *k*-mer profiles (if desired) by
 adding the values of each *k*-mer to its reverse complement. This procedure
@@ -104,27 +121,36 @@ can improve distance calculation if the sequencing depth is too low.
 Profile shrinking
 -----------------
 
-A profile indexed at a certain *k*-mer length contains information about
-*k*-mers of smaller lengths. This can be seen from the fact that a word
-:math:`w` over an alphabet :math:`\mathcal{A}` has :math:`|\mathcal{A}|`
-possible suffixes of length one. To calculate the number of occurrences of
-:math:`w`, we simply need to calculate :math:`\sum_{i \in \mathcal{A}}
-count(w.i)`. This only holds when the *k*-mer length is relatively small
-compared to the length of the indexed sequences. Indeed, if a sequence of
-length :math:`l` is indexed at length :math:`k`, then :math:`(l - k + 1)`
-*k*-mers are encountered per sequence. However, *shrinking* of a profile will
-yield :math:`(l - k)` *k*-mers. Usually, this border effect is small enough to
-ignore, but should be taken into consideration when indexing large amounts of
-small (approaching length :math:`k`) sequences. Shrinking is useful when
+.. _fig-methods-shrink:
+
+  Figure 3
+
+  .. image:: images/methods-shrink.png
+     :target: _images/methods-shrink.png
+     :width: 250px
+
+A profile for a certain *k*-mer length contains information about *k*-mers of
+smaller lengths. This can be seen from the fact that a word :math:`w` over an
+alphabet :math:`\mathcal{A}` has :math:`|\mathcal{A}|` possible suffixes of
+length one. To calculate the number of occurrences of :math:`w`, we simply
+need to calculate :math:`\sum_{i \in \mathcal{A}} count(w.i)`. This only holds
+when the *k*-mer length is relatively small compared to the length of the
+original sequences. Indeed, if a sequence of length :math:`l` is used for
+counting at length :math:`k`, then :math:`(l - k + 1)` *k*-mers are
+encountered per sequence. However, *shrinking* of a profile will yield
+:math:`(l - k)` *k*-mers. Usually, this border effect is small enough to
+ignore, but should be taken into consideration when counting in large amounts
+of small (approaching length :math:`k`) sequences. Shrinking is useful when
 trying to estimate the best :math:`k` for a particular purpose. One can start
 with choosing a relatively large :math:`k` and then reuse the generated
-profile to construct a profile of smaller :math:`k` sizes.
+profile to construct a profile of smaller :math:`k` sizes (:ref:`Figure 3
+<fig-methods-shrink>`).
 
 
 .. _method-smooth:
 
-Smoothing
----------
+Scaling and smoothing
+---------------------
 
 Ideally, the samples that are used to generate profiles are sequenced with the
 same sample preparation, on the same platform, and most importantly at
@@ -134,7 +160,7 @@ similar samples are sequenced at insufficient depth, it will be reflected in a
 nullomers. While this is not a problem in itself, the fact that most
 sequencing procedures have a random selection of sequencing fragments will
 result in a random distribution of these zero counts. When comparing two
-profiles, the pairwise distances will be artificially large. Scaling the
+profiles, the pairwise distances will be artificially large. *Scaling* the
 profiles can partially compensate for differences in the sequencing depth but
 cannot account for nullomers since no distinction can be made between true
 missing words and artificially missing words. An obvious solution would be to
@@ -144,7 +170,15 @@ reduce the specificity and does not reflect the true complexity of the
 sequenced genome. To deal with this problem, we have developed the *pairwise
 smoothing* function. This method locally shrinks a profile only whe
 necessary. In this way, we retain information if it is available in both
-profiles and discard missing data.
+profiles and discard missing data (:ref:`Figure 4 <fig-methods-smooth>`).
+
+.. _fig-methods-smooth:
+
+  Figure 4
+
+  .. image:: images/methods-smooth.png
+     :target: _images/methods-smooth.png
+     :width: 250px
 
 Let :math:`P` and :math:`Q` be sub-profiles of words over an alphabet
 :math:`\mathcal{A}` of length :math:`l` (with :math:`l` devidable by
@@ -153,12 +187,9 @@ Let :math:`P` and :math:`Q` be sub-profiles of words over an alphabet
 we divide the profiles in :math:`|\mathcal{A}|` equal parts and recursively
 repeat the procedure for each part. If this is not the case, we collapse both
 :math:`P` and :math:`Q` to one word. Implemented methods of summarizing are
-minimum, mean, and median. With this method, we can index a dataset with a
+minimum, mean, and median. In :ref:`Figure 4 <fig-methods-smooth>` we show an
+example of how smoothing might work. We have chosen :math:`f = min` and
+:math:`t = 0` as default parameters.With this method, we can count with a
 large *k*-mer length :math:`k` and retain the overall specificity of the
 profile since this method can automatically select the optimal choice of
 :math:`k` locally.
-
-.. In Figure 1E we show an example of how smoothing might work. We have chosen
-   :math:`f = min` and :math:`t = 0` as default parameters.
-
-.. Todo: Add some figures.

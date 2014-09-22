@@ -15,7 +15,7 @@ We work with an artificial dataset consisting of 200 *read pairs* from four
 different samples. They are randomly generated so have no biological
 relevance.
 
-.. note:: Download the data: :download:`tutorial.zip <tutorial.zip>`
+.. note:: Download the data: :download:`tutorial.zip <downloads/tutorial.zip>`
 
     Now unzip the file and go to the resulting directory::
 
