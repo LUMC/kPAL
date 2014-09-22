@@ -72,7 +72,7 @@ def convert(input_handles, output_handle, names=None):
         profile.save(output_handle)
 
 
-def index(input_handles, output_handle, size, names=None):
+def count(input_handles, output_handle, size, names=None):
     """
     Make k-mer profiles from FASTA files.
 
@@ -781,18 +781,18 @@ def main():
 
     # Todo: Option to generate a profile per FASTA record instead of per FASTA
     #   file.
-    parser_index = subparsers.add_parser(
-        'index', parents=[output_profile_parser, multi_input_parser],
-        description=doc_split(index))
-    parser_index.add_argument(
+    parser_count = subparsers.add_parser(
+        'count', parents=[output_profile_parser, multi_input_parser],
+        description=doc_split(count))
+    parser_count.add_argument(
         '-p', '--profiles', dest='names', metavar='NAME', type=str, nargs='+',
         help='names for the created k-mer profiles, one per INPUT (default: '
         'profiles are named according to the input filenames, or numbered '
         'consecutively from 1 if no filenames are available)')
-    parser_index.add_argument(
+    parser_count.add_argument(
         '-k', dest='size', metavar='SIZE', type=int, default=9,
         help='k-mer size (%(type)s default: %(default)s)')
-    parser_index.set_defaults(func=index)
+    parser_count.set_defaults(func=count)
 
     parser_merge = subparsers.add_parser(
         'merge', parents=[paired_input_profile_parser, output_profile_parser],

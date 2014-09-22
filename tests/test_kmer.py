@@ -32,12 +32,12 @@ class TestKmer(utils.TestEnvironment):
                 kmer.convert([handle], profile_handle)
         utils.test_profile_file(filename, counts, 8)
 
-    def test_index(self):
+    def test_count(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         filename = self.empty()
         with open(self.fasta(utils.SEQUENCES)) as fasta_handle:
             with utils.open_profile(filename, 'w') as profile_handle:
-                kmer.index([fasta_handle], profile_handle, 8)
+                kmer.count([fasta_handle], profile_handle, 8)
         utils.test_profile_file(filename, counts, 8)
 
     def test_merge(self):

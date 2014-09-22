@@ -27,17 +27,17 @@ relevance.
 We'll create *k*-mer profiles for these samples and try to compare them.
 
 
-*k*-mer indexing
+*k*-mer counting
 ----------------
 
-kMer can *index* (i.e., count *k*-mers) any number of fasta files and store
-the results in one *k*-mer profile file. By default, the profiles in the file
-are named according to the original fasta filenames.
+kMer can count *k*-mers in any number of fasta files and store the results in
+one *k*-mer profile file. By default, the profiles in the file are named
+according to the original fasta filenames.
 
-Let's index the first read for all samples with *k*-mer length 8 and write the
-profiles to ``reads_1.k8``::
+Let's count 8-mers in the first read for all samples and write the profiles to
+``reads_1.k8``::
 
-    $ kMer index -k 8 reads_1.k8 *_1.fa
+    $ kMer count -k 8 reads_1.k8 *_1.fa
 
 Using the `info` command, we can get an overview of our profiles::
 
@@ -88,11 +88,11 @@ Merging profiles
 For completeness, we also want to include *k*-mer counts for the second read
 in our analysis. We can do so using the `merge` command::
 
-    $ kMer index -k 8 reads_2.k8 *_2.fa
+    $ kMer count -k 8 reads_2.k8 *_2.fa
     $ kMer merge reads_1.k8 reads_2.k8 merged.k8
 
 .. note:: Merging two *k*-mer profiles this way is equivalent to first
-          concatenating both fasta files and indexing the result.
+          concatenating both fasta files and counting in the result.
 
 By default, profiles from both files are merged pairwise in alphabetical
 order. If you need another pairing, you can provide profile names to use for

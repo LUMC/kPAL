@@ -13,9 +13,9 @@ After following :ref:`install`, kMer can be started by typing::
 More information about the available commands and their arguments is printed
 by adding the `-h` argument.
 
-For example, to count all 9-mers in a FASTA file, use the `index` command::
+For example, to count all 9-mers in a FASTA file, use the `count` command::
 
-    $ kMer index -k 9 example.k9 example.fasta
+    $ kMer count -k 9 example.k9 example.fasta
 
 Below, we provide an overview of all functions of kMer that are available via
 the command-line interface:
@@ -23,7 +23,7 @@ the command-line interface:
 ===========  =================================================================
 Command      Description
 ===========  =================================================================
-index        Make a profile from a FASTA file.
+count        Make a profile from a FASTA file.
 merge        Merge two profiles.
 balance      Balance a profile on the frequency of *k*-mers and their reverse
              complements.

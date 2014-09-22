@@ -274,10 +274,10 @@ class Profile(object):
 
     def shrink(self, factor=1):
         """
-        Shrink the profile, effectively reducing the value of k.
+        Shrink the profile, effectively reducing the value of *k*.
 
         Note that this operation may give slightly different values than
-        indexing on a lower k directly.
+        counting at a lower *k* directly.
 
         :arg int factor: Shrinking factor.
         """
