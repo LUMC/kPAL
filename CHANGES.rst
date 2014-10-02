@@ -7,7 +7,7 @@ This is a record of changes made between each kMer release.
 Version 1.0.0
 -------------
 
-Release date to be decided.
+Released on October 2nd, 2014.
 
 - Also count *k*-mers if *k* equals the length of the string.
 - Python 2.6 compatibility.
