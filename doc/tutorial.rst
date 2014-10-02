@@ -37,7 +37,7 @@ according to the original fasta filenames.
 Let's count 8-mers in the first read for all samples and write the profiles to
 ``reads_1.k8``::
 
-    $ kMer count -k 8 reads_1.k8 *_1.fa
+    $ kMer count -k 8 *_1.fa reads_1.k8
 
 Using the `info` command, we can get an overview of our profiles::
 
@@ -88,7 +88,7 @@ Merging profiles
 For completeness, we also want to include *k*-mer counts for the second read
 in our analysis. We can do so using the `merge` command::
 
-    $ kMer count -k 8 reads_2.k8 *_2.fa
+    $ kMer count -k 8 *_2.fa reads_2.k8
     $ kMer merge reads_1.k8 reads_2.k8 merged.k8
 
 .. note:: Merging two *k*-mer profiles this way is equivalent to first

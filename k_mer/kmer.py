@@ -772,7 +772,7 @@ def main():
     subparsers = parser.add_subparsers()
 
     parser_convert = subparsers.add_parser(
-        'convert', parents=[output_profile_parser, multi_input_parser],
+        'convert', parents=[multi_input_parser, output_profile_parser],
         description=doc_split(convert))
     parser_convert.add_argument(
         '-p', '--profiles', dest='names', metavar='NAME', type=str, nargs='+',
@@ -784,7 +784,7 @@ def main():
     # Todo: Option to generate a profile per FASTA record instead of per FASTA
     #   file.
     parser_count = subparsers.add_parser(
-        'count', parents=[output_profile_parser, multi_input_parser],
+        'count', parents=[multi_input_parser, output_profile_parser],
         description=doc_split(count))
     parser_count.add_argument(
         '-p', '--profiles', dest='names', metavar='NAME', type=str, nargs='+',

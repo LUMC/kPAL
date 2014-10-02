@@ -15,7 +15,7 @@ by adding the `-h` argument.
 
 For example, to count all 9-mers in a FASTA file, use the `count` command::
 
-    $ kMer count -k 9 example.k9 example.fasta
+    $ kMer count -k 9 example.fasta example.k9
 
 Below, we provide an overview of all functions of kMer that are available via
 the command-line interface:
