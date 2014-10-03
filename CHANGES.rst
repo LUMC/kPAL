@@ -7,7 +7,7 @@ This is a record of changes made between each kMer release.
 Version 1.0.1
 -------------
 
-Release date to be decided.
+Released on October 3rd, 2014.
 
 - Fix typo in setuptools trove classifier which made it impossible to push to
   PyPI.
