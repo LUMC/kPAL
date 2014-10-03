@@ -9,12 +9,6 @@ dependencies = ['numpy', 'h5py', 'biopython', 'semantic-version', 'future']
 if sys.version_info[:2] == (2, 6):
     dependencies.extend(['argparse', 'importlib'])
 
-try:
-    with open('README.rst') as readme:
-        long_description = readme.read()
-except IOError:
-    long_description = 'See https://pypi.python.org/pypi/kmer'
-
 # This is quite the hack, but we don't want to import our package from here
 # since that's recipe for disaster (it might have some uninstalled
 # dependencies, or we might import another already installed version).
@@ -30,6 +24,12 @@ for line in open(os.path.join('k_mer', '__init__.py')):
     else:
         value = value.strip('\'"')
     distmeta[field] = value
+
+try:
+    with open('README.rst') as readme:
+        long_description = readme.read()
+except IOError:
+    long_description = 'See ' + distmeta['__homepage__']
 
 setup(
     name='kMer',
