@@ -10,7 +10,7 @@ if sys.version_info[:2] == (2, 6):
     dependencies.extend(['argparse', 'importlib'])
 
 try:
-    with open('README.md') as readme:
+    with open('README.rst') as readme:
         long_description = readme.read()
 except IOError:
     long_description = 'See https://pypi.python.org/pypi/kmer'
