@@ -9,6 +9,9 @@ Version 1.0.1
 
 Release date to be decided.
 
+- Fix typo in setuptools trove classifier which made it impossible to push to
+  PyPI.
+
 
 Version 1.0.0
 -------------
