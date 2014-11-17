@@ -3,25 +3,25 @@
 Development
 ===========
 
-Development of kMer happens on GitLab:
+Development of kPAL happens on GitLab:
 https://git.lumc.nl/j.f.j.laros/k-mer
 
 
 Contributing
 ------------
 
-Contributions to kMer are very welcome! They can be feature requests, bug
+Contributions to kPAL are very welcome! They can be feature requests, bug
 reports, bug fixes, unit tests, documentation updates, or anything els you may
 come up with.
 
-Start by installing all kMer development dependencies::
+Start by installing all kPAL development dependencies::
 
     $ pip install -r requirements.txt
 
 This installs dependencies for building the documentation and running unit
 tests.
 
-After that you'll want to install kMer in *development mode*::
+After that you'll want to install kPAL in *development mode*::
 
     $ pip install -e .
 
@@ -34,7 +34,7 @@ After that you'll want to install kMer in *development mode*::
 Documentation
 -------------
 
-The `latest documentation <http://kmer.readthedocs.org/>`_ with user guide and
+The `latest documentation <http://kpal.readthedocs.org/>`_ with user guide and
 API reference is hosted at Read The Docs.
 
 You can also compile the documentation directly from the source code by
@@ -77,7 +77,7 @@ require X.Y.Z-dev instead of X.Y.Z.dev but `compatibility with setuptools
 is more important for us. Other than that, version semantics are as described
 by SemVer.
 
-Releases are `published at PyPI <https://pypi.python.org/pypi/kMer>`_ and
+Releases are `published at PyPI <https://pypi.python.org/pypi/kPAL>`_ and
 available from the git repository as tags.
 
 
@@ -95,7 +95,7 @@ Releasing a new version is done as follows:
     quick inspection.
 
 2. Update the ``CHANGES.rst`` file to state the current date for this release
-   and edit ``k_mer/__init__.py`` by updating `__date__` and removing the
+   and edit ``kpal/__init__.py`` by updating `__date__` and removing the
    ``dev`` value from `__version_info__`.
 
    Commit and tag the version update::
@@ -116,7 +116,7 @@ Releasing a new version is done as follows:
        Release date to be decided.
 
    Increment the patch version and add a ``dev`` value to `__version_info__`
-   in ``k_mer/__init__.py`` and commit these changes::
+   in ``kpal/__init__.py`` and commit these changes::
 
        git commit -am 'Open development for X.Y.Z+1'
 

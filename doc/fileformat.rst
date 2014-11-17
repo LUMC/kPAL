@@ -3,7 +3,7 @@
 *k*-mer profile file format
 ===========================
 
-The file format kMer uses to store *k*-mer profiles is `HDF5
+The file format kPAL uses to store *k*-mer profiles is `HDF5
 <http://www.hdfgroup.org/>`_. Here we describe the structure within a *k*-mer
 profile file.
 

@@ -1,6 +1,7 @@
 """
-kMer: Analysis toolkit and programming library for k-mer profiles.
+kPAL (*k*-mer profile analysis library)
 
+Analysis toolkit and programming library for k-mer profiles.
 
 Copyright (c) 2013-2014 Leiden University Medical Center <humgen@lumc.nl>
 Copyright (c) 2013-2014 Jeroen F.J. Laros <j.f.j.laros@lumc.nl>
@@ -24,7 +25,7 @@ import h5py
 import semantic_version
 
 
-__version_info__ = ('1', '0', '2', 'dev')
+__version_info__ = ('2', '0', '0', 'dev')
 __date__ = '3 Oct 2014'
 
 
@@ -91,7 +92,7 @@ class ProfileFileType(object):
             if 'w' in self._mode:
                 handle.attrs['format'] = 'kMer'
                 handle.attrs['version'] = native(str(FORMAT_VERSION))
-                handle.attrs['producer'] = 'kMer %s' % __version__
+                handle.attrs['producer'] = 'kPAL %s' % __version__
                 handle.create_group('profiles')
             else:
                 if handle.attrs.get('format') != 'kMer':

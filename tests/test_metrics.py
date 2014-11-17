@@ -1,5 +1,5 @@
 """
-Tests for the `k_mer.metrics` module.
+Tests for the `kpal.metrics` module.
 """
 
 
@@ -12,7 +12,7 @@ import math
 
 import numpy as np
 
-from k_mer import metrics
+from kpal import metrics
 
 import utils
 

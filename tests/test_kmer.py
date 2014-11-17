@@ -1,5 +1,5 @@
 """
-Tests for the `k_mer.kmer` module.
+Tests for the `kpal.kmer` module.
 """
 
 
@@ -15,7 +15,7 @@ from io import open, StringIO
 from Bio import Seq
 import numpy as np
 
-from k_mer import kmer
+from kpal import kmer
 
 import utils
 

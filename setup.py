@@ -3,7 +3,7 @@ from setuptools import setup
 import sys
 
 if sys.version_info < (2, 6):
-    raise Exception('kMer requires Python 2.6 or higher.')
+    raise Exception('kPAL requires Python 2.6 or higher.')
 
 dependencies = ['numpy', 'h5py', 'biopython', 'semantic-version', 'future']
 if sys.version_info[:2] == (2, 6):
@@ -13,7 +13,7 @@ if sys.version_info[:2] == (2, 6):
 # since that's recipe for disaster (it might have some uninstalled
 # dependencies, or we might import another already installed version).
 distmeta = {}
-for line in open(os.path.join('k_mer', '__init__.py')):
+for line in open(os.path.join('kpal', '__init__.py')):
     try:
         field, value = (x.strip() for x in line.split('='))
     except ValueError:
@@ -32,7 +32,7 @@ except IOError:
     long_description = 'See ' + distmeta['__homepage__']
 
 setup(
-    name='kMer',
+    name='kPAL',
     version=distmeta['__version_info__'],
     description='k-mer analysis toolkit and programming library.',
     long_description=long_description,
@@ -41,10 +41,10 @@ setup(
     url=distmeta['__homepage__'],
     license='MIT License',
     platforms=['any'],
-    packages=['k_mer'],
+    packages=['kpal'],
     install_requires=dependencies,
     entry_points={
-        'console_scripts': ['kMer = k_mer.kmer:main']
+        'console_scripts': ['kpal = kpal.kmer:main']
         },
     classifiers=[
         'Development Status :: 3 - Alpha',

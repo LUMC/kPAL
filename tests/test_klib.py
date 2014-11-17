@@ -1,5 +1,5 @@
 """
-Tests for the `k_mer.klib` module.
+Tests for the `kpal.klib` module.
 """
 
 
@@ -14,7 +14,7 @@ from Bio import Seq
 import numpy as np
 import pytest
 
-from k_mer import klib
+from kpal import klib
 
 import utils
 

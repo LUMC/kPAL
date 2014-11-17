@@ -3,7 +3,7 @@
 Methodology
 ===========
 
-Below we describe the methods implemented by kMer.
+Below we describe the methods implemented by kPAL.
 
 .. _fig-methods-overview:
 
@@ -111,7 +111,7 @@ versa. The distance between these vectors can be calculated in the same way as
 described for pairwise comparison of two full *k*-mer profiles (:ref:`Figure 2
 <fig-methods-balance>`).
 
-Additionally, kMer can forcefully balance the *k*-mer profiles (if desired) by
+Additionally, kPAL can forcefully balance the *k*-mer profiles (if desired) by
 adding the values of each *k*-mer to its reverse complement. This procedure
 can improve distance calculation if the sequencing depth is too low.
 

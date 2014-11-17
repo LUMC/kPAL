@@ -1,5 +1,5 @@
 """
-Tests for the `k_mer.metrics` module.
+Tests for the `kpal.metrics` module.
 """
 
 
@@ -11,7 +11,7 @@ from io import StringIO
 
 import numpy as np
 
-from k_mer import kdistlib, klib, metrics
+from kpal import kdistlib, klib, metrics
 
 import utils
 

@@ -5,9 +5,9 @@
 Tutorial
 ========
 
-Before following this tutorial, make sure kMer is installed  properly::
+Before following this tutorial, make sure kPAL is installed  properly::
 
-    $ kMer -h
+    $ kpal -h
 
 This should print a help message. If it does not, follow :ref:`install`.
 
@@ -30,20 +30,20 @@ We'll create *k*-mer profiles for these samples and try to compare them.
 *k*-mer counting
 ----------------
 
-kMer can count *k*-mers in any number of fasta files and store the results in
+kPAL can count *k*-mers in any number of fasta files and store the results in
 one *k*-mer profile file. By default, the profiles in the file are named
 according to the original fasta filenames.
 
 Let's count 8-mers in the first read for all samples and write the profiles to
 ``reads_1.k8``::
 
-    $ kMer count -k 8 *_1.fa reads_1.k8
+    $ kpal count -k 8 *_1.fa reads_1.k8
 
 Using the `info` command, we can get an overview of our profiles::
 
-    $ kMer info reads_1.k8
+    $ kpal info reads_1.k8
     File format version: 1.0.0
-    Produced by: kMer 1.0.0
+    Produced by: kPAL 2.0.0
 
     Profile: a_1
     - k-mer length: 8 (65536 k-mers)
@@ -88,8 +88,8 @@ Merging profiles
 For completeness, we also want to include *k*-mer counts for the second read
 in our analysis. We can do so using the `merge` command::
 
-    $ kMer count -k 8 *_2.fa reads_2.k8
-    $ kMer merge reads_1.k8 reads_2.k8 merged.k8
+    $ kpal count -k 8 *_2.fa reads_2.k8
+    $ kpal merge reads_1.k8 reads_2.k8 merged.k8
 
 .. note:: Merging two *k*-mer profiles this way is equivalent to first
           concatenating both fasta files and counting in the result.
@@ -99,14 +99,14 @@ order. If you need another pairing, you can provide profile names to use for
 both files. For example, the following is a more explicit version of the
 previous command::
 
-    $ kMer merge reads_1.k8 reads_2.k8 merged.k8 -l a_1 b_1 c_1 d_1 -r a_2 b_2 c_2 d_2
+    $ kpal merge reads_1.k8 reads_2.k8 merged.k8 -l a_1 b_1 c_1 d_1 -r a_2 b_2 c_2 d_2
 
 We can check that, indeed, the total *k*-mer count has doubled compared to our
 previous numbers::
 
-    $ kMer info merged.k8 -p c_1_c_2
+    $ kpal info merged.k8 -p c_1_c_2
     File format version: 1.0.0
-    Produced by: kMer 1.0.0.dev
+    Produced by: kPAL 2.0.0
 
     Profile: c_1_c_2
     - k-mer length: 8 (65536 k-mers)
@@ -125,7 +125,7 @@ We can compare two profiles by using a distance function. By default,
 `distance` uses the multiset distance parameterised by the `prod` pairwise
 distance function (:math:`f_2` in :ref:`method-distance`)::
 
-    $ kMer distance reads_1.k8 reads_2.k8 -l c_1 -r c_2
+    $ kpal distance reads_1.k8 reads_2.k8 -l c_1 -r c_2
     c_1 c_2 0.456
 
 All profiles in a file can be compared pairwise to produce a distance matrix
@@ -133,7 +133,7 @@ with the `matrix` command. It first writes the number of profiles compared
 followed by their names, and then the distance matrix itself. Here we ask it
 to print the result to standard output (using ``-`` for the output filename)::
 
-    $ kMer matrix merged.k8 -
+    $ kpal matrix merged.k8 -
     4
     a_1_a_2
     b_1_b_2

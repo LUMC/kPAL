@@ -1,7 +1,7 @@
 Using the Python library
 ========================
 
-kMer provides a light-weight Python library for creating, analysing, and
+kPAL provides a light-weight Python library for creating, analysing, and
 manipulating *k*-mer profiles. It is implemented on top of `NumPy
 <http://www.numpy.org/>`_.
 
@@ -12,9 +12,9 @@ detailed documentation.
 *k*-mer profiles
 ----------------
 
-.. currentmodule:: k_mer.klib
+.. currentmodule:: kpal.klib
 
-The class :class:`Profile` is the central object in kMer. It encapsulates
+The class :class:`Profile` is the central object in kPAL. It encapsulates
 *k*-mer counts and provides operations on them.
 
 Instead of using the :class:`Profile` constructor directly, you should
@@ -22,7 +22,7 @@ generally use one of the profile construction methods. One of those is
 :meth:`Profile.from_fasta`. The following code creates a 6-mer profile by
 counting from a FASTA file::
 
-    >>> from k_mer.klib import Profile
+    >>> from kpal.klib import Profile
     >>> p = Profile.from_fasta(open('a.fasta'), 6)
 
 The profile object has several properties. For example, we can ask for the
@@ -62,7 +62,7 @@ Todo.
     We can save the profile to a file (see :ref:`fileformat`) for later use::
 
 
-        >>> from k_mer import ProfileFileType
+        >>> from kpal import ProfileFileType
         >>> with ProfileFileType('w')('a.k6') as f:
         ...     p.save(f)
 

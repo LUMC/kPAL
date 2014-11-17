@@ -1,5 +1,5 @@
 """
-Utilities for kMer unit tests.
+Utilities for kPAL unit tests.
 """
 
 

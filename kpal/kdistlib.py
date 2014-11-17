@@ -74,7 +74,7 @@ class ProfileDistance(object):
         requirements governed by the selected summary function and the
         threshold.
 
-        :arg k_mer.klib.Profile left, right: Profile to smooth.
+        :arg kpal.klib.Profile left, right: Profile to smooth.
         :arg int start: Start of the sub-profile to smooth.
         :arg int length: Length of the sub-profile to smooth.
         """
@@ -119,7 +119,7 @@ class ProfileDistance(object):
         requirements governed by the selected summary function and the
         threshold.
 
-        :arg k_mer.klib.Profile left, right: Profiles to smooth.
+        :arg kpal.klib.Profile left, right: Profiles to smooth.
         """
         self._dynamic_smooth(left, right, 0, left.number)
 
@@ -127,7 +127,7 @@ class ProfileDistance(object):
         """
         Calculate the distance between two *k*-mer profiles.
 
-        :arg k_mer.klib.Profile left, right: Profiles to calculate distance
+        :arg kpal.klib.Profile left, right: Profiles to calculate distance
           between.
 
         :return: The distance between `left` and `right`.
@@ -169,7 +169,7 @@ def distance_matrix(profiles, output, precision, dist):
     :arg output: Open writable file handle.
     :type output: file-like object
     :arg int precision: Number of digits in the output.
-    :arg k_mer.kdistlib.ProfileDistance dist: A distance functions object.
+    :arg kpal.kdistlib.ProfileDistance dist: A distance functions object.
     """
     input_count = len(profiles)
 

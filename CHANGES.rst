@@ -4,10 +4,14 @@ Changelog
 This is a record of changes made between each kMer release.
 
 
-Version 1.0.2
+Version 2.0.0
 -------------
 
 Release date to be decided.
+
+- Rename from kMer to kPAL (k-mer profile analysis library). The Python
+  package is now `kpal` (was `k_mer`). The command line interface is now
+  `kpal` (was `kMer`).
 
 
 Version 1.0.1

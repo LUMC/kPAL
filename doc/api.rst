@@ -3,14 +3,14 @@
 API reference
 =============
 
-This part of the documentation covers the interfaces of kMer's Python
+This part of the documentation covers the interfaces of kPAL's Python
 library.
 
 
 *k*-mer profiles
 ----------------
 
-.. module:: k_mer.klib
+.. module:: kpal.klib
 
 .. autoclass:: Profile
    :members:
@@ -19,7 +19,7 @@ library.
 *k*-mer profile distances
 -------------------------
 
-.. module:: k_mer.kdistlib
+.. module:: kpal.distlib
 
 .. autoclass:: ProfileDistance
    :members:
@@ -30,5 +30,5 @@ library.
 Metrics
 -------
 
-.. automodule:: k_mer.metrics
+.. automodule:: kpal.metrics
    :members:

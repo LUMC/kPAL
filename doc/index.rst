@@ -1,7 +1,7 @@
-Welcome to kMer's documentation!
-================================
+Welcome to kPAL (k-mer profile analysis library)!
+=================================================
 
-kMer is an analysis toolkit and Python programming library for *k*-mer
+kPAL is an analysis toolkit and Python programming library for *k*-mer
 profiles.
 
 

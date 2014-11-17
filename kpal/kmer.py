@@ -49,7 +49,7 @@ def _name_from_handle(handle):
 
 def convert(input_handles, output_handle, names=None):
     """
-    Save k-mer profiles from files in the old plaintext format (used by kMer
+    Save k-mer profiles from files in the old plaintext format (used by kPAL
     versions < 1.0.0) to a k-mer profile file in the current HDF5 format.
 
     :arg input_handles: Open readable k-mer profile file handles (old format).
