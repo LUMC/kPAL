@@ -1,47 +1,11 @@
 Welcome to kMer's documentation!
 ================================
 
-kMer is an analysis toolkit and Python programming library for *k*-mer
-profiles.
+kMer has been renamed to *kPAL*:
 
+- `kPAL repository on GitHub <https://github.com/LUMC/kPAL>`_
+- `kPAL documentation <http://kpal.readthedocs.org/>`_
 
-User's guide
-------------
+Install the latest release via PyPI using pip::
 
-.. toctree::
-   :maxdepth: 2
-
-   intro
-   install
-   method
-   tutorial
-   library
-
-
-API reference
--------------
-
-.. toctree::
-   :maxdepth: 2
-
-   api
-
-
-Additional notes
-----------------
-
-.. toctree::
-   :maxdepth: 2
-
-   development
-   fileformat
-   changelog
-   copyright
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    pip install kPAL
