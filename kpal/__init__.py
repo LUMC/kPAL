@@ -26,7 +26,7 @@ import h5py
 import semantic_version
 
 
-__version_info__ = ('2', '0', '2', 'dev')
+__version_info__ = ('2', '1', '0')
 __date__ = '21 Nov 2014'
 
 

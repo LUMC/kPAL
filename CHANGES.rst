@@ -4,10 +4,10 @@ Changelog
 This is a record of changes made between each kMer release.
 
 
-Version 2.0.2
+Version 2.1.0
 -------------
 
-Release date to be decided.
+Released on November 21st, 2014.
 
 - Save profiles from several files to one file (``cat`` subcommand).
 
