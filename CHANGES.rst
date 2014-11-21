@@ -7,7 +7,7 @@ This is a record of changes made between each kMer release.
 Version 2.0.1
 -------------
 
-Release date to be decided.
+Released on November 21st, 2014.
 
 - Fixed a major bug that made the command line interface unable to start.
 
