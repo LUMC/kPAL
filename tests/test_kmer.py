@@ -24,6 +24,30 @@ with standard_library.hooks():
 
 
 class TestKmer(utils.TestEnvironment):
+    def test_main_info(self, capsys):
+        # For the `capsys` fixture, see:
+        # http://pytest.org/latest/capture.html
+
+        counts = utils.counts(utils.SEQUENCES, 8)
+        filename = self.profile(counts, 8, 'a')
+
+        kmer.main(['info', filename])
+
+        out, err = capsys.readouterr()
+
+        expected = 'File format version: 1.0.0\n'
+        expected += 'Produced by: kMer unit tests\n\n'
+        expected += 'Profile: a\n'
+        expected += '- k-mer length: 8 (%d k-mers)\n' % (4**8)
+        expected += '- Zero counts: %i\n' % (4**8 - len(counts))
+        expected += '- Non-zero counts: %i\n' % len(counts)
+        expected += '- Sum of counts: %i\n' % sum(counts.values())
+        expected += '- Mean of counts: %.3f\n' % np.mean([0] * (4**8 - len(counts)) + list(counts.values()))
+        expected += '- Median of counts: %.3f\n' % np.median([0] * (4**8 - len(counts)) + list(counts.values()))
+        expected += '- Standard deviation of counts: %.3f\n' % np.std([0] * (4**8 - len(counts)) + list(counts.values()))
+
+        assert out == expected
+
     def test_convert(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         filename = self.empty()

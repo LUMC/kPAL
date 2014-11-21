@@ -9,6 +9,8 @@ Version 2.0.1
 
 Release date to be decided.
 
+- Fixed a major bug that made the command line interface unable to start.
+
 
 Version 2.0.0
 -------------

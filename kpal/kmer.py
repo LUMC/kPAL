@@ -652,9 +652,13 @@ def distance_matrix(input_handle, output_handle, names=None,
     kdistlib.distance_matrix(counts, output_handle, precision, dist)
 
 
-def main():
+def main(args=None):
     """
     Command line interface.
+
+    :arg args: Arguments passed to :meth:`argparse.ArgumentParser.parse_args`
+      (default is to use `sys.argv[1:]`).
+    :type args: list(str)
     """
     multi_input_parser = argparse.ArgumentParser(add_help=False)
     multi_input_parser.add_argument(
@@ -889,7 +893,7 @@ def main():
     parser_matrix.set_defaults(func=distance_matrix)
 
     try:
-        arguments = parser.parse_args()
+        arguments = parser.parse_args(args)
     except IOError as error:
         parser.error(error)
 

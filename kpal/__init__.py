@@ -1,6 +1,7 @@
 """
 kPAL (*k*-mer profile analysis library)
 
+
 Analysis toolkit and programming library for k-mer profiles.
 
 Copyright (c) 2013-2014 Leiden University Medical Center <humgen@lumc.nl>
