@@ -56,6 +56,30 @@ class TestKmer(utils.TestEnvironment):
                 kmer.convert([handle], profile_handle)
         utils.test_profile_file(filename, counts, 8)
 
+    def test_cat(self):
+        counts_a = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_b = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        filename = self.empty()
+
+        with utils.open_profile(self.profile(counts_a, 8, name='a')) as handle_a:
+            with utils.open_profile(self.profile(counts_b, 8, name='b')) as handle_b:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.cat([handle_a, handle_b], profile_handle)
+        utils.test_profile_file(filename, counts_a, 8, name='a')
+        utils.test_profile_file(filename, counts_b, 8, name='b')
+
+    def test_cat_prefixes(self):
+        counts_a = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_b = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        filename = self.empty()
+
+        with utils.open_profile(self.profile(counts_a, 8, name='X')) as handle_a:
+            with utils.open_profile(self.profile(counts_b, 8, name='X')) as handle_b:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.cat([handle_a, handle_b], profile_handle, prefixes=['a_', 'b_'])
+        utils.test_profile_file(filename, counts_a, 8, name='a_X')
+        utils.test_profile_file(filename, counts_b, 8, name='b_X')
+
     def test_count(self):
         counts = utils.counts(utils.SEQUENCES, 8)
         filename = self.empty()

@@ -40,6 +40,7 @@ shuffle      Randomise a profile.
 smooth       Smooth two profiles by collapsing sub-profiles.
 distance     Calculate the distance between two profiles.
 matrix       Make a pairwise distance matrix for a series of *k*-mer profiles.
+cat          Save profiles from several files to one file.
 ===========  =================================================================
 
 More information about the methods implemented by kPAL can be found in

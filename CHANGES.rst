@@ -9,6 +9,8 @@ Version 2.0.2
 
 Release date to be decided.
 
+- Save profiles from several files to one file (``cat`` subcommand).
+
 
 Version 2.0.1
 -------------
@@ -25,7 +27,7 @@ Released on November 18th, 2014.
 
 - Rename from kMer to kPAL (k-mer profile analysis library). The Python
   package is now `kpal` (was `k_mer`). The command line interface is now
-  `kpal` (was `kMer`).
+  ``kpal`` (was ``kMer``).
 
 
 Version 1.0.1

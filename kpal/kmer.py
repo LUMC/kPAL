@@ -30,6 +30,8 @@ NAMES_COUNT_ERROR = ('number of profile names does not match number of '
                      'profiles')
 PAIRED_NAMES_COUNT_ERROR = ('number of left and right profile names do not '
                             'match')
+PREFIX_COUNT_ERROR = ('number of name prefixes does not match number of '
+                      'profiles')
 
 
 # Importable definition, e.g. `package.module.merge_function`.
@@ -70,6 +72,41 @@ def convert(input_handles, output_handle, names=None):
     for input_handle, name in zip(input_handles, names):
         profile = klib.Profile.from_file_old_format(input_handle, name=name)
         profile.save(output_handle)
+
+
+def cat(input_handles, output_handle, names=None, prefixes=None):
+    """
+    Save k-mer profiles from several files to one k-mer profile file.
+
+    :arg input_handles: Open readable k-mer profile file handles.
+    :type input_handles: list(file-like object)
+    :arg output_handle: Open writeable k-mer profile file handle.
+    :type output_handle: h5py.File
+    :arg names: Optional list of names of the k-mer profiles to consider. If
+      not provided, all profiles in all input files are considered.
+    :type names: list(str)
+    :arg prefixes: Optional list of prefixes to use for the saved k-mer
+      profile names, one per input file. If not provided, profile names are
+      assumed to be disjoint and no prefix is used.
+    :type prefixes: list(str)
+    """
+    prefixes = prefixes or ['' for _ in input_handles]
+
+    if len(prefixes) != len(input_handles):
+        raise ValueError(PREFIX_COUNT_ERROR)
+
+    for input_handle, prefix in zip(input_handles, prefixes):
+        names_ = names or sorted(input_handle['profiles'])
+
+        for name in names_:
+            try:
+                profile = klib.Profile.from_file(input_handle, name=name)
+            except KeyError:
+                # In this specific case, we ignore non-existing profiles,
+                # since the user may have specified them for selecting from
+                # one of the other input files.
+                continue
+            profile.save(output_handle, name=prefix + name)
 
 
 def count(input_handles, output_handle, size, names=None):
@@ -674,6 +711,15 @@ def main(args=None):
         help='names of the k-mer profiles to consider (default: all profiles '
         'in INPUT, in alphabetical order)')
 
+    multi_input_profile_parser = argparse.ArgumentParser(add_help=False)
+    multi_input_profile_parser.add_argument(
+        'input_handles', metavar='INPUT', type=ProfileFileType('r'),
+        nargs='+', help='input k-mer profile file')
+    multi_input_profile_parser.add_argument(
+        '-p', '--profiles', dest='names', metavar='NAME', type=str, nargs='+',
+        help='names of the k-mer profiles to consider (default: all profiles '
+        'per INPUT, in alphabetical order)')
+
     paired_input_profile_parser = argparse.ArgumentParser(add_help=False)
     paired_input_profile_parser.add_argument(
         'input_handle_left', metavar='INPUT_LEFT', type=ProfileFileType('r'),
@@ -784,6 +830,16 @@ def main(args=None):
         'profiles are named according to the input filenames, or numbered '
         'consecutively from 1 if no filenames are available)')
     parser_convert.set_defaults(func=convert)
+
+    parser_cat = subparsers.add_parser(
+        'cat', parents=[multi_input_profile_parser, output_profile_parser],
+        description=doc_split(cat))
+    parser_cat.add_argument(
+        '-x', '--prefixes', dest='prefixes', metavar='PREFIX', type=str,
+        nargs='+', help='prefixes to use for the saved k-mer profile names, '
+        'one per INPUT (default: profile names are assumed to be disjoint '
+        'and no prefix is used)')
+    parser_cat.set_defaults(func=cat)
 
     # Todo: Option to generate a profile per FASTA record instead of per FASTA
     #   file.
