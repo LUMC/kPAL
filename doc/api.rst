@@ -19,7 +19,7 @@ library.
 *k*-mer profile distances
 -------------------------
 
-.. module:: kpal.distlib
+.. module:: kpal.kdistlib
 
 .. autoclass:: ProfileDistance
    :members:
