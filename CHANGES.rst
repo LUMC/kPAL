@@ -9,6 +9,8 @@ Version 2.1.1
 
 Release date to be decided.
 
+- Change default precision to 10 decimals.
+
 
 Version 2.1.0
 -------------

@@ -208,7 +208,7 @@ def balance(input_handle, output_handle, names=None):
         profile.save(output_handle)
 
 
-def get_balance(input_handle, output_handle, precision=3, names=None):
+def get_balance(input_handle, output_handle, precision=10, names=None):
     """
     Show the balance of k-mer profiles.
 
@@ -236,7 +236,7 @@ def get_balance(input_handle, output_handle, precision=3, names=None):
               file=output_handle)
 
 
-def get_stats(input_handle, output_handle, precision=3, names=None):
+def get_stats(input_handle, output_handle, precision=10, names=None):
     """
     Show the mean and standard deviation of k-mer profiles.
 
@@ -531,7 +531,7 @@ def distance(input_handle_left, input_handle_right, output_handle,
              names_left=None, names_right=None, distance_function='default',
              pairwise='prod', custom_pairwise=None, do_smooth=False,
              summary='min', custom_summary=None, threshold=0, do_scale=False,
-             down=False, do_positive=False, do_balance=False, precision=3):
+             down=False, do_positive=False, do_balance=False, precision=10):
     """
     Calculate the distance between two k-mer profiles. If the files contain
     more than one profile, they are linked by name and processed pairwise.
@@ -614,7 +614,7 @@ def distance_matrix(input_handle, output_handle, names=None,
                     custom_pairwise=None, do_smooth=False, summary='min',
                     custom_summary=None, threshold=0, do_scale=False,
                     down=False, do_positive=False, do_balance=False,
-                    precision=3):
+                    precision=10):
     """
     Make a distance matrix between any number of k-mer profiles.
 
@@ -778,7 +778,7 @@ def main(args=None):
 
     precision_parser = argparse.ArgumentParser(add_help=False)
     precision_parser.add_argument(
-        '-n', metavar='INT', dest='precision', type=int, default=3,
+        '-n', metavar='INT', dest='precision', type=int, default=10,
         help='precision in number of decimals (default: %(default)s)')
 
     dist_parser = argparse.ArgumentParser(

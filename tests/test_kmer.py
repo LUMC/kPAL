@@ -161,7 +161,7 @@ class TestKmer(utils.TestEnvironment):
         out = StringIO()
 
         with utils.open_profile(self.profile(counts, 8)) as input_handle:
-            kmer.get_balance(input_handle, out)
+            kmer.get_balance(input_handle, out, precision=3)
 
         assert out.getvalue() == '1 0.669\n'
 
@@ -174,8 +174,8 @@ class TestKmer(utils.TestEnvironment):
 
         name, mean, std = out.getvalue().strip().split()
         assert name == '1'
-        assert mean == '%.3f' % np.mean(utils.as_array(counts, 8))
-        assert std == '%.3f' % np.std(utils.as_array(counts, 8))
+        assert mean == '%.10f' % np.mean(utils.as_array(counts, 8))
+        assert std == '%.10f' % np.std(utils.as_array(counts, 8))
 
     def test_distribution(self):
         counts = utils.counts(utils.SEQUENCES, 8)
@@ -343,7 +343,7 @@ class TestKmer(utils.TestEnvironment):
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
                 kmer.distance(handle_left, handle_right, out)
 
-        assert out.getvalue() == 'left right %.3f\n' % 0.4626209322
+        assert out.getvalue() == 'left right %.10f\n' % 0.4626209323
 
     def test_distance_smooth(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
@@ -352,7 +352,7 @@ class TestKmer(utils.TestEnvironment):
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.distance(handle_left, handle_right, out, do_smooth=True)
+                kmer.distance(handle_left, handle_right, out, do_smooth=True, precision=3)
 
         assert out.getvalue() == 'left right 0.077\n'
 
@@ -363,7 +363,8 @@ class TestKmer(utils.TestEnvironment):
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.distance(handle_left, handle_right, out, do_smooth=True, summary='average')
+                kmer.distance(handle_left, handle_right, out, do_smooth=True,
+                              precision=3, summary='average')
 
         assert out.getvalue() == 'left right 0.474\n'
 
@@ -374,7 +375,8 @@ class TestKmer(utils.TestEnvironment):
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.distance(handle_left, handle_right, out, do_smooth=True, custom_summary='np.max(values)')
+                kmer.distance(handle_left, handle_right, out, do_smooth=True,
+                              precision=3, custom_summary='np.max(values)')
 
         assert out.getvalue() == 'left right 0.474\n'
 
@@ -385,7 +387,8 @@ class TestKmer(utils.TestEnvironment):
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.distance(handle_left, handle_right, out, do_smooth=True, custom_summary='numpy.max')
+                kmer.distance(handle_left, handle_right, out, do_smooth=True,
+                              precision=3, custom_summary='numpy.max')
 
         assert out.getvalue() == 'left right 0.474\n'
 
@@ -396,7 +399,8 @@ class TestKmer(utils.TestEnvironment):
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.distance(handle_left, handle_right, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
+                kmer.distance(handle_left, handle_right, out, precision=3,
+                              custom_pairwise='abs(left - right) / (left + right + 1000)')
 
         assert out.getvalue() == 'left right 0.001\n'
 
@@ -407,7 +411,8 @@ class TestKmer(utils.TestEnvironment):
 
         with utils.open_profile(self.profile(counts_left, 8, 'left')) as handle_left:
             with utils.open_profile(self.profile(counts_right, 8, 'right')) as handle_right:
-                kmer.distance(handle_left, handle_right, out, custom_pairwise='numpy.multiply')
+                kmer.distance(handle_left, handle_right, out, precision=3,
+                              custom_pairwise='numpy.multiply')
 
         assert out.getvalue() == 'left right 0.084\n'
 
@@ -421,7 +426,7 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.distance_matrix(handle, out)
+                    kmer.distance_matrix(handle, out, precision=3)
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.463', '0.000 0.463']
 
@@ -435,7 +440,7 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.distance_matrix(handle, out, do_smooth=True)
+                    kmer.distance_matrix(handle, out, do_smooth=True, precision=3)
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.077', '0.000 0.077']
 
@@ -449,7 +454,8 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.distance_matrix(handle, out, do_smooth=True, summary='average')
+                    kmer.distance_matrix(handle, out, do_smooth=True,
+                                         summary='average', precision=3)
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
 
@@ -463,7 +469,8 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.distance_matrix(handle, out, do_smooth=True, custom_summary='np.max(values)')
+                    kmer.distance_matrix(handle, out, do_smooth=True, precision=3,
+                                         custom_summary='np.max(values)')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
 
@@ -477,7 +484,8 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.distance_matrix(handle, out, do_smooth=True, custom_summary='numpy.max')
+                    kmer.distance_matrix(handle, out, do_smooth=True, precision=3,
+                                         custom_summary='numpy.max')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.474', '0.000 0.474']
 
@@ -491,7 +499,8 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.distance_matrix(handle, out, custom_pairwise='abs(left - right) / (left + right + 1000)')
+                    kmer.distance_matrix(handle, out, precision=3,
+                                         custom_pairwise='abs(left - right) / (left + right + 1000)')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.001', '0.000 0.001']
 
@@ -505,6 +514,7 @@ class TestKmer(utils.TestEnvironment):
                                                     counts_right,
                                                     counts_left],
                                                    ['a', 'b', 'c'])) as handle:
-                    kmer.distance_matrix(handle, out, custom_pairwise='numpy.multiply')
+                    kmer.distance_matrix(handle, out, precision=3,
+                                         custom_pairwise='numpy.multiply')
 
         assert out.getvalue().strip().split('\n') == ['3', 'a', 'b', 'c', '0.084', '1.206 0.084']
