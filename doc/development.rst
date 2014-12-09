@@ -3,8 +3,8 @@
 Development
 ===========
 
-Development of kPAL happens on GitLab:
-https://git.lumc.nl/j.f.j.laros/k-mer
+Development of kPAL happens on GitHub:
+https://github.com/LUMC/kPAL
 
 
 Contributing

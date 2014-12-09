@@ -5,8 +5,7 @@
 Installation
 ============
 
-The kPAL source code is `hosted on GitLab
-<https://git.lumc.nl/j.f.j.laros/k-mer>`_ and `mirrored on GitHub
+The kPAL source code is `hosted on GitHub
 <https://github.com/LUMC/kPAL>`_. Supported Python versions for running kPAL
 are 2.6, 2.7, 3.3, and 3.4. kPAL can be installed either via the Python
 Package Index (PyPI) or from the source code.
@@ -48,8 +47,8 @@ kPAL development version
 ------------------------
 
 You can also clone and use the latest development version directly from the
-GitLab repository::
+GitHub repository::
 
-    git clone https://git.lumc.nl/j.f.j.laros/k-mer.git
-    cd k-mer
+    git clone https://github.com/LUMC/kPAL.git
+    cd kPAL
     pip install -e .
