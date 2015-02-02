@@ -7,7 +7,7 @@ if sys.version_info < (2, 6):
 
 dependencies = ['numpy', 'h5py', 'biopython', 'semantic-version', 'future']
 if sys.version_info[:2] == (2, 6):
-    dependencies.extend(['argparse', 'importlib'])
+    dependencies.extend(['argparse', 'importlib', 'unittest2'])
 
 # This is quite the hack, but we don't want to import our package from here
 # since that's recipe for disaster (it might have some uninstalled
