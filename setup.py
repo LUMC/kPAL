@@ -5,7 +5,8 @@ import sys
 if sys.version_info < (2, 6):
     raise Exception('kPAL requires Python 2.6 or higher.')
 
-dependencies = ['numpy', 'h5py', 'biopython', 'semantic-version', 'future']
+dependencies = ['numpy', 'h5py>=2.1', 'biopython', 'semantic-version',
+                'future']
 if sys.version_info[:2] == (2, 6):
     dependencies.extend(['argparse', 'importlib', 'unittest2'])
 
