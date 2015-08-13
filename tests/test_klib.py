@@ -10,7 +10,6 @@ from future.builtins import range, str, zip
 from io import open
 import itertools
 
-from Bio import Seq
 import numpy as np
 import pytest
 
@@ -30,11 +29,20 @@ class TestKlib(utils.TestEnvironment):
         profile = klib.Profile(utils.as_array(counts, 8))
         utils.test_profile(profile, counts, 8)
 
-    def _test_from_fasta(self, sequences, k):
+    def _test_from_fasta(self, sequences, k, name=None):
         counts = utils.counts(sequences, k)
         with open(self.fasta(sequences)) as fasta_handle:
-            profile = klib.Profile.from_fasta(fasta_handle, k)
-        utils.test_profile(profile, counts, k)
+            profile = klib.Profile.from_fasta(fasta_handle, k, name=name)
+        utils.test_profile(profile, counts, k, name=name)
+
+    def _test_from_fasta_by_record(self, sequences, k, prefix=None):
+        counts_by_record = [utils.counts(sequence, k) for sequence in sequences]
+        names = [str(i) for i, _ in enumerate(counts_by_record)]
+        with open(self.fasta(sequences, names=names)) as fasta_handle:
+            profiles = klib.Profile.from_fasta_by_record(fasta_handle, k, prefix=prefix)
+            for name, counts, profile in zip(names, counts_by_record, profiles):
+                prefixed_name = prefix + '_' + name if prefix else name
+                utils.test_profile(profile, counts, k, name=prefixed_name)
 
     def test_from_fasta_single_k1(self):
         self._test_from_fasta(utils.SEQUENCES[:1], 1)
@@ -71,6 +79,24 @@ class TestKlib(utils.TestEnvironment):
 
     def test_from_fasta_multi_n_almost_strlen(self):
         self._test_from_fasta(utils.LENGTH_8_WITH_N, 7)
+
+    def test_from_fasta_single_name(self):
+        self._test_from_fasta(utils.SEQUENCES[:1], 4, name='abc')
+
+    def test_from_fasta_multi_name(self):
+        self._test_from_fasta(utils.SEQUENCES, 4, name='abc')
+
+    def test_from_fasta_single_by_record(self):
+        self._test_from_fasta_by_record(utils.SEQUENCES[:1], 4)
+
+    def test_from_fasta_multi_by_record(self):
+        self._test_from_fasta_by_record(utils.SEQUENCES, 4)
+
+    def test_from_fasta_single_by_record_prefix(self):
+        self._test_from_fasta_by_record(utils.SEQUENCES[:1], 4, prefix='pre')
+
+    def test_from_fasta_multi_by_record_prefix(self):
+        self._test_from_fasta_by_record(utils.SEQUENCES, 4, prefix='pre')
 
     def test_profile_save(self):
         counts = utils.counts(utils.SEQUENCES, 4)

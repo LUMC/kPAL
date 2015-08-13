@@ -109,7 +109,7 @@ def cat(input_handles, output_handle, names=None, prefixes=None):
             profile.save(output_handle, name=prefix + name)
 
 
-def count(input_handles, output_handle, size, names=None):
+def count(input_handles, output_handle, size, names=None, by_record=False):
     """
     Make k-mer profiles from FASTA files.
 
@@ -124,6 +124,10 @@ def count(input_handles, output_handle, size, names=None):
       named according to the input filenames, or numbered consecutively from 1
       if no filenames are available.
     :type names: list(str)
+    :arg bool by_record: If `True`, make a k-mer profile per FASTA record
+      instead of a k-mer profile per FASTA file. Profiles are named by the
+      record names and prefixed according to `names` if more than one FASTA
+      file is given).
     """
     names = names or [_name_from_handle(h) for h in input_handles]
 
@@ -131,8 +135,15 @@ def count(input_handles, output_handle, size, names=None):
         raise ValueError(NAMES_COUNT_ERROR)
 
     for input_handle, name in zip(input_handles, names):
-        profile = klib.Profile.from_fasta(input_handle, size, name=name)
-        profile.save(output_handle)
+        if by_record:
+            prefix = name if len(input_handles) > 1 else None
+            profiles = klib.Profile.from_fasta_by_record(input_handle, size,
+                                                         prefix=prefix)
+        else:
+            profiles = [klib.Profile.from_fasta(input_handle, size, name=name)]
+
+        for profile in profiles:
+            profile.save(output_handle)
 
 
 def merge(input_handle_left, input_handle_right, output_handle,
@@ -841,8 +852,6 @@ def main(args=None):
         'and no prefix is used)')
     parser_cat.set_defaults(func=cat)
 
-    # Todo: Option to generate a profile per FASTA record instead of per FASTA
-    #   file.
     parser_count = subparsers.add_parser(
         'count', parents=[multi_input_parser, output_profile_parser],
         description=doc_split(count))
@@ -854,6 +863,11 @@ def main(args=None):
     parser_count.add_argument(
         '-k', dest='size', metavar='SIZE', type=int, default=9,
         help='k-mer size (%(type)s default: %(default)s)')
+    parser_count.add_argument(
+        '--by-record', dest='by_record', action='store_true',
+        help='make a k-mer profile per FASTA record instead of a k-mer '
+        'profile per FASTA file (profiles are named by the record names and '
+        ' prefixed according to --profiles if more than one INPUT is given)')
     parser_count.set_defaults(func=count)
 
     parser_merge = subparsers.add_parser(

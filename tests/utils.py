@@ -136,7 +136,7 @@ class open_profile(h5py.File):
             self.create_group('profiles')
 
 
-def test_profile(profile, counts, k):
+def test_profile(profile, counts, k, name=None):
     """
     Validate the given kMer profile, using `counts` as a reference.
     """
@@ -144,6 +144,8 @@ def test_profile(profile, counts, k):
     assert profile.total == sum(counts.values())
     assert profile.non_zero == len(counts)
     assert np.array_equal(profile.counts, as_array(counts, k))
+    if name:
+        assert profile.name == name
 
 
 def test_profile_file(filename, counts, k, name=None):
@@ -177,16 +179,16 @@ class TestEnvironment(object):
         os.close(os_handle)
         return filename
 
-    def fasta(self, sequences):
+    def fasta(self, sequences, names=None):
         """
         Create a file and write `sequences` to it in FASTA format. Filename is
         returned.
         """
+        names = names or ('sequence_%d' % i for i in itertools.count(1))
         filename = self.empty()
 
         with open(filename, 'w') as f:
-            names = ('>sequence_%d' % i for i in itertools.count(1))
-            f.write('\n'.join('\n'.join(entry) for entry in
+            f.write('\n'.join('>' + '\n'.join(entry) for entry in
                               zip(names, sequences)) + '\n')
 
         return filename

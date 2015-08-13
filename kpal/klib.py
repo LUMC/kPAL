@@ -108,23 +108,61 @@ class Profile(object):
         :return: A *k*-mer profile.
         :rtype: Profile
         """
+        sequences = (str(record.seq) for record in SeqIO.parse(handle, 'fasta'))
+        return cls.from_sequences(sequences, length, name=name)
+
+    @classmethod
+    def from_fasta_by_record(cls, handle, length, prefix=None):
+        """
+        Create *k*-mer profiles from a FASTA file by counting all *k*-mers per
+        record. Profiles are named by the record names.
+
+        :arg handle: Open readable FASTA file handle.
+        :type handle: file-like object
+        :arg int length: Length of the *k*-mers.
+        :arg str prefix: If provided, the names of the *k*-mer profiles are
+          prefixed with this.
+
+        :return: A generator yielding the created *k*-mer profiles.
+        :rtype: iterator(Profile)
+        """
+        prefix = prefix + '_' if prefix else ''
+
+        for i, record in enumerate(SeqIO.parse(handle, 'fasta')):
+            name = prefix + (record.name or str(i + 1))
+            yield cls.from_sequences([str(record.seq)], length, name=name)
+
+    @classmethod
+    def from_sequences(cls, sequences, length, name=None):
+        """
+        Create a *k*-mer profile from `sequences` by counting all *k*-mers in
+        each sequence.
+
+        :arg sequences: An iterable of string sequences.
+        :type sequences: iterator(str)
+        :arg int length: Length of the *k*-mers.
+        :arg str name: Profile name.
+
+        :return: A *k*-mer profile.
+        :rtype: Profile
+        """
         number = 4 ** length
         bitmask = number - 0x01
         counts = [0] * number
         alphabet = re.compile('[^' + ''.join(cls._nucleotide_to_binary) + ']')
 
-        for record in SeqIO.parse(handle, 'fasta'):
-            for sequence in alphabet.split(str(record.seq)):
-                if len(sequence) >= length:
+        for sequence in sequences:
+            for part in alphabet.split(sequence):
+                if len(part) >= length:
                     binary = 0x00
 
                     # Calculate the binary representation of a k-mer.
-                    for i in sequence[:length]:
+                    for i in part[:length]:
                         binary = (binary << 2) | cls._nucleotide_to_binary[i]
                     counts[binary] += 1
 
                     # Calculate the binary representation of the next k-mer.
-                    for i in sequence[length:]:
+                    for i in part[length:]:
                         binary = ((binary << 2) |
                                   cls._nucleotide_to_binary[i]) & bitmask
                         counts[binary] += 1
