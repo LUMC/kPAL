@@ -7,7 +7,7 @@ This is a record of changes made between each kMer release.
 Version 2.1.1
 -------------
 
-Release date to be decided.
+Released on August 14th, 2015.
 
 - Option to create a *k*-mer profile per FASTA record instead of per FASTA
   file (use ``kpal count --by-record`` on the command line or
