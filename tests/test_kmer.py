@@ -88,6 +88,17 @@ class TestKmer(utils.TestEnvironment):
                 kmer.count([fasta_handle], profile_handle, 8)
         utils.test_profile_file(filename, counts, 8)
 
+    def test_count_multi(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        filename = self.empty()
+        with open(self.fasta(utils.SEQUENCES_LEFT)) as handle_left:
+            with open(self.fasta(utils.SEQUENCES_RIGHT)) as handle_right:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.count([handle_left, handle_right], profile_handle, 8, names=['a', 'b'])
+        utils.test_profile_file(filename, counts_left, 8, name='a')
+        utils.test_profile_file(filename, counts_right, 8, name='b')
+
     def test_merge(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
