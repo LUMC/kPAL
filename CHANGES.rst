@@ -9,6 +9,10 @@ Version 2.1.1
 
 Release date to be decided.
 
+- Option to create a *k*-mer profile per FASTA record instead of per FASTA
+  file (use ``kpal count --by-record`` on the command line or
+  `kpal.klib.Profile.from_fasta_by_record` in the Python API).
+- GitHub project moved to `LUMC/kPAL <https://github.com/LUMC/kPAL>`_.
 - Change default precision to 10 decimals.
 
 
