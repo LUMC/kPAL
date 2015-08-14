@@ -4,6 +4,12 @@ Changelog
 This is a record of changes made between each kMer release.
 
 
+Version 2.1.2
+-------------
+
+Release date to be decided.
+
+
 Version 2.1.1
 -------------
 
