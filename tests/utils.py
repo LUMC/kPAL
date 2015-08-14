@@ -150,10 +150,12 @@ def test_profile(profile, counts, k, name=None):
 
 def test_profile_file(filename, counts, k, name=None):
     """
-    Validate the kMer in the given filename, using `counts` as a reference.
+    Validate the kMer profile in the given filename, using `counts` as a
+    reference.
     """
     with open_profile(filename) as f:
         name = name or list(f['profiles'].keys())[0]
+        assert name in f['profiles'].keys()
         profile = f['/profiles/%s' % name]
         assert profile.attrs['length'] == k
         assert profile.attrs['total'] == sum(counts.values())

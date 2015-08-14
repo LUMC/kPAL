@@ -170,6 +170,19 @@ class Profile(object):
         return cls(np.array(counts, dtype='int64'), name=name)
 
     @property
+    def name(self):
+        """
+        Profile name.
+        """
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if name and ('/' in name or '.' in name):
+            raise ValueError('Profile name may not contain / or . characters.')
+        self._name = name
+
+    @property
     def number(self):
         """
         Number of possible *k*-mers with this length.
@@ -224,6 +237,9 @@ class Profile(object):
         :return: Profile name in the file.
         :rtype: str
         """
+        if name and ('/' in name or '.' in name):
+            raise ValueError('Profile name may not contain / or . characters.')
+
         name = name or self.name or next(str(n) for n in itertools.count(1)
                                          if str(n) not in handle['profiles'])
 

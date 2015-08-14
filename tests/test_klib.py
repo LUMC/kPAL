@@ -108,6 +108,11 @@ class TestKlib(utils.TestEnvironment):
 
         utils.test_profile_file(filename, counts, 4)
 
+    def test_profile_name_with_slash(self):
+        counts = utils.counts(utils.SEQUENCES, 4)
+        with pytest.raises(ValueError):
+            klib.Profile(utils.as_array(counts, 4), name='abc/def')
+
     def test_profile_from_file_old_format(self):
         counts = utils.counts(utils.SEQUENCES, 4)
         with open(self.profile_old_format(counts, 4)) as handle:
