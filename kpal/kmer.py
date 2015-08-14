@@ -864,7 +864,7 @@ def main(args=None):
         '-k', dest='size', metavar='SIZE', type=int, default=9,
         help='k-mer size (%(type)s default: %(default)s)')
     parser_count.add_argument(
-        '--by-record', dest='by_record', action='store_true',
+        '--by-record', '-r', dest='by_record', action='store_true',
         help='make a k-mer profile per FASTA record instead of a k-mer '
         'profile per FASTA file (profiles are named by the record names and '
         ' prefixed according to --profiles if more than one INPUT is given)')
