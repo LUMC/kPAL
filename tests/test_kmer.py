@@ -88,6 +88,42 @@ class TestKmer(utils.TestEnvironment):
                 kmer.count([fasta_handle], profile_handle, 8)
         utils.test_profile_file(filename, counts, 8)
 
+    def test_count_multi(self):
+        counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
+        counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
+        filename = self.empty()
+        with open(self.fasta(utils.SEQUENCES_LEFT)) as handle_left:
+            with open(self.fasta(utils.SEQUENCES_RIGHT)) as handle_right:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.count([handle_left, handle_right], profile_handle, 8, names=['a', 'b'])
+        utils.test_profile_file(filename, counts_left, 8, name='a')
+        utils.test_profile_file(filename, counts_right, 8, name='b')
+
+    def test_count_by_record(self):
+        counts_by_record = [utils.counts(record, 8) for record in utils.SEQUENCES]
+        names = [str(i) for i, _ in enumerate(counts_by_record)]
+        filename = self.empty()
+        with open(self.fasta(utils.SEQUENCES, names=names)) as fasta_handle:
+            with utils.open_profile(filename, 'w') as profile_handle:
+                kmer.count([fasta_handle], profile_handle, 8, by_record=True)
+        for name, counts in zip(names, counts_by_record):
+            utils.test_profile_file(filename, counts, 8, name=name)
+
+    def test_count_multi_by_record(self):
+        counts_by_record_left = [utils.counts(record, 8) for record in utils.SEQUENCES_LEFT]
+        counts_by_record_right = [utils.counts(record, 8) for record in utils.SEQUENCES_RIGHT]
+        names_left = [str(i) for i, _ in enumerate(counts_by_record_left)]
+        names_right = [str(i) for i, _ in enumerate(counts_by_record_right)]
+        filename = self.empty()
+        with open(self.fasta(utils.SEQUENCES_LEFT, names=names_left)) as handle_left:
+            with open(self.fasta(utils.SEQUENCES_RIGHT, names=names_right)) as handle_right:
+                with utils.open_profile(filename, 'w') as profile_handle:
+                    kmer.count([handle_left, handle_right], profile_handle, 8, names=['a', 'b'], by_record=True)
+        for name, counts in zip(names_left, counts_by_record_left):
+            utils.test_profile_file(filename, counts, 8, name='a_' + name)
+        for name, counts in zip(names_right, counts_by_record_right):
+            utils.test_profile_file(filename, counts, 8, name='b_' + name)
+
     def test_merge(self):
         counts_left = utils.counts(utils.SEQUENCES_LEFT, 8)
         counts_right = utils.counts(utils.SEQUENCES_RIGHT, 8)
