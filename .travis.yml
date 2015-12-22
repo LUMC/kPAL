@@ -5,6 +5,8 @@ python:
   - "2.7"
   - "3.3"
   - "3.4"
+  - "3.5"
+  - "nightly"
 git:
   submodules: false
 before_install:
@@ -12,6 +14,5 @@ before_install:
   - sudo apt-get install -y libhdf5-serial-dev
   - pip install pytest
   - pip install cython  # Temporary fix https://github.com/LUMC/kPAL/issues/1
-install:
-  - pip install .
+install: pip install .
 script: py.test
