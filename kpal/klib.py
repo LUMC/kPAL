@@ -19,6 +19,7 @@ import re
 
 from Bio import SeqIO
 import numpy as np
+import h5py
 
 from . import metrics
 
@@ -71,9 +72,15 @@ class Profile(object):
         :return: A *k*-mer profile.
         :rtype: Profile
         """
-        name = name or sorted(handle['profiles'].keys())[0]
-        counts = handle['profiles/' + name][:]
-        return cls(counts, name=name)
+        if not isinstance(handle, h5py.File):
+            raise TypeError("klib.Profile.from_file requires an h5py.File filehandle as the only positional argument")
+        else:
+            name = name or sorted(handle['profiles'].keys())[0]
+        if not isinstance(name, str):
+            raise TypeError("klib.Profile.from_file expects a string as the only keyword argument 'name'. A non-string argument was provided or it could not be inferred from the h5py file")
+        else:
+            counts = handle['profiles/' + name][:]
+            return cls(counts, name=name)
 
     @classmethod
     def from_file_old_format(cls, handle, name=None):
@@ -108,8 +115,19 @@ class Profile(object):
         :return: A *k*-mer profile.
         :rtype: Profile
         """
-        sequences = (str(record.seq) for record in SeqIO.parse(handle, 'fasta'))
-        return cls.from_sequences(sequences, length, name=name)
+        
+        if not isinstance(handle, file):
+            raise TypeError("klib.Profile.from_fasta requires an open filehandle to a FASTA file as its first positional argument")
+        if not isinstance(length, int):
+            raise TypeError("klib.Profile.from_fasta requires an integer 'length', specifying the *k*-mer length to use for the profile")
+        if not isinstance(name, str) and name is not None:
+            raise TypeError("klib.Profile.from_fasta requires a string 'name' as the only keyword argument")
+        data = SeqIO.parse(handle, "fasta")
+        if not any(data):
+            raise TypeError("klib.Profile.from_fasta requires a filehandle to a valid FASTA file as its first positional argument")
+        else:
+            sequences = (str(record.seq) for record in data)
+            return cls.from_sequences(sequences, length, name=name)
 
     @classmethod
     def from_fasta_by_record(cls, handle, length, prefix=None):
