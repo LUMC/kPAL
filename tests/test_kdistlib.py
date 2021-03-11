@@ -21,11 +21,11 @@ with standard_library.hooks():
 
 class TestKDistLib(object):
     def test_collapse(self):
-        a = np.random.random_integers(0, 20, 100)
+        a = np.random.randint(0, 21, 100)
         start = 30
         length = 40
 
-        step = length / 4
+        step = length // 4
         expected = [sum(a[start + x[0]:start + x[1]])
                     for x in [(x * step, (x + 1) * step)
                               for x in range(4)]]

@@ -830,7 +830,8 @@ def main(args=None):
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=USAGE[0], epilog=USAGE[1])
     parser.add_argument('-v', action='version', version=version(parser.prog))
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(dest='subcommand')
+    subparsers.required = True
 
     parser_convert = subparsers.add_parser(
         'convert', parents=[multi_input_parser, output_profile_parser],

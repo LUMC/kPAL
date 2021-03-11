@@ -38,7 +38,7 @@ __homepage__ = 'https://git.lumc.nl/j.f.j.laros/k-mer'
 
 USAGE = __doc__.split("\n\n\n")
 FORMAT_VERSION = semantic_version.Version('1.0.0')
-FORMAT_ACCEPT = semantic_version.Spec('>=1.0.0,<2.0.0')
+FORMAT_ACCEPT = semantic_version.SimpleSpec('>=1.0.0,<2.0.0')
 
 
 # Same as argparse.FileType in Python 3, but using io.open to get the same

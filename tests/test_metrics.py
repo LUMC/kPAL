@@ -22,7 +22,7 @@ with standard_library.hooks():
 
 class TestMetrics(object):
     def test_distribution(self):
-        a = np.random.random_integers(0, 20, 100)
+        a = np.random.randint(0, 21, 100)
         counts = Counter(a)
         assert metrics.distribution(a) == sorted(counts.items())
 
@@ -32,13 +32,13 @@ class TestMetrics(object):
                                        math.sqrt(sum(x * x for x in a)))
 
     def test_vector_length_int(self):
-        a = np.random.random_integers(0, 100, 100)
+        a = np.random.randint(0, 101, 100)
         np.testing.assert_almost_equal(metrics.vector_length(a),
                                        math.sqrt(sum(x * x for x in a)))
 
     def test_get_scale(self):
-        a = np.random.random_integers(0, 100, 100)
-        b = np.random.random_integers(0, 100, 100)
+        a = np.random.randint(0, 101, 100)
+        b = np.random.randint(0, 101, 100)
 
         scale_a, scale_b = metrics.get_scale(a, b)
 
@@ -61,15 +61,15 @@ class TestMetrics(object):
                                        (1.0, b / a))
 
     def test_positive(self):
-        a = np.random.random_integers(0, 20, 100)
-        b = np.random.random_integers(0, 20, 100)
+        a = np.random.randint(0, 21, 100)
+        b = np.random.randint(0, 21, 100)
 
         np.testing.assert_array_equal(metrics.positive(a, b),
                                       [i if j else 0 for i, j in zip(a, b)])
 
     def test_multiset(self):
-        a = np.random.random_integers(1, 100, 100)
-        b = np.random.random_integers(1, 100, 100)
+        a = np.random.randint(1, 101, 100)
+        b = np.random.randint(1, 101, 100)
         pairwise = metrics.pairwise['prod']
 
         values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
@@ -77,8 +77,8 @@ class TestMetrics(object):
                                        sum(values) / (len(values) + 1))
 
     def test_multiset_zeros(self):
-        a = np.random.random_integers(0, 20, 100)
-        b = np.random.random_integers(0, 20, 100)
+        a = np.random.randint(0, 21, 100)
+        b = np.random.randint(0, 21, 100)
         pairwise = metrics.pairwise['prod']
 
         values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
@@ -86,8 +86,8 @@ class TestMetrics(object):
                                        sum(values) / (len(values) + 1))
 
     def test_multiset_many_zeros(self):
-        a = np.random.random_integers(0, 2, 100)
-        b = np.random.random_integers(0, 2, 100)
+        a = np.random.randint(0, 3, 100)
+        b = np.random.randint(0, 3, 100)
         pairwise = metrics.pairwise['prod']
 
         values = [pairwise(i, j) for i, j in zip(a, b) if i or j]
@@ -95,16 +95,16 @@ class TestMetrics(object):
                                        sum(values) / (len(values) + 1))
 
     def test_euclidean(self):
-        a = np.random.random_integers(1, 100, 100)
-        b = np.random.random_integers(1, 100, 100)
+        a = np.random.randint(1, 101, 100)
+        b = np.random.randint(1, 101, 100)
 
         np.testing.assert_almost_equal(metrics.euclidean(a, b),
                                        math.sqrt(sum((i - j) ** 2
                                                      for i, j in zip(a, b))))
 
     def test_cosine_similarity(self):
-        a = np.random.random_integers(1, 100, 100)
-        b = np.random.random_integers(1, 100, 100)
+        a = np.random.randint(1, 101, 100)
+        b = np.random.randint(1, 101, 100)
 
         cs = sum([x[0] * x[1] for x in zip(a, b)]) / (math.sqrt(sum(x * x for x in a)) *
                                                       math.sqrt(sum(x * x for x in b)))
